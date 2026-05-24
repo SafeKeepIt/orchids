@@ -10,6 +10,17 @@ metadata:
 
 Use this skill for implementation work in `.NET` repositories, especially when changing `C#` code, tests, or project files.
 
+## Checklist
+
+- [ ] Target framework + language version match the project (latest by default — .NET 10 / C# 14+)
+- [ ] Changes stayed local to the requested feature; no incidental refactors
+- [ ] No new interfaces unless a real second implementation or seam exists
+- [ ] No swallowed exceptions, no speculative guards
+- [ ] No comments added unless absolutely necessary
+- [ ] New types live in new files
+- [ ] Style matches the file being edited
+- [ ] Architectural changes were confirmed by the user before applying
+
 ## Defaults
 
 - Target `.NET 10` and `C# 14` or newer

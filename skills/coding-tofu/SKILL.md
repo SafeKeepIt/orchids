@@ -7,6 +7,16 @@ metadata:
 ---
 # OpenTofu — Clean Module Guidelines
 
+## Checklist
+
+- [ ] Root module optimised for clarity, not reuse
+- [ ] Each child module has one clear responsibility
+- [ ] No single-resource module wrappers without proven reuse
+- [ ] All variables and outputs carry descriptions
+- [ ] No deep module nesting; composition stays flat
+- [ ] No hardcoded environment-specific values inside modules
+- [ ] Module is understandable in ~30 seconds
+
 ## Definitions
 - Root module (project): the entrypoint configuration you run (`tofu apply`)
 - Child module: a reusable module called by the root module

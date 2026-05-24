@@ -132,9 +132,7 @@ pollutes history.
       `TODO.md` and added to `DONE.md`.
 - [ ] An entry must be appended to `DONE.md` for every workflow, using the squash title the user approved at the gate
       and a short summary. Format example follows.
-
-`README.md` is for human users of the project and is NOT part of the workflow's mandatory update list. Touch it only
-when the workflow genuinely changes user-facing behaviour and the user asks for it.
+- [ ] `README.md` reviewed via the `readme-sync` skill — load that skill before considering the workflow complete.
 
 ```yaml
 # Completed work

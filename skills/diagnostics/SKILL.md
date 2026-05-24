@@ -8,6 +8,13 @@ metadata:
 
 # Clipboard handling
 
+## Checklist
+
+- [ ] Useful results copied to the clipboard via the platform-appropriate tool
+- [ ] Same results also printed to stdout
+- [ ] Clipboard contents never assumed to be valid input
+- [ ] Manual input requested only when no automated path exists
+
 ## Purpose
 Minimize user interaction by automating data transfer through the clipboard when appropriate.
 
