@@ -102,6 +102,15 @@ Example:
 
 ---
 
+## Agent boundaries
+
+The agent observes infrastructure state and reports it. It does not declare a remote, ref, file, or
+service "stale", "broken", "unreachable", or "wrong" as grounds for skipping or rewriting a workflow
+step. Those calls are the operator's. If observed state conflicts with the workflow, the agent stops
+and reports what it sees, and asks how to proceed.
+
+---
+
 ## Stop condition
 
 Stop when:

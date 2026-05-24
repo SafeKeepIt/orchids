@@ -61,22 +61,31 @@ workflow start immediately.
 
 As soon as a user indicates wanting to start a workflow:
 
-- Synchronize the skills.
-- Use the description provided by the user or ask the user for a short intent.
-- Create a worktree off the latest `main`, in a sibling directory next to the source repo:
+- Discuss the feature with the operator: scope, intent, constraints, recovery plan. The agent MUST NOT
+  generate a feature-id, create a worktree, or write code before this discussion has happened.
+- From the discussion, generate a concise, kebab-case `<feature-id>` (e.g., `add-login-feature`,
+  `fix-payment-bug`). The agent proposes it; the operator may correct.
+- Create a worktree off the head of local `main`. `git fetch` is best-effort — any error is ignored. If
+  `origin/main` is ahead of local `main`, local `main` is fast-forwarded to `origin/main` first, so the
+  worktree always branches from the new head of local `main`.
 
   ```sh
-  git -C <source-repo> fetch --all
-  git -C <source-repo> worktree add ../<repo>-<feature-id> -b f/<feature-id> origin/main
+  git -C <source-repo> fetch --all || true
+  git -C <source-repo> fetch . origin/main:main 2>/dev/null || true
+  git -C <source-repo> worktree add ../<repo>-<feature-id> -b f/<feature-id> main
   ```
 
-  `<feature-id>` is a concise, human-readable identifier (e.g., `add-login-feature`, `fix-payment-bug`). All
-  subsequent work in this workflow happens inside `../<repo>-<feature-id>`. The worktree pins HEAD to your branch:
-  other agents working in the source repo cannot accidentally move it.
+  The second `fetch` fast-forwards local `main` from `origin/main` when ahead; it is a no-op when local
+  `main` is current or `origin/main` was not fetched. Errors from either fetch are ignored. All
+  subsequent work in this workflow happens inside `../<repo>-<feature-id>`. The worktree pins HEAD to
+  your branch: other agents working in the source repo cannot accidentally move it.
 
-- Create an anchor commit describing the intent of the workflow, with a `🎉` gitmoji and a `Base:` trailer containing
-  the SHA of the commit the branch was created from. This commit is the anchor for the branch and the starting point
-  for all future work in this workflow.
+- Synchronize the skills using `dotai sync`. Any error from the sync is ignored; the workflow proceeds
+  regardless.
+
+- Create an anchor commit describing the intent of the workflow, with a `🎉` gitmoji and a `Base:`
+  trailer containing the SHA of the commit the branch was created from. This commit is the anchor for
+  the branch and the starting point for all future work in this workflow.
 
 # Workflow end
 
