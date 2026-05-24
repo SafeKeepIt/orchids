@@ -9,8 +9,8 @@ metadata:
 
 # Intent (Workflow)
 
-Any task, plan, workstream, or otherwise set of tasks a coding agent executes sequentially for user is called a workflow
-and must folow those instructions.
+Any task, plan, workstream, or other set of tasks a coding agent executes sequentially for the user is called a workflow
+and must follow those instructions.
 
 ## Checklist
 
@@ -18,7 +18,7 @@ The whole workflow must be followed, you must complete all these steps.
 
 Workflow Start:
 
-- [ ] Working tree cleaned
+- [ ] Working tree resolved with user
 - [ ] Skills synchronized
 - [ ] Git commit format understood
 - [ ] Feature branch and initial commit created
@@ -26,31 +26,33 @@ Workflow Start:
 Workflow End:
 
 - [ ] Completed testing
+- [ ] User approval received
 - [ ] Updated required documentation
+- [ ] Tree cleaned
 - [ ] Created marker tag
 - [ ] Merged squash
-- [ ] Verified Integrity
+- [ ] Verified integrity
 - [ ] Feature branch deleted
 
 ## Rules
 
 - Any work MUST follow these rules unless user override
-- work MUST NOT start writing code until all conditions in workflow start has been executed
+- work MUST NOT start writing code until all conditions in workflow start have been executed
 
 # Workflow start
 
 A workflow is called differently in different agents: plans, tasks, workstreams, or others. They are all synonyms.
 
-As soon as the user indicates the start of a new workflow, the woorkflow has started and you ust follow the rues of the
+As soon as the user indicates the start of a new workflow, the workflow has started and you must follow the rules of the
 workflow start immediately.
 
-- work never starts on a dirty tree. Ask the user for confirmation to stash dirty files, do a WIP git commit or turn it
-  into a workflow that is now complete.
-- all work MUST be done on a feature branch `f/<feature-id>`
-- a feature branch MUST ONLY branch from the `main` branch, never from a feature brnch.
-- Merge commits during work in a workflow are forbidden, unless overruled by the user.
-- All work MUST be done on feature branches unless specifically allowed by the user with branch-name being (
-  `f/<feature-id>`)
+- work never starts on a dirty tree. Ask the user for confirmation to stash dirty files, do a WIP git commit, or treat
+  the current state as a completed workflow and end it before starting the new one.
+- all work MUST be done on a feature branch named `f/<feature-id>`.
+- a feature branch MUST ONLY branch from the `main` branch, never from another feature branch.
+- Merge commits during a workflow are forbidden, unless overruled by the user.
+- Feature branches are required. The user MAY explicitly override for a given workflow to allow direct commits on
+  `main` (or another non-`f/` branch). Absent that override, the feature-branch rule is absolute.
 
 ## Workflow Preparation
 
@@ -67,27 +69,72 @@ As soon as a user indicates wanting to start a workflow:
 
 # Workflow end
 
-A workflow can only end if:
- - The agreed work has been implemented
- - Changes have been tested with a methodology in agreement with the user
- - A summary of what was not told by the model about the implementation is provided
+A workflow can only end once every item on the Workflow End checklist is satisfied. The Testing and User approval
+gates below are non-negotiable; the model may not self-approve either.
 
 Ending the workflow must follow the following steps in this order.
 
+## Testing
+
+Testing is the agreed method, between user and model, of ensuring a feature is complete and behaves as the workflow
+described. The model and user must agree on a methodology appropriate to the change, and the model must have run it
+and reported the results before the workflow can end.
+
+Examples — pick what fits the change:
+
+- Unit tests for new or modified logic
+- Integration tests for cross-component behaviour or external boundaries
+- Manual testing — a run-through to verify the workflow's functionality, which need not be committed (a transcript,
+  screenshot, or described outcome is enough)
+
+The model is encouraged to propose the most appropriate test for the feature, rather than wait to be asked. Once the
+user agrees on the methodology, the model may carry it out autonomously instead of re-asking at each step.
+
 ## ⛔ User approval gate
 
-STOP. Before doing anything else, you MUST ask the user for explicit approval to merge squash.
-You must provide a summary of code changes, learnings, and problems encountered and wait for the word `MAKE IT SO`.
-.
-Do NOT proceed with any of the steps below until user confirmation.
+STOP. The workflow MUST NOT proceed past this point without explicit user approval.
+
+Provide a single concise summary, then wait for the user to reply with `MAKE IT SO`. Do NOT begin documentation
+updates, tag creation, merge, or branch cleanup until the user has typed that exact phrase. "Looks good", "thanks",
+or a thumbs-up is NOT approval.
+
+The summary MUST:
+
+- Fit on roughly one screen — bullet points, not prose. Don't re-narrate the diff.
+- Cover every change against the agreed workflow:
+  - Features implemented as agreed
+  - Features modified, descoped, or skipped — with the reason
+  - Shortcuts taken: mocks, hardcoded values, suppressed errors, disabled checks, skipped validation, TODOs left in
+    code
+  - Decisions made without consulting the user
+  - Anything in the diff that does not match the workflow's stated intent
+- Disclose problems encountered: failed approaches, dead ends, partial fixes
+- State honestly what was NOT tested or what testing was skipped
+- Propose the squash title for the merge step, so the user can approve it now
+
+The model MUST NOT:
+
+- Claim a feature is complete when it is partially implemented
+- Hide shortcuts behind euphemisms ("simplified", "streamlined", "for now", "minimal version")
+- Omit changes that fell outside the agreed workflow
+- Wait for the user to ask about a known issue — surface it proactively
 
 
 ## Documentation Update
 
-- [ ] Memory and documentation files must be reviewed to reflect current state of the project, discarding out-of-date infomration.
-- [ ] `README.md` is for users of the project, to present what it is, what it does, and an introduction of how it works. It must be updated with the latest information about the project when needed.
-- [ ] Agreed work, followup work and future work must be updated in the `TODO.md` file, and the completed ones removed and replaced by the entry in `DONE.md`
-- [ ] Completed work must be appended in `DONE.md` like the following example. The merge commit must be appended everytime, and the short summary updated each time.
+Update the project's agent-facing state on the feature branch, in a commit that the squash will carry to `main`. Do
+NOT create a separate commit on `main` after the merge — the squash already lands these files, and an extra commit
+pollutes history.
+
+- [ ] Memory and documentation files must be reviewed to reflect the current state of the project, discarding
+      out-of-date information.
+- [ ] Agreed work, follow-up work, and future work must be updated in `TODO.md`. Completed items are removed from
+      `TODO.md` and added to `DONE.md`.
+- [ ] An entry must be appended to `DONE.md` for every workflow, using the squash title the user approved at the gate
+      and a short summary. Format example follows.
+
+`README.md` is for human users of the project and is NOT part of the workflow's mandatory update list. Touch it only
+when the workflow genuinely changes user-facing behaviour and the user asks for it.
 
 ```yaml
 # Completed work
@@ -118,8 +165,8 @@ Task files always get committed:
 - `HANDOVER.md` — cross-session context for the next agent
 - `TODO.md` — project-level work tracking yet to do. Move completed tasks to `DONE.md`
 - `DONE.md` — project-level work done.
-- `AGENTS.shared.md` and all symlinks coming from .the `.ai` directory — they are shared rules.
-- Unnecessary memory files under `.claude/projects/`
+- `AGENTS.shared.md` and all symlinks coming from the `.ai` directory — they are shared rules.
+- Memory files under `.claude/projects/` that are still relevant. Delete obsolete ones before committing.
 
 ## Marker tag
 
@@ -133,7 +180,7 @@ Before merging, record the commit count of the feature branch:
 N=$(git rev-list main..f/<feature-id> --count)
 ```
 
-You must merge squash the feature branch onto the `main` branch, folowing this template.
+You must merge squash the feature branch onto the `main` branch, following this template.
 
 ```
 <gitmoji> <subject>
@@ -143,17 +190,15 @@ You must merge squash the feature branch onto the `main` branch, folowing this t
 <body>
 
 Branch: <branch>
-Head: <brach-head>
+Head: <branch-head>
 Co-authored-by: <model> <junie@serialseb.com>
 ```
 
-- `<sha>` - Short SHA of feature branch HEAD (the 🏁 commit)
-- `<commits>` - Number of commits squashed
-- `<lead-time>` - Human-readable lead time (e.g., "2d 8h", "1m 2d") from the first commit of the branch (NOT from the
-  commit from which you branched, normally main)
-- `<branch>` - The feature branch you are merging
-- `<lead-time>` Human-readable lead time (e.g., "2d 8h", "1m 2d"), the time it took between the initial feature branch
-  commit and the merge commit.
+- `<branch-head>` — Short SHA of the feature branch HEAD (the same commit that `archive/<feature-id>` tags).
+- `<commits>` — Number of commits squashed.
+- `<lead-time>` — Human-readable lead time (e.g., "2d 8h", "1m 2d") between the first commit of the feature branch and
+  the merge commit. NOT measured from the commit you branched off of on `main`.
+- `<branch>` — The feature branch you are merging.
 - For anything else follow the rules in the git-commit skill.
 
 After creating the squash commit, write the commit count as a git note on the new HEAD:
