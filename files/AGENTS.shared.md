@@ -59,28 +59,135 @@ Must include:
 
 ---
 
-### TODO.md
+### TODO files
 
-The project's pipeline for upcoming work.
+Per-component task tracking lives at `docs/TODO.<component>.md`, one file
+per top-level component. A cross-cutting `docs/TODO.md` carries items that
+don't fit a single component (repo-wide concerns: tracing, doc layout,
+etc.). The fixed component list lives in the project's `AGENTS.md`; agents
+do not invent new components.
 
-- New items surfaced in any conversation — follow-ups, parked thoughts, future ideas, side-quests —
-  are added here when they surface, not held in memory and not deferred.
-- Pull from `TODO.md` before pulling from model memory or chat-only context.
-- Completed items move to `DONE.md`. They are never deleted.
-- Workflow-specific operational steps live in the `workflow` skill for projects using it.
+Pull from these files before pulling from model memory or chat-only
+context. New items surfaced in any conversation — follow-ups, parked
+thoughts, future ideas, side-quests — are added here when they surface,
+not held in memory and not deferred.
+
+Each task is a `## <Title> {#kebab-case-id}` block. Metadata is a
+nested-bullet block immediately under the heading. Free-form markdown
+follows.
+
+```markdown
+## <Task title> {#<task-id>}
+
+- id: <kebab-case slug, unique within file>
+- type: bug | feature | refactor | housekeeping | completion
+- status: todo | doing | blocked | paused | functional | done | cancelled
+- created: <YYYY-MM-DD>
+- created_by: <operator name OR model-version slug (e.g. opus-4.7) OR `unknown`>
+- created_during: <workstream feature-id, e.g. f/foo>
+- subcomponent: <free-form per-component label>
+- parent: <markdown cross-reference>
+- subtasks:
+  - <markdown cross-reference>
+- blocked_by:
+  - <markdown cross-reference>
+- completed: <YYYY-MM-DD>
+- completed_during: <workstream feature-id>
+
+<free-form markdown body>
+```
+
+**Omit fields with no value.** Empty arrays, null values, and unset
+optional fields don't appear in the block.
+
+**Required fields** (always present): `id`, `type`, `status`, `created`,
+`created_by`.
+
+**Conditional fields**:
+- `completed` + `completed_during` — required iff `status ∈ {done, cancelled}`.
+- `created_during` — omit if surfaced outside a workstream.
+- `subcomponent`, `parent`, `subtasks`, `blocked_by` — omit if not applicable.
+
+**Status semantics:**
+- `todo` — not started.
+- `doing` — active workstream owns it.
+- `blocked` — gated; `blocked_by` lists what's in the way.
+- `paused` — deliberately deferred without an active blocker.
+- `functional` — works in current state, unfinished against full intent
+  (e.g. waiting on other components, needs `completion`-type follow-up).
+- `done` — no longer needs revisiting to meet its original spec.
+- `cancelled` — decided against; rationale lives in the prose body.
+
+**Type semantics:**
+- `bug` — broken behavior to fix.
+- `feature` — new capability. Can have subtasks (workflows).
+- `refactor` — restructure without behavior change.
+- `housekeeping` — cleanup, removal, doc tidy.
+- `completion` — work that takes a `functional` feature to `done`.
+
+**Cancellation rule** — when a task moves to `cancelled`:
+1. Set `status: cancelled` + `completed` + `completed_during`.
+2. Wrap the heading text in `~~`: `## ~~Task Title~~ {#task-id}`.
+3. Append a `### Why cancelled` subsection in the prose body.
+4. Section stays in the file as searchable history; never deleted.
+
+**Feature → workflow hierarchy** — a `feature` task may declare subtasks
+(workflows). The feature's prose body MUST list its subtasks as markdown
+checkboxes: `- [x]` when the subtask's status is `done` or `functional`,
+`- [ ]` otherwise. Checkbox state mirrors the metadata; both update
+together on every status change. A feature can only reach `done` /
+`functional` when all its subtasks have reached `done` / `functional`.
+
+**Cross-references** use markdown links with relative path + anchor:
+`[task-id](TODO.<component>.md#task-id)`.
 
 ---
 
-### DONE.md
+### CHANGELOG.md
 
-The source of truth for completed work — cheaper to read than reconstructing from git history.
+Repo-wide, dated, append-only record of feature-level completion
+milestones. Lives at the repository root.
 
-- Append-only.
-- Populated only by moving items out of `TODO.md` on completion.
-- Grouped by date. Each date has a one-line summary of all changes for that day, then a list of the
-  individual changes.
-- Workflow-specific entry format (e.g. squash titles as the change identifier) lives in the
-  `workflow` skill for projects using it.
+- One entry per feature that reached `done` or `functional`.
+- Grouped by date.
+- Each entry references the feature task (via cross-reference) and the
+  workstream that closed it.
+- Workstream-only changes that didn't close a clear feature (refactors,
+  infra fixes) get a one-line entry referencing the squash.
+
+**Operator gate** — at workflow end, when one or more features
+transitioned to `done`/`functional` during the workstream, the agent MUST
+ask the operator explicitly per feature whether to promote to
+`CHANGELOG.md`. Not automatic. Phrasing pattern: "Feature `<id>` reached
+`functional` this workstream — promote to CHANGELOG.md?". Operator can
+defer individual features.
+
+---
+
+### Decisions files
+
+Architectural and spec decisions live in `docs/decisions.md` (cross-cutting)
+and `<component>/docs/decisions.md` (per-component), appended in
+**chronological order** (oldest at top, newest at bottom).
+
+**Reading order** — agents MUST read decisions **old to new** at session
+start. Reading top-to-bottom in chronological order is what makes the
+supersession rules below work.
+
+**Supersession rule** — when a new decision contradicts an older one:
+1. Find the superseded decision in its file.
+2. Wrap its heading in `~~`: `## ~~Decision-NNN: <Title>~~`.
+3. Append a `> Superseded by Decision-MMM ([link](#decision-mmm-...)).`
+   line directly under the struck heading.
+4. Leave the body intact (history is preserved; supersession is a marker).
+5. Notify the operator in the chat turn introducing the superseding
+   decision: "Decision-MMM supersedes Decision-NNN ('<old title>')."
+
+**Idiosyncrasy detection** — when reading decisions old-to-new, if an
+agent finds two decisions that conflict without a documented supersession
+(e.g. Decision-X says "always do A", Decision-Y says "never do A",
+neither references the other), warn the operator explicitly and ask
+which is current before proceeding with work affected by either.
 
 ---
 
