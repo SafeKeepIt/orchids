@@ -191,23 +191,6 @@ which is current before proceeding with work affected by either.
 
 ---
 
-## Repository structure
-
-- Group files by technology
-- Source code MUST be in `src/`
-- Tests MUST be in `tests/` when applicable
-
-Example:
-
-/
-  python/
-    src/
-    tests/
-  opentofu/
-    src/
-
----
-
 ## Software principles
 
 - SOLID
