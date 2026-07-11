@@ -1,6 +1,6 @@
 ---
 name: skill-sync
-description: "Keep this repo's skills, agents, and shared rule files aligned with the canonical template repo (src/serialseb/orchids) via `orchids-sync`. Run `status` at workflow start and end; report drift to the operator; `apply`/`pull` only on their go. Replaces the retired `dotai sync`."
+description: "Keep this repo's skills, agents, and shared rule files aligned with the canonical source repo (src/serialseb/orchids) via the `orchids` CLI. Run `orchids sync` at workflow start and end. Delivery per skill is tuned in .ai.toml (exclude|copy|link|local). Replaces the retired `dotai sync`."
 metadata:
   tags: [ sync, skills, drift, canonical, orchids, template ]
   share: github
@@ -12,50 +12,50 @@ metadata:
 
 Skills, role agents, hooks, board tools, and the shared rule files (`AGENTS.shared.md`,
 `AGENTS.files.md`) are **cross-project and agent-tool-agnostic**, shared from ONE
-canonical source: the template repo at `~/src/serialseb/orchids`. Each coding agent gets
-only a thin adapter (Claude: `.claude/skills/` copies + a `CLAUDE.md` that injects the
-AGENTS files; other tools' skill directories are added the same way). Files are **plain
-copies** (no symlinks, no hidden clone directory — the predecessor tool `dotai` used
-gitignored symlink targets and its loss orphaned every repo). `orchids-sync` compares
-hashes and copies in either direction; this skill is the contract for when to run it and
-what to do with drift.
+canonical source repo at `~/src/serialseb/orchids`, checked out per-project at
+`.ai/repositories/serialseb/orchids/` (only `.ai/repositories/` is gitignored) and laid
+into the project as **absolute symlinks** — absolute so git worktrees resolve them. You
+CAN write through a symlink: Edit/Write follow them transparently; edit the skill at the
+path you loaded it from, never chase the target into `.ai/repositories/`. `orchids sync`
+is git doing the magic: local edits are committed in the checkout, rebased onto
+canonical, pushed back — every project converges.
 
 ## Checklist
 
-- [ ] `orchids-sync status` run at workflow start
-- [ ] `orchids-sync status` run at workflow end (before the close)
-- [ ] Any drift reported to the operator — never silently overwritten in either direction
-- [ ] Canonical-owned files changed in this repo: `pull` back to orchids on the operator's go
-- [ ] Synced file changes committed in this repo (they are ordinary tracked files)
+- [ ] `orchids sync` run at workflow start
+- [ ] `orchids sync` run at workflow end (before the close)
+- [ ] Rebase conflicts resolved with the operator — never silently, in either direction
+- [ ] UPDATE/DRIFT notices for `local`/`copy` skills surfaced to the operator
+- [ ] Symlink or `.ai.toml` changes committed in this repo like any tracked file
 
 ## Commands
 
 ```sh
-orchids-sync status            # drift report for the current repo (or --all)
-orchids-sync apply             # copy canonical → repo (missing files; drifted need --force)
-orchids-sync pull <path>       # copy this repo's version of a file → canonical
-orchids-sync init <dir> <profiles…>   # register a new repo and apply its profiles
+orchids init             # one-time: clone, migrate existing files, lay symlinks
+orchids sync             # commit local skill edits → rebase on canonical → push back
+orchids sync --status    # readable drift/ahead-behind report
 ```
 
-Errors from `status` are ignored; the workflow proceeds regardless.
+Errors from `sync` are ignored for the workflow's purposes; it proceeds regardless.
 
-## Direction of truth
+## Delivery config — .ai.toml
 
-- **orchids is canonical.** A repo edits a shared skill only as a deliberate act, and the
-  change is `pull`ed back to orchids (then `apply`ed outward) so the fleet never forks.
-- **Project-specific overrides do NOT edit the shared file** — they go in the repo's
-  `AGENTS.md` (e.g. signmc's "no `Co-authored-by` trailer" override of `git-commit`).
-- `AGENTS.md`, `CLAUDE.md`, and everything outside the manifest are never touched by
-  `apply` once they exist.
+Per-repo, at the repo root, written by the CLI (never hand-edited; agents drive it via
+this skill). **Missing or empty = every skill installed as a link.** Otherwise `[dev]` /
+`[infra]` / `[org]` / `["*"]` sections with `skillname = "exclude"|"copy"|"link"|"local"`:
+`exclude` = not installed · `copy` = real file, drift reported, never overwritten ·
+`link` = symlink (default) · `local` = the repo's own version, NEVER sent back to the
+source, canonical updates announced at sync. A skill's role is fixed in canonical
+`manifest.conf`; `.ai.toml` only tunes delivery.
 
 ## Creating a new skill
 
-Author it in **orchids** (`skills/<name>/SKILL.md`), following the `doing-skills` skill.
-Add it to `manifest.conf` with its profile(s), then `orchids-sync apply --all` on the
-operator's go. To draft privately, add it to no profile — it ships nowhere until listed.
+Author it in **orchids** (`skills/<name>/SKILL.md`), following the `doing-skills` skill,
+add `<name> <role>` to `manifest.conf`, then `orchids sync`. Repo-born skills are adopted
+into canonical automatically by `orchids init` (unless marked `local`).
 
 ## Mid-workflow drift
 
-If `status` mid-workflow shows canonical moved under you, reload the changed skill, then
-ask the operator whether to apply the change only from here on or to retrofit work
+If a sync mid-workflow pulls a changed version of a skill you already loaded, reload it,
+then ask the operator whether to apply the change only from here on or to retrofit work
 already done. Do not silently retrofit, do not silently ignore.

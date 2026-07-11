@@ -21,8 +21,8 @@ directory, and ship them with `orchids-sync` (see the `skill-sync` skill).
 - [ ] Checklist items are observable, tickable steps — not restated prose
 - [ ] No duplication of `AGENTS.shared.md` / `AGENTS.files.md` — reference them (`§TODO`, `§Decisions`)
 - [ ] Nothing tool-specific (no Claude-only paths or commands) unless the skill is about that tool
-- [ ] Added to `manifest.conf` under the right profile(s)
-- [ ] `orchids-sync apply` run on the operator's go
+- [ ] Added to `manifest.conf` with its role (`dev` · `infra` · `org` · `all`)
+- [ ] `orchids sync` run on the operator's go
 
 ## Frontmatter contract
 
@@ -35,6 +35,9 @@ metadata:
   share: github                      # present on every fleet-shared skill
 ---
 ```
+
+The skill's role (`dev` · `infra` · `org` · `all`) lives in canonical `manifest.conf`,
+fixed by us; repos tune delivery in their `.ai.toml` (see `skill-sync`).
 
 The `description` is what the model sees when deciding whether to load the skill — write
 it as trigger-first ("Use whenever…", "MUST be read before…"), because that is the whole
