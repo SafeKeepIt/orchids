@@ -1,0 +1,166 @@
+# Shared agent instructions
+
+Shared instructions for all agents and all projects. Loaded every session — kept
+minimal. Full file-format definitions live in `AGENTS.files.md`, loaded on demand.
+
+This file MUST NOT be modified, deleted, moved, or renamed unless explicitly requested
+by the user.
+
+---
+
+## Core principles
+
+- Any rule can be overruled by the user
+- The user's architecture, requirements, and designs are mandatory
+- The agent MAY propose changes but MUST NOT apply them without user approval.
+  The following always require surfacing the choice and waiting before acting:
+  - **Scope expansion** — anything outside the agreed workflow scope.
+  - **Destructive or hard-to-reverse operations** — file deletes, overwrites of
+    uncommitted work, force push, `reset --hard`. Git-specific destructive operations
+    are governed by the `git-commit` skill; branch deletion is handled by the
+    workflow close (the branch ref is deleted as the final close step; the
+    `archive/` tag preserves its history).
+  - **Technology, library, tool, or approach choice** when more than one option is
+    viable. Per-technology skills carry the stack-specific defaults; surface the
+    choice when no skill settles it.
+  - **Spec decisions not yet set** — defaults, parameters, paths, naming.
+  - **Actions visible outside the conversation or affecting shared state** — deploys,
+    PR/issue actions, messages to others, pushes to shared branches.
+- When the agent has multiple questions to settle, list the question titles first as
+  a numbered preview, then ask each question independently, waiting for the operator's
+  answer before moving to the next.
+
+---
+
+## File registry
+
+Every artifact below has a CANONICAL format in `AGENTS.files.md`. Before writing or
+restructuring one, read its section there — do NOT invent a format from memory.
+
+| File | Lives | When touched | Read at start? | Canonical format |
+|------|-------|--------------|----------------|------------------|
+| AGENTS.shared.md | repo root | — | yes (`read-agents`) | this file; immutable, shared |
+| AGENTS.md | repo root | — | yes (`read-agents`) | project-specific rules |
+| docs/TODO.md *(slim index)* · docs/TODO.md.d/\<id\>.md *(sidecars)* | `docs/` | start: pick work · during: intake · close: update | yes | `AGENTS.files.md` §TODO |
+| docs/decisions.md | `docs/` | grep by `#keyword` when work touches a topic · append on any decision | no — grep, never read whole | `AGENTS.files.md` §Decisions |
+| ARCHITECTURE.md | repo root | close, only if a trigger below fired | no | `AGENTS.files.md` §Architecture |
+| CHANGELOG.md | repo root | close: append one entry | no (append-only) | `AGENTS.files.md` §Changelog |
+| README.md | repo root | close, only if user-facing/tooling change | no | `readme-sync` skill |
+| HANDOVER.md | repo root | repos WITHOUT the role-agent layer only — chatter, written on finish by the child, ingested+deleted by the parent · role-agent repos (Decision-075) write results to the task sidecar instead | no | `handover` skill |
+
+The functionality/component taxonomy lives in the project's `ARCHITECTURE.md`; agents do
+not invent new values. Pull task and decision content from these files before model memory
+or chat-only context.
+
+---
+
+## Close gate
+
+Authoritative and always applies — even when no workflow skill was loaded. Before any
+workflow closes (squash-merge, abandonment, or being reported complete to the
+operator), update each file whose condition is met:
+
+- [ ] **TODO** — done / new / follow-up tasks recorded → `AGENTS.files.md` §TODO
+- [ ] **decisions** — append any design/spec decision made → `AGENTS.files.md` §Decisions
+- [ ] **CHANGELOG** — append entry, operator-gated → `AGENTS.files.md` §Changelog
+- [ ] **ARCHITECTURE** — only if a trigger below fired → `AGENTS.files.md` §Architecture
+- [ ] **README** — only if a user-facing or tooling change → `readme-sync` skill
+- [ ] **HANDOVER** — written as the closing act → `handover` skill
+
+A workflow is never closed before its Testing gate (below) has been met.
+
+---
+
+## ARCHITECTURE update triggers
+
+A branch MUST update `ARCHITECTURE.md` when it changes any of:
+
+- an application's or module's responsibility or boundary
+- a component added, removed, or repurposed
+- how modules or components connect (data flow, wiring)
+- the architectural style or a cross-cutting pattern
+
+A change touching none of the above does NOT require an `ARCHITECTURE.md` edit.
+
+---
+
+## Handover & delegation
+
+These hold even when no skill is loaded:
+
+- **Role-agent repos (`.claude/agents/`, Decision-075) do not use `HANDOVER.md`:** a
+  finishing role writes its result into the task's sidecar (`AGENTS.files.md` §Sidecar).
+  The rules below apply to repos still on the handover protocol.
+- **Durable facts go to their homes, not the handover.** Decisions → `docs/decisions.md`,
+  outcomes → `CHANGELOG.md`, remaining/follow-up work → `TODO`. `HANDOVER.md` carries
+  **chatter only** (short-lived gotchas with no durable home) and is ingested-then-
+  deleted by the spawning parent. Full protocol in the `handover` skill.
+- **Link at the moment of deferral.** When work is split, deferred, or delegated, write
+  the relationship into the `TODO` immediately — `parent`/`subtasks`/`blocked_by` + a
+  one-line "moved from X to Y because Z", or "delegated to \<child\>". The handover is
+  deleted; this link is what keeps any-level orchestrator from running blind.
+- **TRUST YOUR BRANCH.** A session that receives a handover or a child's result acts on
+  it and does not re-derive or re-confirm by re-reading everything. Trust is earned by
+  the writer leaving a complete, confidence-marked handover.
+
+---
+
+## Software principles
+
+- SOLID
+- KISS
+- Do NOT write speculative code or scope beyond the current feature
+- Prefer self-descriptive code over comments
+
+---
+
+## Editing rules
+
+- Keep changes local unless broader changes are required
+- Do NOT change architecture without user approval
+- Reuse existing patterns before introducing new ones
+
+---
+
+## Tone
+
+- **Helpful, not ordering around** — guide and support; do not issue commands.
+- **Concise** — no piling on context; one focused answer per response.
+- **Direct about what was done vs skipped** — no euphemisms ("simplified",
+  "streamlined", "for now").
+- **No trailing summaries unless asked** — do not restate the diff or relist approved
+  bullets.
+
+---
+
+## Agent boundaries
+
+The agent observes infrastructure state and reports it. It does not declare a remote,
+ref, file, or service "stale", "broken", "unreachable", or "wrong" as grounds for
+skipping or rewriting a workflow step. Those calls are the operator's. If observed
+state conflicts with the workflow, the agent stops, reports what it sees, and asks how
+to proceed.
+
+---
+
+## Stop condition
+
+Stop when the requested change is complete and the result is sufficiently verified for
+the task.
+
+---
+
+## Testing gate (MUST)
+
+A feature is NEVER closed before it has been tested. "Closed" means squash-merged,
+marked `done`/`functional`, promoted to `CHANGELOG.md`, or reported to the operator as
+complete. Before any of those, the agent MUST have:
+
+- agreed a test method with the operator (unit, manual, or another method the operator
+  approves), AND
+- actually run it and reported the real results.
+
+This is non-negotiable and the agent may not self-approve it. "It should work", "the
+code looks correct", a clean `bash -n`/lint, or a successful build are NOT tests — they
+do not satisfy this gate. If testing was skipped or could not be run, the agent MUST
+say so plainly and leave the feature open, never close it silently.
