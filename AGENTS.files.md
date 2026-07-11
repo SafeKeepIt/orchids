@@ -115,8 +115,13 @@ our `bug` to fix, even when the symptom surfaces outside our code.
 A **sidecar** is the durable contract and working record for ONE task, at
 `docs/TODO.md.d/<task-id>.md` (one file per groomed/active task; `<task-id>` matches the
 TODO `{#id}`). It is the single hand-off medium between roles (orchestrator → architect →
-builder → housekeeper) — there is no transient handover file (Decision-075). The TODO
+builder → housekeeper); transient chatter travels separately via the uncommittable
+`.git/` handover (`handover` skill), never here. The TODO
 entry carries only the projected stage; the sidecar is the source of truth.
+
+**Sidecars are committed — keep them sanitized:** technical state only; no
+conversation quotes, no personal information, no secrets (those belong only in the
+uncommittable `.git/` channels).
 
 **Metadata header** — a bullet block at the very top of the sidecar (before `## Blockers`)
 carries the task's provenance, which the slim board badge deliberately omits:

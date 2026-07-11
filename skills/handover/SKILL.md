@@ -9,10 +9,6 @@ metadata:
 
 # Intent (handover)
 
-> **Scope:** repos WITHOUT the role-agent layer. In role-agent repos
-> (`.claude/agents/`, Decision-075) there is no `HANDOVER.md` — a finishing role
-> writes its result into the task's sidecar (`AGENTS.files.md` §Sidecar).
-
 A handover bridges a child session and the parent that spawned it, so the parent
 absorbs the child's work by reading it — never by re-deriving it. Re-investigating what
 a branch already did is the token waste this prevents.
@@ -52,10 +48,16 @@ own — the top parent sees deltas plus one layer of chatter, never the whole su
 
 ## File
 
-- Path: `HANDOVER.md` at the repository root. One at a time — children run
-  sequentially, so the parent ingests and deletes one child's handover before the next
-  is spawned.
-- Transient: **gitignored, NEVER committed.**
+- Path: `$(git rev-parse --git-common-dir)/HANDOVER.md` — INSIDE `.git/`, so it is
+  **physically uncommittable**: no `git add -A`, no forgotten gitignore, no accident
+  can ever land it in history. The common dir means a worktree child and the
+  main-checkout parent see the same file.
+- This is the ONLY channel where conversational context, personal information, or
+  anything sensitive may be written. Such content NEVER goes into committed files
+  (sidecars, TODO, decisions, changelog, commit messages). If such content is ever
+  found committed — including in past history — it is scrubbed the moment it is
+  detected, history rewrite included (`AGENTS.shared.md` → Sensitive content rule).
+- Self-destructing: the parent deletes it the MOMENT it has read it.
 
 ## Write it (during the close housework — never a manual command)
 
@@ -89,14 +91,14 @@ The parent MUST:
      until the hardware swap") → it is no longer chatter; promote it to a one-line
      active constraint on the relevant `TODO` item, carrying its removal trigger.
      Removed later by whoever satisfies that trigger.
-3. **Delete** `HANDOVER.md`. Always. Nothing is lost: durable facts were already in
+3. **Delete** it — the moment it is read, like the old Mission Impossible tapes. Always. Nothing is lost: durable facts were already in
    their homes, and anything that had to outlive one hop was just promoted with its own
    expiry.
 
 ## Rules
 
 - Chatter only — durable facts go to decisions/changelog/todo, never the handover.
-- `HANDOVER.md` is gitignored — NEVER commit it.
+- It lives under `.git/` — uncommittable by construction; never copy it into the tree.
 - Ingest-then-delete — one at a time, never left stale.
 - TRUST YOUR BRANCH — the receiver acts on the handover and does not re-derive; the
   writer earns that trust with a complete, confidence-marked handover.

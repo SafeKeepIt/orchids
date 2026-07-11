@@ -55,7 +55,7 @@ Task files always get committed:
 - `AGENTS.shared.md` and all symlinks coming from the `.ai` directory — they are shared rules.
 - Memory files under `.claude/projects/` that are still relevant. Delete obsolete ones before committing.
 
-(`HANDOVER.md` is the exception — it is gitignored and NEVER committed; see Handover write below.)
+(`HANDOVER.md` is not a tree concern — it lives inside `.git/`, uncommittable; see Handover write below.)
 
 ## Marker tag
 
@@ -146,17 +146,18 @@ squash, the `archive/` tag, and the branch history under it are intact and autho
 re-squash, or skip the remaining close steps. Report the failure to the operator verbatim and let them
 decide when to retry; never silently swallow it.
 
-## Result write
+## Handover write
 
-Record the outcome as the closing act, before removing the worktree — merged SHA
-(or cancelled), what was tested, and any follow-ups — so the orchestrator absorbs
-the work without re-deriving it. This is a **mandatory** close step.
+Record the outcome as the closing act, before removing the worktree — split by
+sensitivity (this is a **mandatory** close step):
 
-- **Repos with the role-agent layer (`.claude/agents/`, Decision-075):** write the
-  result into the task's sidecar (`docs/TODO.md.d/<id>.md` → `## Findings` + a
-  `Result:` line, per `AGENTS.files.md` §Sidecar). There is no `HANDOVER.md`.
-- **Repos without it:** write/refresh the transient `HANDOVER.md` per the
-  `handover` skill (chatter only; durable facts already in their homes).
+- **Durable, sanitized task state** → the task's sidecar (`docs/TODO.md.d/<id>.md` →
+  `## Findings` + a `Result:` line, per `AGENTS.files.md` §Sidecar): outcome, merged
+  SHA (or cancelled), what was tested and the real result. Committed — so no
+  conversation quotes, personal data, or secrets.
+- **Chatter and anything sensitive** → `$(git rev-parse --git-common-dir)/HANDOVER.md`
+  per the `handover` skill — uncommittable, ingested then deleted by the parent the
+  moment it is seen.
 
 ## Close worktree and delete the branch
 

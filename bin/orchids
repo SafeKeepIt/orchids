@@ -126,8 +126,12 @@ cmd_init() {
   cfg_write "$root" "$canonical" "$profiles"
   grep -qx '\.ai/repositories/' "$root/.gitignore" 2>/dev/null || printf '.ai/repositories/\n' >> "$root/.gitignore"
 
-  # 3. migrate existing managed files: identical -> link · local-only -> adopt · diverged -> stage for AI merge
-  local adopted=0 diverged=0 skill csv src dst
+  # 3. migrate existing managed files: identical -> link · local-only -> adopt · diverged -> AI merge
+  # Local variants survive ONLY via this repo's git history — refuse to destroy uncommitted ones.
+  if [ -n "$(git -C "$root" status --porcelain -- .claude/skills AGENTS.shared.md AGENTS.files.md 2>/dev/null)" ]; then
+    die "uncommitted changes under managed paths — commit them first (migration preserves local variants via git history)"
+  fi
+  local adopted=0 diverged=0 skill csv src dst DIVERGED_LIST="" 
   # 3a. skills present locally as real dirs
   if [ -d "$root/.claude/skills" ]; then
     for dst in "$root"/.claude/skills/*/; do
@@ -143,18 +147,17 @@ cmd_init() {
         else
           say "  SKIP $skill (no SKILL.md)"; continue
         fi
-      elif ! cmp -s "$dst/SKILL.md" "$src/SKILL.md"; then     # diverged -> preserve local, agent merges
-        cp "$dst/SKILL.md" "$src/SKILL.local.md"
-        diverged=$((diverged+1))
+      elif ! cmp -s "$dst/SKILL.md" "$src/SKILL.md"; then     # diverged -> agent merges directly
+        diverged=$((diverged+1)); DIVERGED_LIST="$DIVERGED_LIST .claude/skills/$skill/SKILL.md"
       fi
-      rm -rf "${dst%/}"                                        # content is byte-matched, adopted, or staged as .local.md
+      rm -rf "${dst%/}"                                        # content is byte-matched, adopted, or in git history for the merge
     done
   fi
   # 3b. root rule files: identical -> replaced by link in lay_links; diverged -> stage
   for f in AGENTS.shared.md AGENTS.files.md; do
     if [ -f "$root/$f" ] && [ ! -L "$root/$f" ]; then
       if cmp -s "$root/$f" "$clone/$f"; then rm "$root/$f"
-      else cp "$root/$f" "$clone/${f%.md}.local.md"; rm "$root/$f"; diverged=$((diverged+1)); fi
+      else rm "$root/$f"; diverged=$((diverged+1)); DIVERGED_LIST="$DIVERGED_LIST $f"; fi
     fi
   done
   [ $adopted -gt 0 ] && git -C "$clone" push --quiet origin HEAD
@@ -169,9 +172,12 @@ cmd_init() {
 
   say "init: done — adopted $adopted local skill(s), $diverged diverged file(s)"
   if [ $diverged -gt 0 ]; then
-    say "MERGE REQUIRED (AI-driven): for each *.local.md under $clone,"
-    say "intelligently merge it into its canonical sibling (union of rules, reconciled prose),"
-    say "delete the .local.md, then run: orchids sync"
+    say "MERGE REQUIRED (AI-driven) for:$DIVERGED_LIST"
+    say "The local variant is preserved in this repo's git history — read it with"
+    say "  git show HEAD:<path>"
+    say "and intelligently merge it (union of rules, reconciled prose) directly into the"
+    say "canonical file at the same path (now a symlink — Edit/Write follow symlinks fine),"
+    say "then run: orchids sync"
   fi
 }
 

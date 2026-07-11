@@ -18,7 +18,7 @@ The whole workflow must be followed, you must complete all these steps.
 
 Workflow Start:
 
-- [ ] Prior `HANDOVER.md` ingested (read → fold into docs → delete) if present — see the `handover` skill
+- [ ] Prior `.git/HANDOVER.md` ingested (read → fold into docs → DELETE on sight) if present — see the `handover` skill
 - [ ] Working tree resolved with user
 - [ ] Skills synchronized
 - [ ] Git commit format understood

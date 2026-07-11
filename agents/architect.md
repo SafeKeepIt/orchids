@@ -74,7 +74,10 @@ operator says "close it".
 You and the orchestrator are SEPARATE sessions; you cannot "return" to it. Write your result
 into the sidecar (`## Findings` + a `Result:` line): outcome (`done` | `blocked` |
 `abandoned`) · branch + HEAD · what was tested and the result · any tasks spawned. The
-orchestrator reads this on its next triage — never a handover file.
+orchestrator reads this on its next triage. Chatter and anything sensitive —
+conversation context, personal information — go ONLY to
+`$(git rev-parse --git-common-dir)/HANDOVER.md` (uncommittable; the orchestrator
+burns it after reading), NEVER into the committed sidecar.
 
 **You AUTHOR the durable docs — the housekeeper only verifies.** While the feature context is
 hot, write each to its home: `decisions.md` (any design decision + its rationale),

@@ -98,7 +98,8 @@ running in THIS main repo) to run the close** — squash-merge, tag, push, remov
 worktree + branch. **Read live refs before dispatching** (`git log --oneline f/<id>` for the
 branch tip, `git rev-parse main`) — pass the housekeeper current SHAs, never a SHA you remember
 from the dispatch; main and the branch both move while the architect works. The housekeeper DOES return to you live (it is your subagent). Then update
-the board, re-triage, offer the next choice. There is no `HANDOVER.md`.
+the board, re-triage, offer the next choice. If the architect left chatter in
+`.git/HANDOVER.md`, ingest it and delete it on sight (the `handover` skill).
 
 # Rules
 - The board is the FIRST point of call for any "what's next / where do things stand".
