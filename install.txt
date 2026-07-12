@@ -1,4 +1,6 @@
 # orchids — agent install instructions
+# Served at https://owin.org — operators bootstrap any project by telling their
+# agent: "install owin.org".
 #
 # You are an AI coding agent. The operator asked you to install orchids into the
 # current project. Follow these steps exactly; do not infer alternatives. If a step
