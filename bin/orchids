@@ -227,6 +227,12 @@ cmd_init() {
     say "and intelligently merge it (union of rules, reconciled prose) directly into the"
     say "canonical file at the same path (now a symlink — Edit/Write follow symlinks fine),"
     say "then run: orchids sync"
+    if command -v claude >/dev/null 2>&1; then
+      say ""
+      say "claude detected — dispatching the merge headless; its response follows:"
+      claude -p "You are in the git repository $root. 'orchids init' migrated it and left these diverged files:$DIVERGED_LIST. For EACH file: read the pre-migration local variant with 'git show HEAD:<path>', read the canonical version at <path> (a symlink — your Edit/Write tools follow symlinks), and intelligently merge them: union of rules, reconciled prose, nothing local lost. Write the result through the symlink. When all are merged, run '$clone/bin/orchids sync'. Touch nothing else; commit nothing." --output-format text \
+        || say "claude run failed — merge manually per the instructions above"
+    fi
   fi
 }
 
