@@ -1,6 +1,6 @@
 ---
 name: forensic-acquisition
-description: Full end-to-end forensic acquisition of a storage device for evidence — evidence numbering, photographing the device (with the exhibit number in frame), documenting the media, write-blocking, imaging to E01 with acquisition+verification hashing, integrity disclosure, optional certified secure-erase of repurposed media, and the signed manifest/attestation. Invoke to acquire ANY drive/card/media as a numbered exhibit. Exhibit-01 (SanDisk SD card) is the worked template. Pairs with chain-of-custody, read-apfs, digsig, write-to-s3.
+description: Full end-to-end forensic acquisition of a storage device for evidence — evidence numbering, photographing the device (with the exhibit number in frame), documenting the media, write-blocking, imaging to E01 with acquisition+verification hashing, integrity disclosure, optional certified secure-erase of repurposed media, and the signed manifest/attestation. Invoke to acquire ANY drive/card/media as a numbered exhibit. Exhibit-01 (SanDisk SD card) is the worked template. Pairs with chain-of-custody, read-apfs, digital-signature, write-to-s3.
 ---
 
 # Forensic acquisition (numbered exhibit, ISO/IEC 27037)
@@ -60,7 +60,7 @@ Log method, time, and the zero-verification in `NOTES.md` + `zerofill.log`.
 ## 6. Manifest → attestation → sign
 - `MANIFEST.sha256` = SHA-256 of the whole deliverable set (E01 segments, logs, NOTES, PHOTOS/*).
 - Build the **attestation** (embeds source-media hashes + the manifest + the disclosed limitations).
-  Sign it with **digisign** (see the `digsig` skill). **Match the level to the destination:**
+  Sign it with **digital-signature** (see the `digital-signature` skill). **Match the level to the destination:**
   - **Going to police / court = a legal matter → QUALIFIED electronic signature + the legal *mention***
     (in **French**, citing **loi n° 1.383 du 2 août 2011 sur l'Économie Numérique, modifiée** +
     **article 1163-3 du Code civil**). Evidence exhibits fall here — use this.

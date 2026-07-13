@@ -59,7 +59,7 @@ objects in Standard. Object Lock works across storage classes.
 aws s3api head-object --bucket <bkt> --key <case>/image.dd.gpg   # confirm ChecksumSHA256 + retention
 ```
 Log, per object: bucket, key, **VersionId**, ETag, ChecksumSHA256, plaintext-sha256, retention-until,
-upload UTC time. Sign the manifest of all objects+hashes with `digsig`. Only after the object is
+upload UTC time. Sign the manifest of all objects+hashes with `digital-signature`. Only after the object is
 confirmed present, checksum-verified, and the manifest signed may the local staging copy be wiped and
 reused for the next capture.
 

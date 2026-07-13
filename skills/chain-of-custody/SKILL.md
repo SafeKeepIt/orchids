@@ -73,7 +73,7 @@ coc() {  # coc "<why>" <command...>
 
 ## 5. Log non-command events too
 Mounts, unmounts, drive connect/disconnect (with the dmesg line + serial), S3 uploads (bucket, key,
-version-id, ETag — see `write-to-s3`), signatures produced (see `digsig`), and any manual physical
+version-id, ETag — see `write-to-s3`), signatures produced (see `digital-signature`), and any manual physical
 handling. One line each, timestamped.
 
 ## 6. Close the record — with honest limitations
@@ -88,6 +88,6 @@ owner-facing custody document, formatted per its existing sections and `[J]` con
 - Clean host only; compromised machines stay powered off.
 - Read-only on all source evidence; re-apply `--setro` after every re-plug.
 - Log first, act second. Never delete an original until its copy is hash-verified AND signed
-  (see `digsig`) AND, for cloud, Object-Locked (see `write-to-s3`).
+  (see `digital-signature`) AND, for cloud, Object-Locked (see `write-to-s3`).
 - "Not a certified forensic examination" unless a hardware write-blocker + verified image were used —
   say so plainly.

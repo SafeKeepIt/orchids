@@ -1,5 +1,5 @@
 ---
-name: digsig
+name: digital-signature
 description: Seal a file or a forensic hash-manifest with a legally-recognized digital signature using the operator's government-issued smart-card certificate (via PKCS#11), plus an RFC-3161 qualified timestamp from a Timestamp Authority — the same cert+TSA mechanism used for PAdES PDF signing. Produces provable identity + provable time over exact bytes. Invoke to sign evidence manifests, captured-image hash lists, or any artefact that must be attributable and time-anchored.
 ---
 
@@ -7,6 +7,24 @@ description: Seal a file or a forensic hash-manifest with a legally-recognized d
 
 Goal: bind **who** (gov smart-card cert) and **when** (TSA timestamp) to the **exact bytes**
 (sha256) of the evidence manifest. Run on the clean host; the smart card must be present.
+
+## The signer — SignMc (Monaco eID), how to use
+The concrete implementation of this skill's card+PIN signing is **SignMc** (`~/src/SafeKeepIt/SignMc`):
+the operator's **Monaco (Monco) eID** — a Gemalto/Thales IAS-ECC "MROAD" card driven by a **patched
+OpenSC** in an isolated prefix (`opensc-local/`, the system OpenSC is untouched) + **pyHanko** for PAdES.
+- **PKCS#11 module:** `opensc-local/lib/opensc-pkcs11.so` — use this everywhere below, not the system
+  `/usr/lib/opensc-pkcs11.so`.
+- **Signing cert:** `MROAD IAS Certificate 2` (Non-Repudiation, key ref **0x82**) — the document one;
+  public cert at `my-signing-cert.pem`. (Auth cert `0x81` is NOT for signing.)
+- **Sign a PDF / manifest-as-PDF:** FIRST close every other app that touches the card (Firefox,
+  Thunderbird, Chromium, LibreOffice — `pkill -x soffice.bin`); the card is single-app and the lock
+  bites at PIN time. Then `./sign-pdf-direct.py` (reads the cert on a non-auth session first, so
+  contention aborts BEFORE the PIN and never wastes a retry) and enter the Code PIN once.
+  Timestamp: `TSA_URL=http://timestamp.digicert.com ./sign-pdf-direct.py`.
+- ⚠ **PIN retries are limited** — a few wrong PINs block the card (unblock with PUK). Ask the PIN ONCE.
+- Full install is reversible: `./uninstall-monco.sh`.
+
+For the CMS/manifest route below, substitute `P11=opensc-local/lib/opensc-pkcs11.so` and the 0x82 cert.
 
 ## 1. Build the manifest to sign
 List every artefact and its hash — never sign the big images directly, sign the manifest of hashes:
