@@ -136,3 +136,8 @@ preservation; principles: **auditability, repeatability, reproducibility**):
 - The private key never leaves the card. Card present only during signing.
 - The TSA proves when the manifest was **signed** — timestamp right after each capture so sign-time
   tracks capture-time; log capture-time separately.
+- **Hardware-token interaction (operator gate):** before ANY command that needs the operator to
+  touch / insert / re-seat / pull the card or token, print a CAPS-UPPERCASE warning and DO NOT run it
+  until the operator says "y". Ask for a PIN/password only ONCE — retries are limited (a few wrong PINs
+  block the card; unblock with PUK). All cert/key material (keys, CSRs, `.cer`/`.p12`, backups) targets
+  `~/certs`.

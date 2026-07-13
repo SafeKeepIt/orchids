@@ -63,3 +63,11 @@ selection mechanism. A placeholder description is a bug: the skill will never fi
   its cost.
 - **The operator may override any skill per session** — say so only when the skill gates
   something; it is the default everywhere.
+- **Publication is per-skill, and the CASE is never in it.** The incident/case data
+  (`case-file/`, evidence, anything about the operator's specific event) is **permanently private** —
+  it never enters a shared/`github` repo. Skills DEFAULT to publishable (`share: github`), with ONE
+  exception: a skill whose technique could carry **LEGAL RISK** — access-circumvention, credential
+  testing, forensic machine access, cloud-account data pulls (e.g. `machine-access`, `icloud`) — must
+  be **individually reviewed for legal exposure BEFORE** it is marked `share: github`. Only those
+  skills need the review; the rest publish normally. Until reviewed, a risky skill stays **unshared**
+  (no `share: github`).
