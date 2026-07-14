@@ -21,12 +21,12 @@
    /home/sudoku/src/serialseb/kauk — prefer it when present.)
 
 3. RUN INIT
-   .ai/repositories/serialseb/kauk/bin/kauk-sync init
+   .ai/repositories/serialseb/kauk/bin/kauk init
    This writes .ai.toml (sources tables + delivery config), gitignores
    .ai/repositories/, and lays kauk's own package (the `kauk` skill).
 
 4. INSTALL THE ORCHIDS PACKAGE
-   .ai/repositories/serialseb/kauk/bin/kauk-sync install serialseb/orchids <origin>
+   .ai/repositories/serialseb/kauk/bin/kauk install serialseb/orchids <origin>
    where <origin> is https://github.com/serialseb/orchids — on this operator's Pi,
    prefer /home/sudoku/src/serialseb/orchids when present. This clones the package,
    migrates existing files (byte-identical → symlink; project-only skills → adopted
@@ -40,7 +40,7 @@
      follow symlinks — you CAN write through it).
    - Intelligently merge: union of rules, reconciled prose, nothing local lost,
      nothing canonical dropped. Write the result through the symlink.
-   Then run:  .ai/repositories/serialseb/kauk/bin/kauk-sync sync
+   Then run:  .ai/repositories/serialseb/kauk/bin/kauk sync
 
 6. COMMIT
    Stage ONLY: .gitignore .ai.toml CLAUDE.md AGENTS.shared.md AGENTS.files.md
@@ -58,4 +58,4 @@
 
 8. REPORT
    Tell the operator: links laid, skills adopted, files merged, and show
-   `kauk-sync sync --status`.
+   `kauk sync --status`.
