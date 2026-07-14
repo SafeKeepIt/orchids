@@ -1,11 +1,9 @@
-# CLAUDE.md
-
-> **LOAD-BEARING — do not remove the references below.** They pull the agent
-> rules into every session. Keep this header and both imports; if another rules
-> file is added, add its reference here too. Never delete references to the
-> AGENTS files.
-
-Read and obey these before any other action in a session:
+<!-- orchids:begin — LOAD-BEARING, do not remove -->
+Read and obey, before any other action in a session:
 
 @AGENTS.shared.md
 @AGENTS.md
+
+`AGENTS.files.md` (canonical file formats) is NOT read at start — load it only when
+authoring one of its artifacts or at feature close. Token economy.
+<!-- orchids:end -->
