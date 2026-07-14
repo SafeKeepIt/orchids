@@ -1,6 +1,6 @@
 ---
 name: doing-skills
-description: How to author, structure, and publish a skill for this fleet of repositories. Read before creating or materially restructuring any SKILL.md. Defines the frontmatter contract, the canonical section order (Intent, Checklist, Rules, worked example), the one-skill-one-concern rule, and the orchids publishing flow.
+description: How to author, structure, and publish a skill for this fleet of repositories. Read before creating or materially restructuring any SKILL.md. Defines the frontmatter contract, the canonical section order (Intent, Checklist, Rules, worked example), the one-skill-one-concern rule, and the kauk publishing flow.
 metadata:
   tags: [ skills, authoring, skill, meta, template, frontmatter ]
   share: github
@@ -11,7 +11,7 @@ metadata:
 A skill is a contract the agent loads on a trigger — not documentation, not a tutorial.
 Skills are **cross-project and agent-tool-agnostic**: author them in the canonical repo
 (`~/src/serialseb/orchids/skills/<name>/SKILL.md`), never in one project's tool
-directory, and ship them with `orchids-sync` (see the `skill-sync` skill).
+directory, and ship them with `kauk sync` (see the `kauk` skill).
 
 ## Checklist
 
@@ -21,8 +21,8 @@ directory, and ship them with `orchids-sync` (see the `skill-sync` skill).
 - [ ] Checklist items are observable, tickable steps — not restated prose
 - [ ] No duplication of `AGENTS.shared.md` / `AGENTS.files.md` — reference them (`§TODO`, `§Decisions`)
 - [ ] Nothing tool-specific (no Claude-only paths or commands) unless the skill is about that tool
-- [ ] Added to `manifest.conf` with its role (`dev` · `infra` · `org` · `all`)
-- [ ] `orchids sync` run on the operator's go
+- [ ] Added to `manifest.conf` as `skill <name> <role>` (`dev` · `infra` · `org` · `all`)
+- [ ] `kauk sync` run on the operator's go
 
 ## Frontmatter contract
 
@@ -37,7 +37,7 @@ metadata:
 ```
 
 The skill's role (`dev` · `infra` · `org` · `all`) lives in canonical `manifest.conf`,
-fixed by us; repos tune delivery in their `.ai.toml` (see `skill-sync`).
+fixed by us; repos tune delivery in their `.ai.toml` (see the `kauk` skill).
 
 The `description` is what the model sees when deciding whether to load the skill — write
 it as trigger-first ("Use whenever…", "MUST be read before…"), because that is the whole

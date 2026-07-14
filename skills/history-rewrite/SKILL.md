@@ -26,7 +26,7 @@ and ask the operator. Improvising a workaround is the failure mode, not a recove
 
 ## Checklist
 
-- [ ] Preconditions met (clean tree, orchids init done, backup ref created)
+- [ ] Preconditions met (clean tree, kauk install done, backup ref created)
 - [ ] Sensitive-content sweep of full history done; findings surfaced BEFORE rewriting
 - [ ] Feature partition proposed and OPERATOR-APPROVED before any ref is written
 - [ ] Every feature: branch → ANCHOR COMMIT → cherry-picks → archive tag → templated
@@ -38,7 +38,7 @@ and ask the operator. Improvising a workaround is the failure mode, not a recove
 
 ## 0 · Preconditions
 
-Clean tree; `orchids init` already run; work happens in a dedicated worktree on
+Clean tree; `kauk install` already run (the repo is package-managed); work happens in a dedicated worktree on
 branch `tmp/main-rewrite`; tag `backup/pre-rewrite` on current `main` FIRST.
 Original `main` is never checked out, committed to, amended, or deleted.
 

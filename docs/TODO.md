@@ -1,7 +1,9 @@
 # TODO — the orchids board
 
-Slim index; prose in sidecars (`TODO.md.d/<id>.md`). orchids is a deliberate stopgap:
-it dies when dot.ai returns — weigh every item against that.
+Slim index; prose in sidecars (`TODO.md.d/<id>.md`). orchids is the fleet's data
+package (skills, agents, rule files); the distribution code is the `kauk-sync`
+stopgap in serialseb/kauk — it dies when the real kauk CLI ships. Weigh process
+items against that.
 
 Badge: `type · status · urgency · readiness · component · gh#`.
 
@@ -11,6 +13,7 @@ Badge: `type · status · urgency · readiness · component · gh#`.
 
 ## Process machinery
 
+- `feature · done · · complete · process ·` [Tool split: package manager moved to kauk; orchids data-only](TODO.md.d/tool-split-to-kauk.md)
 - `feature · todo · · blocked-on-answers · process ·` [Architect close choreography without fragile hooks](TODO.md.d/hook-choreography.md)
 - `feature · todo · low · queued · process ·` [Decide the SessionStart self-heal hook](TODO.md.d/session-start-hook.md)
 - `housekeeping · todo · · queued · process ·` [Registry file set for orchids itself](TODO.md.d/registry-file-set.md)
