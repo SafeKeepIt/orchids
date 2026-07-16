@@ -1,5 +1,7 @@
 - created: 2026-07-12
 - created_by: fable-5
+- completed: 2026-07-17
+- completed_during: f/registry-file-set
 
 ## Blockers
 - none
@@ -25,6 +27,20 @@
 - Operator (2026-07-16): the bootstrap contract is "install kauk/orchids" →
   the agent resolves the repo on GitHub and reads `Agent-installation.md`
   (where to go, what to install). install.txt renamed accordingly.
+- Close provenance (2026-07-17): the original branch build was invalid — its
+  anchor carried a fabricated `Base:` SHA (`4035d21ec2f3…`, a hallucinated
+  expansion of the real `4035d21a2fe1…`; two attempts, 333864c then 95f41a6,
+  both wrong) and it was built in the main working tree, not a worktree. The
+  branch was rebuilt at close with the corrected trailer; all four work
+  commits cherry-picked verbatim, author/committer dates preserved, trees
+  byte-identical to old head b445dfa.
+- index.html regenerated from Agent-installation.md at close (operator
+  choice) so the still-served page carries the current contract; deleting
+  CNAME + index.html remains reserved to the operator per the 2026-07-16
+  owin.org ruling.
+
+Result: done — registry file set landed; squash-merged to main at the close
+of f/registry-file-set (tombstone: archive/registry-file-set).
 
 ## Proposal
 Write the registry set: README (why + what only), ARCHITECTURE (the how, one page),
