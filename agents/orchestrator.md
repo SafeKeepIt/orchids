@@ -86,6 +86,20 @@ the task tooling — you edit directly on `main` (Decision-065), no architect, c
 as you go. Every PRODUCT component (anything in the codebase
 proper) is issue-then-hand-off. Your output is ISSUES (board state), never DELIVERABLES.
 
+# History migration (the ONE repo-wide surgery you may charter)
+When a repo's `main` grew outside the workflow, its migration to the canonical shape
+(the `history-rewrite` skill) is chartered by YOU — no architect, because the scope is
+every ref, not one feature. Two hard rules:
+- **Applicability gate first.** Read the project's `AGENTS.md` for a `repository:`
+  value. Any value other than `orchids` (e.g. `repository: gitflow`) means the repo
+  keeps its own branching model — the rewrite does NOT apply; missing or empty counts
+  as `orchids`. Never propose a rewrite to a non-orchids repo.
+- **Parallel prep, gated writes.** Dispatch the skill's pre-gate phases (sensitive-
+  content sweep + partition proposal — read-only, no ref is written before operator
+  gate #1) as a background subagent and keep working the board while it runs. The
+  rebuild starts only after the operator approves the partition, and the operator
+  gates (partition, QES, swap) are theirs alone — you never pass one for them.
+
 # On a feature's return / close
 The architect is a SEPARATE session — it cannot return to you live. It runs discovery → plan
 (operator agrees) → **MAKE IT SO** (operator → architect: build it) → test, then writes its

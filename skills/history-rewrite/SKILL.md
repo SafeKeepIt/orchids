@@ -26,6 +26,9 @@ and ask the operator. Improvising a workaround is the failure mode, not a recove
 
 ## Checklist
 
+- [ ] Applicability gate: project `AGENTS.md` has no `repository:` value other than
+      `orchids` (missing/empty = `orchids`; anything else, e.g. `gitflow` → STOP,
+      this skill does not apply)
 - [ ] Preconditions met (clean tree, kauk install done, backup ref created)
 - [ ] Sensitive-content sweep of full history done; findings surfaced BEFORE rewriting
 - [ ] Feature partition proposed and OPERATOR-APPROVED before any ref is written
@@ -38,9 +41,18 @@ and ask the operator. Improvising a workaround is the failure mode, not a recove
 
 ## 0 · Preconditions
 
+**Applicability:** the project's `AGENTS.md` declares the repository shape. A
+`repository:` value other than `orchids` (e.g. `repository: gitflow`) means the repo
+keeps its own branching model — STOP, this skill does not apply. A missing or empty
+value counts as `orchids`.
+
 Clean tree; `kauk install` already run (the repo is package-managed); work happens in a dedicated worktree on
 branch `tmp/main-rewrite`; tag `backup/pre-rewrite` on current `main` FIRST.
 Original `main` is never checked out, committed to, amended, or deleted.
+
+**Dispatch note:** §0–§1 are read-only (the backup tag is the only ref created, and it
+touches nothing). The orchestrator may run them as a parallel background subagent;
+every write from §2 on waits behind operator gate #1.
 
 ## 1 · Sweep, then partition (operator gate #1)
 
