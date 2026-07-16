@@ -16,7 +16,7 @@ Badge: `type · status · urgency · readiness · component · gh#`.
 - `feature · done · · complete · process ·` [Tool split: package manager moved to kauk; orchids data-only](TODO.md.d/tool-split-to-kauk.md)
 - `feature · todo · · blocked-on-answers · process ·` [Architect close choreography without fragile hooks](TODO.md.d/hook-choreography.md)
 - `feature · todo · low · queued · process ·` [Decide the SessionStart self-heal hook](TODO.md.d/session-start-hook.md)
-- `housekeeping · todo · · queued · process ·` [Registry file set for orchids itself](TODO.md.d/registry-file-set.md)
+- `housekeeping · done · · complete · process ·` [Registry file set for orchids itself](TODO.md.d/registry-file-set.md)
 - `bug · todo · low · parked · process ·` [Self-install: root link entries collide (src == dst)](TODO.md.d/self-install-link-collision.md)
 
 ## Future (dot.ai features, design only)

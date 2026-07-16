@@ -1,6 +1,5 @@
 # orchids — agent install instructions
-# Served at https://owin.org — operators bootstrap any project by telling their
-# agent: "install owin.org" (or "install kauk/orchids").
+# Operators bootstrap any project by telling their agent: "install kauk/orchids".
 #
 # You are an AI coding agent. The operator asked you to install orchids (the shared
 # skills/agents/rule-files package) into the current project, using kauk (the package
