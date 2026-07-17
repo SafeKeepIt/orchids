@@ -30,6 +30,10 @@ Badge: `type · status · urgency · readiness · component · gh#`.
   - `refactor · todo · · blocked-on-answers · process ·` [Rename and split skills to fit the role DAG](TODO.md.d/skill-renames-and-splits.md)
   - `refactor · todo · · blocked-on-answers · process ·` [Terseness and conflicting-advice pass over all skills](TODO.md.d/skill-terseness-pass.md) ⊘role-dag-frontmatter ⊘skill-renames-and-splits
 
+## Skills
+
+- `feature · todo · · blocked-on-answers · skills ·` [Web account signup: create account, store password + OTP in Bitwarden](TODO.md.d/web-account-signup-skill.md) ~role-delivery
+
 ## Future (dot.ai features, design only)
 
 - `feature · todo · idea · queued · sync ·` [Dynamic skill delivery per role](TODO.md.d/dynamic-skill-delivery.md)
