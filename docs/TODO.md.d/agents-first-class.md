@@ -2,17 +2,12 @@
 - created_by: opus-4.8
 
 ## Blockers
-- Depends on `role-dag-frontmatter` settling the role key + path syntax; agents reuse
-  the same contract rather than inventing a second one.
+- Depends on `role-dag-frontmatter` settling the `roles:` key + path syntax (Proposal
+  step 1 only). The dependency-list contract no longer waits on it — `requirements:`
+  was ruled directly (Findings, Decision-004).
 
 ## Questions
-- Dependency list syntax — reuse whatever `role-dag-frontmatter` picks for roles, or a
-  separate key? (`requires: [groom, handover]` alongside `roles: [...]` is the obvious
-  shape, but the two tasks must agree once, not twice.)
-- Do agents depend on **other agents**? The real graph has them: the orchestrator hands
-  to `architect` / `housekeeper` / `groomer`; the architect dispatches `builder`. Deploy
-  `architect` without `builder` and it is broken, and nothing declares that today. The
-  operator ruling covers agent→skill; agent→agent is unstated. Confirm before building.
+- None open — the 2026-07-17 rulings (Findings, Decision-004) closed the last two.
 
 ## Findings
 Operator rulings, 2026-07-17 — these close what were the three open questions here:
@@ -28,6 +23,26 @@ Operator rulings, 2026-07-17 — these close what were the three open questions 
   choosing skills works** — this is the consequence that drives the install flow, see
   below.
 
+Operator rulings, 2026-07-17 (Decision-004) — close the two questions above:
+- **Agents depend on other agents, and declare it.** The real graph's edges
+  (orchestrator → architect/housekeeper/groomer; architect → builder) become
+  declarations; an undeclared edge deploys a broken agent. On page 1, an agent
+  required by a chosen agent is greyed out — visible, selected, not deselectable —
+  exactly the page-2 skill pattern.
+- **The declaration is a `requirements:` frontmatter map with two sub-lists**, kinds
+  explicit, no cross-folder uniqueness rule needed:
+
+  ```yaml
+  requirements:
+    agents: [builder]
+    skills: [workflow, workflow-complete, handover]
+  ```
+
+  Ruled directly, so the dependency contract no longer rides on
+  `role-dag-frontmatter` (which still owns `roles:`). External deps stay deferred
+  (`agent-external-deps`); the map form takes a third sub-list later without
+  disturbing these two.
+
 Background (unchanged):
 - Agents are `link` lines today — `link agents/architect.md .claude/agents/architect.md`
   — which the manifest header documents as "everyone gets it". All 5 agents install
@@ -40,12 +55,14 @@ Background (unchanged):
 
 ## Proposal
 1. Declare roles on all 5 agents using the contract from `role-dag-frontmatter`.
-2. Declare each agent's required-skill list in its own frontmatter.
+2. Declare each agent's `requirements:` map (`agents:` + `skills:`) in its own
+   frontmatter.
 3. Keep the `link` lines working until kauk ships the reader, so nothing regresses.
 
 **Two-page install selection (operator, 2026-07-17)** — the flow, which orchids
 specifies and kauk implements:
-- **Page 1: choose agents.**
+- **Page 1: choose agents** — an agent required by a chosen agent is greyed out here,
+  same rule as page 2 applies to skills (Decision-004).
 - **Page 2: choose skills** — the skills required by the agents chosen on page 1 appear
   **greyed out**: visible, already selected, not deselectable.
 
@@ -63,6 +80,8 @@ the two-page picker are **kauk's work, on kauk's board** — `agent-deployment` 
 `cli-core`), filed 2026-07-17. State intent here; do not re-specify the engine.
 
 ## Testing
-Declaration lint: every agent declares ≥1 role and a resolvable `requires:` list — every
-id names a real skill in the package. End-to-end (page 1 → page 2 → exactly the right
-set laid) is kauk-side and cannot run here; report it untested rather than implied.
+Declaration lint: every agent declares ≥1 role and a resolvable `requirements:` map —
+every `skills:` id names a real skill and every `agents:` id a real agent in the
+package, no self-reference, agent graph acyclic. End-to-end (page 1 → page 2 → exactly
+the right set laid) is kauk-side and cannot run here; report it untested rather than
+implied.
