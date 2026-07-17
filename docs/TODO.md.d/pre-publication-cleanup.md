@@ -20,6 +20,15 @@
   was pushed, but the gate applies to any future push there too (kauk repo content
   references operator infrastructure).
 
+- 2026-07-17: operator flagged `write-to-s3` as likely carrying private information
+  that must not be published — named specifically, ahead of any sweep. Treat it as a
+  known hit, not a candidate. Its role placement is parked on this task's outcome
+  (Decision-003 leaves it provisionally at `security/forensics`).
+- 2026-07-17: the role DAG (Decision-002/003) gives this task a mechanism it did not
+  have. `security/forensics` is a named subtree, so the public/private boundary can be
+  expressed as a role selection rather than a bespoke file list — IF the boundary turns
+  out to follow the taxonomy. Worth testing that hypothesis early; do not assume it.
+
 ## Proposal
 Sensitive-content sweep (files + history) per AGENTS.shared.md; propose the
 public/private split; scrub or re-init; only then the publish ceremony (gh repo,
