@@ -51,6 +51,27 @@
     split first, or at least alongside.
   - Grooming is done by the `groomer` agent as well as the orchestrator; both need this,
     or the rule has a hole.
+- **Storage: in-tree, or on an invisible ref?** (operator, 2026-07-17 — leading idea.)
+  Sensitive content need not live in the working tree at all. Store it the way `git
+  notes` are stored: on a ref outside `refs/heads/*`, so it is **neither pushed nor
+  cloned by default**, and objects reachable only from it never travel.
+  - **This repo already proves the mechanism.** The `workflow-complete` skill mandates
+    pushing "commits + tag + **notes**" as separate acts — it has to name notes
+    explicitly precisely because they do not ride along on a normal push. That property
+    is the feature here.
+  - **It answers the publication objection structurally**, not by discipline: the
+    boundary is "was this ref ever pushed", which is a mechanical fact, not a rule an
+    agent must remember. Compare option (a), which is discipline-only.
+  - **It composes with encryption rather than competing.** Hidden ref = not published.
+    Encrypted = survivable if it ever is. Belt and braces; pick both or state why not.
+  - **Open:** notes proper (`refs/notes/<ns>`, attached to a commit) vs a dedicated ref
+    namespace (e.g. `refs/private/<id>`, free-standing)? Notes attach sensitive content
+    to a specific commit, which may or may not be the right anchor for a *task*.
+  - **Caveats to verify, not assume:** `git push --mirror` / `--all` and some CI or
+    mirroring setups DO carry extra refs; a hidden ref is invisible in the GitHub UI but
+    still in the object store once pushed; and an agent must be able to read it, so
+    tooling (board render, grooming) needs to know the ref exists. Test the "never
+    travels" claim rather than trusting this note.
 - **Whose component is the transport?** The protocol and the rules are orchids
   (workflow component). If delivery needs more than a shared filesystem or a git remote,
   that is kauk `federation` — and per its own rule, it gets filed on kauk's board, not
