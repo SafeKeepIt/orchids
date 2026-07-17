@@ -2,9 +2,11 @@
 - created_by: opus-4.8
 
 ## Blockers
-- Depends on `role-dag-frontmatter` settling the `roles:` key + path syntax (Proposal
-  step 1 only). The dependency-list contract no longer waits on it — `requirements:`
-  was ruled directly (Findings, Decision-004).
+- ~~Depends on `role-dag-frontmatter` settling the `roles:` key + path syntax
+  (Proposal step 1 only).~~ Resolved — syntax ruled, Decision-005. Ordering stands
+  (⊘ edge): `role-dag-frontmatter` amends the keystone contract in `authoring-skills`
+  first; this task conforms to it. The dependency-list contract was ruled separately
+  (`requirements:`, Decision-004).
 
 ## Questions
 - None open — the 2026-07-17 rulings (Findings, Decision-004) closed the last two.

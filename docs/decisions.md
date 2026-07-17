@@ -142,3 +142,24 @@ Two rulings, closing `agents-first-class`'s last open questions:
 Context, not ruling: the `roles:` key remains `role-dag-frontmatter`'s to settle; the
 dependency contract no longer waits on it. The resolution/greying engine is kauk's
 `agent-deployment`.
+
+## [2026-07-17 14:49 CEST] Decision-005: Roles declare as slash-path placements; `general` is explicit
+#roles #frontmatter #role-delivery #skills #agents #kauk #taxonomy
+
+Three rulings, closing `role-dag-frontmatter`'s questions:
+
+- **Key + syntax:** `roles:` is a list of slash-separated full paths —
+  `roles: [development/tofu, infrastructure/tofu]`. Rejected: bare node ids
+  (ancestry invisible at the declaration site), nested YAML and `role:` + `parent:`
+  pairs (tree edges copied into every declarer).
+- **Paths are placements.** A declared path is a deliberate placement, and a
+  multi-parent node may be placed under a subset of its parents —
+  `roles: [development/tofu]` alone is valid, making per-route delivery expressible.
+  Lint verifies each declared path exists in the vocabulary; an incomplete set is
+  intent, not an error class.
+- **`general` is explicit** (`roles: [general]`). A missing `roles:` key is a lint
+  error — "forgot to declare" is never readable as "deliberately general".
+
+Context, not ruling: the vocabulary stays declared in exactly one place
+(Decision-002/003). The sidecar's "one round with kauk before committing" was waived
+by ruling directly; kauk's reader implements this contract as written.
