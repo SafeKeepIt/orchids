@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Stop hook. When the architect countersigns the operator's "THAT IS ALL" with a final
-# "ALL IT IS", return the tmux client to the orchestrator window (captured at spawn in
-# .return-window) and close the architect's OWN window. No-op for any other agent/message.
+# "ALL IT IS", return the tmux client to the orchestrator pane (captured at spawn in
+# .return-window) and close the architect's OWN pane. No-op for any other agent/message.
 # Logs every invocation to /tmp/architect-close.log so a miss is diagnosable.
 set -eu
 
@@ -21,24 +21,39 @@ last=$(printf '%s' "$last" | sed -e 's/[[:space:]]*$//' | awk 'NF{l=$0} END{prin
 [ "$last" = "ALL IT IS" ] || { say "no match (last='$last')"; exit 0; }
 [ -f "$rw" ] || { say "match but no .return-window at $rw"; exit 0; }
 
-orch=$(sed -n 1p "$rw" 2>/dev/null || true)
+ret=$(sed -n 1p "$rw" 2>/dev/null || true)
 sock=$(sed -n 2p "$rw" 2>/dev/null || true)
 [ -n "$sock" ] || sock="${TMUX%%,*}"        # fall back to inherited $TMUX socket
 tx(){ tmux -S "$sock" "$@"; }
 
-# the architect's OWN window, via the pane this hook runs in (NOT the "current" window,
-# which may be elsewhere if the operator switched away)
-arch=$(tx display-message -p -t "${TMUX_PANE:-}" '#{window_id}' 2>/dev/null || true)
-say "MATCH orch='$orch' sock='$sock' pane='${TMUX_PANE:-}' arch='$arch'"
+# the architect's OWN pane — NOT the "current" pane, which may be elsewhere if the
+# operator switched away
+arch="${TMUX_PANE:-}"
+arch_win=$(tx display-message -p -t "$arch" '#{window_id}' 2>/dev/null || true)
+say "MATCH ret='$ret' sock='$sock' arch='$arch' arch_win='$arch_win'"
 
-[ -n "$sock" ] || { say "no tmux socket — leaving window for manual close"; exit 0; }
-# SAFETY: never kill the orchestrator window. If our pane resolved to it (mis-fire,
-# e.g. focus elsewhere), return only and leave the window alone.
-if [ -z "$arch" ] || [ "$arch" = "$orch" ]; then
-  say "arch='$arch' == orch or empty — returning only, NOT killing"
-  tx switch-client -t "$orch" 2>/dev/null || tx select-window -t "$orch" 2>/dev/null || say "return to $orch FAILED"
+[ -n "$sock" ] || { say "no tmux socket — leaving pane for manual close"; exit 0; }
+
+# Return target (line 1): a pane id `%N` (Decision-006) or a legacy window id `@N`.
+case "$ret" in
+  %*)
+    ret_win=$(tx display-message -p -t "$ret" '#{window_id}' 2>/dev/null || true)
+    tx switch-client -t "$ret" 2>/dev/null || true
+    if [ -n "$ret_win" ]; then tx select-window -t "$ret_win" 2>/dev/null || true; fi
+    tx select-pane -t "$ret" 2>/dev/null || say "return to pane $ret FAILED"
+    ;;
+  *)
+    tx switch-client -t "$ret" 2>/dev/null || tx select-window -t "$ret" 2>/dev/null || say "return to $ret FAILED"
+    ;;
+esac
+
+# SAFETY: never kill the return target — neither the orchestrator's pane nor (legacy
+# window-id form) any pane of the orchestrator's window. Mis-fires return only.
+if [ -z "$arch" ] || [ "$arch" = "$ret" ] || [ "$arch_win" = "$ret" ]; then
+  say "arch='$arch'/'$arch_win' resolves to return target or empty — NOT killing"
   exit 0
 fi
-tx switch-client -t "$orch" 2>/dev/null || tx select-window -t "$orch" 2>/dev/null || say "return to $orch FAILED"
-tx kill-window -t "$arch" 2>/dev/null || say "kill $arch FAILED"
+# Killing the last pane of a window kills the window, so kill-pane also covers the
+# legacy window-per-architect layout.
+tx kill-pane -t "$arch" 2>/dev/null || say "kill $arch FAILED"
 exit 0

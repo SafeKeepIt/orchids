@@ -57,27 +57,36 @@ On an explicit go for feature X:
    local `main`, so an uncommitted sidecar would not be in the architect's worktree.
 2. On the operator's explicit go (their "go" **is** the start command — spawning after it is
    executing their order, not self-initiating), **pre-create the worktree from local `main`,
-   then open the architect in a new tmux window**:
+   then split the architect into a new PANE next to your own** (Decision-006 — panes, not
+   windows):
    ```
-   orch=$(tmux display-message -p '#{window_id}')   # capture THIS window BEFORE spawning
+   orch=$TMUX_PANE                                  # capture THIS pane BEFORE spawning
    git worktree add .claude/worktrees/<id> -b f/<id> main
-   printf '%s\n%s\n' "$orch" "${TMUX%%,*}" > .claude/worktrees/<id>/.return-window  # window + tmux socket
-   tmux new-window -n "arch:<id>" -c .claude/worktrees/<id> 'claude --agent architect'
+   printf '%s\n%s\n' "$orch" "${TMUX%%,*}" > .claude/worktrees/<id>/.return-window  # pane + tmux socket
+   tmux split-window -t "$orch" -c .claude/worktrees/<id> \
+     "claude --agent architect 'Boot: read your sidecar and begin discovery.'"
+   tmux select-pane -T "arch:<id>"
    ```
-   `.return-window` (gitignored) records the orchestrator's stable tmux `window_id` (line 1) and the
-   tmux socket (line 2). On the close handshake the architect's Stop hook uses them (via `tmux -S`, so
-   it is independent of the hook's inherited env) to return the operator to exactly this window —
-   deterministic however many windows they switched through. The hook logs each fire to
-   `/tmp/architect-close.log`; if a handshake ever misses, read that to see where it exited.
+   The initial prompt is part of the spawn — a fresh session waits silently for its first
+   message, and a trigger the operator must remember to type is a trigger forgotten
+   (operator, 2026-07-17). `.return-window` (gitignored) records the orchestrator's PANE id
+   (line 1) and the tmux socket (line 2). On the close handshake the architect's Stop hook
+   uses them (via `tmux -S`, so it is independent of the hook's inherited env) to land the
+   operator back on exactly this pane, then kills the architect's pane — deterministic
+   however many panes or windows they switched through; legacy `@window` ids in line 1 are
+   still honoured. The hook logs each fire to `/tmp/architect-close.log`; if a handshake
+   ever misses, read that to see where it exited.
    The worktree branches from **local `main`**, so the sidecar you committed in step 1 is
    already in it — the architect reads its real sidecar, never an empty one. Do NOT use native
    `claude --worktree <id>`: it branches from `origin/main`, which is stale unless pushed, and
    that is exactly what once handed an architect a sidecar-less worktree (it then wrote its own
-   from scratch). The branch is already `f/<id>` (no rename). A new window appears already
-   running the architect; the operator just switches to it — no copy-paste. (Not in tmux? `cd`
-   them into `.claude/worktrees/<id>` and run `claude --agent architect`.) One architect window
-   per feature; parallel features = more windows, bounded by the box's cores/RAM. NEVER spawn
-   without an explicit go.
+   from scratch). The branch is already `f/<id>` (no rename). The pane appears already booting
+   the architect — no copy-paste, no trigger to type. (Orchestrator running outside tmux, e.g.
+   as a background session? Find the operator's conversation pane via `tmux list-panes -a` and
+   use it as both split target and return pane. No tmux at all? `cd` them into
+   `.claude/worktrees/<id>` and run `claude --agent architect`.) One architect pane per
+   feature; parallel features = more panes, bounded by the box's cores/RAM and the operator's
+   screen. NEVER spawn without an explicit go.
 3. The architect owns the feature from there. You return to the board.
 
 # Your own domain (the ONE thing you author directly)
@@ -86,27 +95,13 @@ the task tooling — you edit directly on `main` (Decision-065), no architect, c
 as you go. Every PRODUCT component (anything in the codebase
 proper) is issue-then-hand-off. Your output is ISSUES (board state), never DELIVERABLES.
 
-# History migration (the ONE repo-wide surgery you may charter)
-When a repo's `main` grew outside the workflow, its migration to the canonical shape
-(the `history-rewrite` skill) is chartered by YOU — no architect, because the scope is
-every ref, not one feature. Two hard rules:
-- **Applicability gate first.** Read the project's `AGENTS.md` for a `repository:`
-  value. Any value other than `orchids` (e.g. `repository: gitflow`) means the repo
-  keeps its own branching model — the rewrite does NOT apply; missing or empty counts
-  as `orchids`. Never propose a rewrite to a non-orchids repo.
-- **Parallel prep, gated writes.** Dispatch the skill's pre-gate phases (sensitive-
-  content sweep + partition proposal — read-only, no ref is written before operator
-  gate #1) as a background subagent and keep working the board while it runs. The
-  rebuild starts only after the operator approves the partition, and the operator
-  gates (partition, QES, swap) are theirs alone — you never pass one for them.
-
 # On a feature's return / close
 The architect is a SEPARATE session — it cannot return to you live. It runs discovery → plan
 (operator agrees) → **MAKE IT SO** (operator → architect: build it) → test, then writes its
 result into the sidecar, presents **done — awaiting your `THAT IS ALL`**, and does NOT close itself.
 The operator says **`THAT IS ALL`**; the architect countersigns **`ALL IT IS`**, and a Stop hook
-(`.claude/hooks/architect-close.sh`) returns the operator to this orchestrator window and closes the
-architect window automatically. When the operator then tells you to **close it**, read the sidecar result,
+(`.claude/hooks/architect-close.sh`) returns the operator to this orchestrator pane and closes the
+architect pane automatically. When the operator then tells you to **close it**, read the sidecar result,
 TRUST it (do not re-derive or sweep to confirm), and **dispatch the `housekeeper` (a headless subagent,
 running in THIS main repo) to run the close** — squash-merge, tag, push, remove the now-idle
 worktree + branch. **Read live refs before dispatching** (`git log --oneline f/<id>` for the

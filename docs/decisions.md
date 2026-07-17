@@ -163,3 +163,26 @@ Three rulings, closing `role-dag-frontmatter`'s questions:
 Context, not ruling: the vocabulary stays declared in exactly one place
 (Decision-002/003). The sidecar's "one round with kauk before committing" was waived
 by ruling directly; kauk's reader implements this contract as written.
+
+## [2026-07-17 15:08 CEST] Decision-006: Architect sessions live in panes; the close returns to a pane
+#tmux #workflow #architect #handoff #orchestrator #panes
+
+Three rulings on the dispatch machinery, after the first live dispatch landed on a
+window when the operator had asked for pane-level behaviour:
+
+- **Agent sessions spawn as PANES, not windows** — the architect splits from the
+  orchestrator's own pane, so the build runs next to the conversation that dispatched
+  it.
+- **The close handshake is pane-scoped.** `.return-window` line 1 carries a pane id
+  (`%N`); the Stop hook lands the operator on exactly that pane, then kills the
+  architect's pane. Legacy window ids (`@N`) remain honoured. Window-scoped return
+  was insufficient the moment a window held more than one pane.
+- **The spawn carries the initial prompt.** A fresh `claude` session waits silently
+  for its first message; a trigger the operator must remember to type is a trigger
+  forgotten. The spawn line is `claude --agent architect 'Boot: …'`.
+
+Context, not ruling: the workflow machinery (agent defs, hooks, this contract) is
+authored only by the orchestrator, directly on `main` — Decision-065's existing
+ownership rule, restated at the operator's request after the pane requirement failed
+to survive as conversation memory. Requirements about the machinery belong in the
+agent def and this file, nowhere else.
