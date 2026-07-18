@@ -74,6 +74,12 @@ loses the thread: the successor reads the stream's logs and continues. And
 when the ask is just a typo fix, the agent offers a single commit on `main`
 instead of the full branch ceremony — you say yes, it stays micro.
 
+**The board follows you off the terminal.** Active tasks mirror to GitHub
+issues and the private **Orchidarium** project view; file an issue from your
+phone and an actor-gated workflow folds it back into the file board before the
+next session even starts (`tools/board_gh.py` — files stay canonical, GitHub
+is the couch-friendly view).
+
 ## What it is not
 
 orchids is **data only** — no code, no installer. Distribution is
