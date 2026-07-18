@@ -18,9 +18,13 @@
 - Injection/actor gating: on public repos anyone can file issues; the
   workflow must run the orchestrator only for the operator's own
   issues/comments (actor allowlist), never on third-party text.
-- Workflow-file delivery: .github/workflows/ isn't a managed package path
-  today; decide how the package lays it (kauk delivery vs manual per repo)
-  and note pushes touching workflows need the workflows permission.
+- Workflow-file delivery: RESOLVED — a manifest `template` entry
+  (`template templates/board-sync.yml .github/workflows/board-sync.yml`);
+  it must be template, not link: a symlink would target the gitignored
+  .ai/ clone and Actions only executes real files. Remaining: pushes
+  touching workflow files need the workflows permission, and template
+  files are project-owned, so template changes don't propagate on sync —
+  acceptable for a stable trigger shim that delegates logic to the agent.
 - Race with a live local session on main: cloud orchestrator pushes intake
   commits; local sessions already pull at start — define retry/ff-only
   behaviour on push rejection.
