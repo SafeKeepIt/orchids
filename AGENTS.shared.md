@@ -46,7 +46,7 @@ restructuring one, read its section there — do NOT invent a format from memory
 | ARCHITECTURE.md | repo root | close, only if a trigger below fired | no | `AGENTS.files.md` §Architecture |
 | CHANGELOG.md | repo root | close: append one entry | no (append-only) | `AGENTS.files.md` §Changelog |
 | README.md | repo root | close, only if user-facing/tooling change | no | `readme-sync` skill |
-| HANDOVER.md | `.git/` (git-common-dir) — uncommittable | chatter only — written on finish by the child · ingested then DELETED by the parent the moment it is seen | no | `handover` skill |
+| HANDOVER.md | `.git/the-works/` (git-common-dir) — uncommittable | chatter only — written on finish by the child · ingested then DELETED by the parent the moment it is seen | no | `handover` skill |
 
 The functionality/component taxonomy lives in the project's `ARCHITECTURE.md`; agents do
 not invent new values. Pull task and decision content from these files before model memory
@@ -89,7 +89,7 @@ A change touching none of the above does NOT require an `ARCHITECTURE.md` edit.
 These hold even when no skill is loaded:
 
 - **Sensitive content never enters git history.** Conversation quotes, personal
-  information, and secrets go ONLY into the uncommittable channels under `.git/`
+  information, and secrets go ONLY into the uncommittable channels under `.git/the-works/`
   (`HANDOVER.md`, `MOOD.md`) — never into sidecars, TODO, decisions, changelog, or
   commit messages. Committed docs carry sanitized technical state only. If sensitive
   content is ever found committed — in the working tree OR anywhere in past history —
@@ -100,7 +100,7 @@ These hold even when no skill is loaded:
   outcomes → `CHANGELOG.md`, remaining/follow-up work → `TODO`. `HANDOVER.md` carries
   **chatter only** (short-lived gotchas with no durable home, and anything sensitive)
   and is ingested-then-deleted by the parent the moment it is seen. It lives inside
-  `.git/` (uncommittable). Full protocol in the `handover` skill.
+  `.git/the-works/` (uncommittable). Full protocol in the `handover` skill.
 - **Link at the moment of deferral.** When work is split, deferred, or delegated, write
   the relationship into the `TODO` immediately — `parent`/`subtasks`/`blocked_by` + a
   one-line "moved from X to Y because Z", or "delegated to \<child\>". The handover is

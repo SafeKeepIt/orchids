@@ -41,7 +41,7 @@ Durable state lives in files; no role depends on chat history.
   Testing`. Formats in `AGENTS.files.md`.
 - `docs/decisions.md` — rulings, greppable by `#keyword`.
 - `MOOD.md` / `HANDOVER.md` — uncommittable by construction, kept in
-  `$(git rev-parse --git-common-dir)/`.
+  `$(git rev-parse --git-common-dir)/the-works/`.
 
 Converting a live conversation into this model is a one-time distillation:
 scope → `Proposal`, test method → `Testing`, open items → `Questions` /

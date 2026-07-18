@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "root=\"$(git rev-parse --show-toplevel 2>/dev/null)\"; gcd=\"$(git rev-parse --git-common-dir 2>/dev/null)\"; [ -f \"$gcd/HANDOVER.md\" ] && printf '{\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"A HANDOVER.md is present in .git/: a child has returned. Ingest it FIRST per the handover skill (read it, act on the chatter, promote any standing item to TODO, then delete) before responding to the user.\"}}'; exit 0",
+            "command": "root=\"$(git rev-parse --show-toplevel 2>/dev/null)\"; gcd=\"$(git rev-parse --git-common-dir 2>/dev/null)\"; [ -f \"$gcd/the-works/HANDOVER.md\" ] && printf '{\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"A HANDOVER.md is present in .git/the-works/: a child has returned. Ingest it FIRST per the handover skill (read it, act on the chatter, promote any standing item to TODO, then delete) before responding to the user.\"}}'; exit 0",
             "timeout": 5
           }
         ]
