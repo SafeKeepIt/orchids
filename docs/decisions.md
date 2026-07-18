@@ -210,3 +210,26 @@ from, never chase the target" is therefore unexecutable as written. Operator rul
 
 Follow-up owed upstream: amend the kauk skill text (pull-only, lives in
 serialseb/kauk) — see TODO `kauk-skill-symlink-write`.
+
+## [2026-07-18 18:34 CEST] Decision-008: Transients live in .git/the-works/; structural changes ship dated migrations
+#the-works #handover #mood #migrations #watermark #git #hooks
+
+Two rulings from the-works workstream:
+
+- **The uncommittable channel is namespaced.** `HANDOVER.md`, `MOOD.md`, and the
+  migration watermark live in `$(git rev-parse --git-common-dir)/the-works/` — same
+  guarantees as the former flat `.git/` placement (physically uncommittable,
+  worktree-shared), plus an identity that cannot collide with git's own files or
+  other tooling. Writers `mkdir -p` the directory.
+- **Every structural change to a managed artifact ships a migration.** One dated,
+  state-guarded file in the package's `migrations/` (format:
+  `AGENTS.files.md` §Migrations), in the same branch as the change. The package
+  version IS the highest migration filename; a per-clone watermark
+  (`.git/the-works/migrated`) plus a `settings.json` hook announce pending entries;
+  the agent merges all pending migrations and applies the net effect once.
+  Historical entries may be backdated to the change they describe — a repo that
+  never had the package converges by running the whole series, no fresh-install
+  special case.
+
+Context, not ruling: skills describe only the current world; legacy-conversion
+clauses belong in migrations, never in skill text.
