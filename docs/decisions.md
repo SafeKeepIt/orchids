@@ -257,3 +257,14 @@ a limitation, not a policy signal. Three rules, by strength:
   the operator) and let the fix ride the source repo's workflow (`agent-behaviour`
   skill). Decision-007's write-through path is used only on explicit operator
   direction.
+
+## [2026-07-18 18:39 CEST] Decision-010: Micro-tasks may ride main, offered by the agent, gated by the operator
+#workflow #micro-task #main #commits #branching
+
+A one-commit triviality (typo, prose fix, one-line config value) does not earn the
+full workflow machinery. The agent, judging a task micro — single commit, no design
+choice, no meaningful testing question — OFFERS a direct commit on `main` up front;
+the operator's acceptance IS the existing direct-commit override. The agent never
+self-selects the path, and promotes to a full workflow the moment scope grows (a
+landed micro-commit stays on `main`; the grown scope starts fresh). Such commits
+carry `Branch: main` — the sole exception to the git-commit trailer rule.
