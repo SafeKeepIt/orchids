@@ -39,8 +39,28 @@ state. Do NOT re-derive from a prior conversation; read:
   the `handover` skill (read logs oldest→newest → promote decisions/TODO → ARCHIVE the
   stream to `_ingested/`), then continue.
 - `.git/the-works/MOOD.md` (git-common-dir) if present — read with decay (see below) to recover the operator's vibe.
+- **GitHub projection pull** — if the repo has an origin and
+  `.claude/tools/board_gh.py` is laid: `python3 .claude/tools/board_gh.py pull`
+  BEFORE the heavy board read. It ingests GitHub-born issues as triage stubs and
+  GitHub-side closes as board status; commit whatever it changed as board intake.
+  Any error is reported and otherwise ignored — the file board stays authoritative.
 
 That set fully reconstitutes the orchestrator. Nothing it needs lives only in a session.
+
+## GitHub projection (board_gh)
+
+The board is mirrored to GitHub — one labelled issue per ACTIVE task (`gh#` on the
+badge) plus a row in the user-level Project (`Orchidarium`). Files are canonical;
+the mirror is a view. The orchestrator owns both directions, nobody else:
+
+- **pull at boot** (above) — GitHub edits land in files, then files rule.
+- **push after board writes** — after any commit that touched `docs/TODO.md` or a
+  sidecar, and at latest at session close: `python3 .claude/tools/board_gh.py push`.
+  It creates/updates/closes issues and Project rows to match the board; new `gh#`
+  badges it writes are committed as part of the board change.
+
+Ingested stubs (`created_by: gh-ingest`) are UNTRIAGED: type/component/urgency are
+placeholders until the operator grooms them — surface them in the board render.
 
 **Progressive first turn:** don't make the operator wait for the full board. Turn 1 =
 a one-line greeting + the closing choice, built from `MOOD.md` + a single `git` glance
