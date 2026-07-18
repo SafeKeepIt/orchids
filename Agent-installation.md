@@ -26,8 +26,7 @@
 
 4. INSTALL THE ORCHIDS PACKAGE
    .ai/repositories/serialseb/kauk/bin/kauk install serialseb/orchids <origin>
-   where <origin> is https://github.com/SafeKeepIt/orchids (transfers to the
-   kaukea org later; redirects will follow) — on this operator's Pi,
+   where <origin> is https://github.com/kaukea/orchids — on this operator's Pi,
    prefer /home/sudoku/src/serialseb/orchids when present. This clones the package,
    migrates existing files (byte-identical → symlink; project-only skills → adopted
    upstream; diverged → preserved in git history), lays absolute symlinks per the
