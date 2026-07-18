@@ -311,3 +311,16 @@ creates the org in the web UI (no API exists); the repo then transfers
 `SafeKeepIt` → `kaukea`, with GitHub redirects covering both the
 rename and the transfer. Dormant-release requests for `kauk`/`kaukai`
 may still upgrade the name later; a rename from `kaukea` redirects.
+
+## [2026-07-18 22:55 CEST] Decision-013: Private until scrubbed — the publish gate is real
+#github #visibility #publication #scrub #leak #kaukea #board
+
+Amends the visibility clause of Decision-012 (its repo-home and org rulings
+stand): kaukea/orchids and serialseb/kauk are PRIVATE, effective immediately.
+Tonight's public window (~2.5h, full history, forensic skills included) is
+treated as a leak per the operator. Re-publicizing anything requires, in
+order: the pre-publication-cleanup public/private split, a history scrub of
+whatever surface goes public, and an explicit operator go. The
+pre-publication-cleanup push gate applies to visibility changes exactly as to
+pushes; no future session flips a repo public as a side effect of another
+task.

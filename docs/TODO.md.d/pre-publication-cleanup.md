@@ -9,6 +9,14 @@
 - Keep owin.org pointing at the public part only?
 
 ## Findings
+- **2026-07-18 EXPOSURE (operator ruling: treat as leak).** Both repos were made
+  public and pushed with full history — orchids ~19:55–22:45 CEST (renamed
+  aihelp), kauk ~20:20–22:45 — in breach of this task's push gate, which was
+  not consulted. World-readable during the window: every forensic/infra skill,
+  boards, decisions, /home/sudoku paths; plus 28 board issues (still present,
+  now private with the repos). Orchidarium project was private throughout.
+  Consequence: any re-publicizing REQUIRES the history scrub below first; the
+  public/private split decides what a scrubbed public surface even contains.
 - Forensic skills carry live-incident detail (themis, clean-host doctrine, attacker
   context, exhibit numbers); agents/docs reference operator infrastructure; canonical
   paths embed /home/sudoku. Repo history is young — a clean re-init is cheap if
