@@ -1,6 +1,6 @@
 ---
 name: handover
-description: The workstream-log protocol — how sessions pass work to successors and parents. Every session keeps its OWN small, rolling, parseable log in .git/the-works/<stream>/ (state, findings, dead ends, pending decisions, pointers), written as the work progresses, never at the end. A reset or agent change cannot destroy a workstream; the successor reads the stream's logs oldest-first. At close the stream is marked closed; the ingesting parent (or the top-level session itself) promotes pending decisions and remaining work into docs/decisions.md and the TODO, then deletes the stream directory. Replaces the monolithic HANDOVER.md.
+description: The workstream-log protocol — how sessions pass work to successors and parents. Every session keeps its OWN small, rolling, parseable log in .git/the-works/<stream>/ (state, findings, dead ends, pending decisions, pointers), written as the work progresses, never at the end. A reset or agent change cannot destroy a workstream; the successor reads the stream's logs oldest-first. At close the stream is marked closed; the ingesting parent (or the top-level session itself) promotes pending decisions and remaining work into docs/decisions.md and the TODO, then archives the stream under .git/the-works/_ingested/ (provisional retention). Replaces the monolithic HANDOVER.md.
 share: github
 compatibility: Requires git
 metadata:
@@ -79,7 +79,8 @@ Confidence-mark entries: **verified** (and how) vs **suspected**.
   never directly from a child session (single-writer: the board and decisions
   belong to the orchestrator / top-level session).
 - **Not everything leaves the stream.** Most log content is useful only inside
-  the workstream and dies with the directory at ingestion — that is by design.
+  the workstream; at ingestion it retires to `_ingested/` rather than being
+  promoted — that is by design.
 
 ## Reset / agent change (the relay)
 
@@ -108,8 +109,12 @@ stream awaits ingestion. The ingester MUST:
    (canonical format); remaining/follow-up work → the TODO; any standing
    constraint (still true, nameable reader, expiry trigger) → a one-line
    constraint on the relevant TODO item.
-3. **Delete the stream directory** — `rm -rf` — the moment ingestion is done.
-   Nothing is lost: durable content was promoted or already in the sidecar.
+3. **Archive the stream directory** the moment ingestion is done — move it to
+   `$(git rev-parse --git-common-dir)/the-works/_ingested/<stream>/` (still
+   uncommittable; outside the hook's announcement glob). PROVISIONAL retention:
+   ingested logs are kept while we learn whether their negative record (dead
+   ends, failures) earns its keep for cross-checking README / CHANGELOG /
+   commit claims; the retention ruling follows after a few weeks of use.
 
 A top-level session (no parent above it) self-promotes at its own close — the
 symmetric protocol needs no knowledge of tree depth: finish → mark closed →
@@ -121,7 +126,8 @@ whoever is above ingests; if no one is, you are the promoter.
   committed → scrubbed immediately, history rewrite included
   (`AGENTS.shared.md`).
 - One file per session; rolling updates; read oldest→newest.
-- Ingest-then-delete — a closed stream never lingers after promotion.
+- Ingest-then-archive — a closed stream never lingers in the announcement
+  path after promotion; it moves to `_ingested/` (provisional retention).
 - Promotion is the ingester's job — child sessions do not write the board or
   `docs/decisions.md` directly.
 - Override: the operator may bypass any rule per-session by saying so.

@@ -46,7 +46,7 @@ restructuring one, read its section there — do NOT invent a format from memory
 | ARCHITECTURE.md | repo root | close, only if a trigger below fired | no | `AGENTS.files.md` §Architecture |
 | CHANGELOG.md | repo root | close: append one entry | no (append-only) | `AGENTS.files.md` §Changelog |
 | README.md | repo root | close, only if user-facing/tooling change | no | `readme-sync` skill |
-| the-works/\<stream\>/\<session\>.md *(workstream logs)* | `.git/the-works/` (git-common-dir) — uncommittable | one per session, ROLLING — created at session start, updated as work progresses · stream marked `_closed` at finish · promoted then DELETED by the ingester | no — hook announces closed streams | `handover` skill |
+| the-works/\<stream\>/\<session\>.md *(workstream logs)* | `.git/the-works/` (git-common-dir) — uncommittable | one per session, ROLLING — created at session start, updated as work progresses · stream marked `_closed` at finish · promoted then ARCHIVED to `_ingested/` by the ingester | no — hook announces closed streams | `handover` skill |
 | migrations/\<YYYY-MM-DD\>-\<slug\>.md | package root | authored in the same branch as any move/rename/reformat of a managed artifact · applied when the hook reports pending | no — hook-triggered | `AGENTS.files.md` §Migrations |
 
 The functionality/component taxonomy lives in the project's `ARCHITECTURE.md`; agents do
@@ -110,13 +110,14 @@ These hold even when no skill is loaded:
   staging area: sanitized findings are flushed to the stream's committed sidecar;
   decisions and remaining work reach `docs/decisions.md` / the `TODO` when the
   ingester (the parent — or the top-level session itself at its own close)
-  promotes a `_closed` stream, then deletes its directory. The board and
+  promotes a `_closed` stream, then archives it under `.git/the-works/_ingested/`
+  (provisional retention). The board and
   `docs/decisions.md` are written by the orchestrator / top-level session, never
   directly by a child.
 - **Link at the moment of deferral.** When work is split, deferred, or delegated, write
   the relationship into the `TODO` immediately — `parent`/`subtasks`/`blocked_by` + a
-  one-line "moved from X to Y because Z", or "delegated to \<child\>". Stream logs are
-  deleted at ingestion; this link is what keeps any-level orchestrator from running blind.
+  one-line "moved from X to Y because Z", or "delegated to \<child\>". Stream logs leave
+  the active path at ingestion; this link is what keeps any-level orchestrator from running blind.
 - **TRUST YOUR BRANCH.** A session that receives a stream's logs or a child's result acts
   on them and does not re-derive or re-confirm by re-reading everything. Trust is earned
   by the writer keeping a complete, confidence-marked, rolling log.

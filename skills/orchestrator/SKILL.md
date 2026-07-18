@@ -36,8 +36,8 @@ state. Do NOT re-derive from a prior conversation; read:
 - **git, for the in-flight tree:** `git worktree list` = sub-jobs running now;
   `git branch --list 'f/*'` minus `archive/*` tags = open or abandoned branches.
 - `_closed` streams under `$(git rev-parse --git-common-dir)/the-works/` — ingest per
-  the `handover` skill (read logs oldest→newest → promote decisions/TODO → DELETE the
-  stream directory), then continue.
+  the `handover` skill (read logs oldest→newest → promote decisions/TODO → ARCHIVE the
+  stream to `_ingested/`), then continue.
 - `.git/the-works/MOOD.md` (git-common-dir) if present — read with decay (see below) to recover the operator's vibe.
 
 That set fully reconstitutes the orchestrator. Nothing it needs lives only in a session.
@@ -172,7 +172,7 @@ A returning sub-job marks its stream `_closed` under `.git/the-works/<stream>/`.
 ingest hook nudges you on your next prompt: read the stream's session logs
 oldest→newest, promote `## Decisions (pending promotion)` into `docs/decisions.md` and
 remaining work into the TODO (promotion is YOURS — children never write those files),
-then delete the stream directory (per the `handover` skill). Then re-triage and offer
+then archive the stream to `.git/the-works/_ingested/` (per the `handover` skill). Then re-triage and offer
 the next choice. Trust the branch — do not re-derive its work.
 
 ## Renewal & summon (session lifecycle)

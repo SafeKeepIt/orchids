@@ -29,10 +29,11 @@ true
 
 The `legacy` stream is a normal `_closed` stream: read its files oldest-first,
 promote anything durable-looking (decisions, outcomes, deferred work) to its
-proper home, delete the directory (`handover` skill → Ingest).
+proper home, archive the directory to `.git/the-works/_ingested/` (`handover`
+skill → Ingest).
 
 ## Verify
 
 No `HANDOVER*.md` remains directly in `.git/the-works/`; if any existed, they
 now sit under `.git/the-works/legacy/` alongside a `_closed` marker (until
-ingestion deletes the stream).
+ingestion archives the stream to `_ingested/`).

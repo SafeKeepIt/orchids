@@ -18,7 +18,7 @@ The whole workflow must be followed, you must complete all these steps.
 
 Workflow Start:
 
-- [ ] Closed workstreams ingested if announced (`_closed` under `.git/the-works/*/`): promote → delete — see the `handover` skill
+- [ ] Closed workstreams ingested if announced (`_closed` under `.git/the-works/*/`): promote → archive — see the `handover` skill
 - [ ] Own session log created in `.git/the-works/<feature-id>/` (`handover` skill), rolled as work progresses
 - [ ] Working tree resolved with user
 - [ ] Skills synchronized

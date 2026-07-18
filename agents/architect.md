@@ -77,7 +77,7 @@ into the sidecar (`## Findings` + a `Result:` line): outcome (`done` | `blocked`
 orchestrator reads this on its next triage. Chatter and anything sensitive —
 conversation context, personal information — go ONLY into your rolling session log in
 `$(git rev-parse --git-common-dir)/the-works/<feature-id>/` (uncommittable; the
-orchestrator promotes then deletes the stream after reading), NEVER into the committed
+orchestrator promotes then archives the stream after reading), NEVER into the committed
 sidecar. Rulings agreed mid-feature go to the log's `## Decisions (pending promotion)`
 — the board and `docs/decisions.md` are the orchestrator's to write, not yours.
 
