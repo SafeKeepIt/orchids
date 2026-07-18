@@ -91,7 +91,13 @@ nothing else changed.
    → Both land (workflow rebase-retry; local pull-at-start); no lost lines.
 9. **Actor gate.** An issue authored by a non-operator account.
    → The workflow job is skipped; nothing is committed.
-10. **Known gaps (expected to fail — feed the next increment).** a) Editing
+10. **Privacy fallout (Decision-013) — expect kauk's event path BROKEN.**
+    With kaukea/orchids private, kauk's runner can no longer (a) call the
+    cross-owner reusable workflow nor (b) checkout the package with its
+    repo-scoped token. Confirm the failure, then pick the fix: an org/user
+    PAT secret for both operations, or vendoring workflow+tool into
+    consumers via the package (manifest copy/ro pairs with this).
+11. **Known gaps (expected to fail — feed the next increment).** a) Editing
     an issue's body/comments on GitHub is not ingested into the sidecar.
     b) Dragging a card between Status columns in Orchidarium does not reach
     the board. c) No Claude-app triage of stubs. Confirm each is still a gap,
