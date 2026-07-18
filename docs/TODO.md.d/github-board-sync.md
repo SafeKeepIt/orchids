@@ -12,9 +12,18 @@
 - Cross-repo dependency representation: native sub-issues / dependency links
   vs a Project field mirroring `blocked_by` — verify what GitHub offers at
   build time.
-- Ingestion automation shape: scheduled orchestrator session (schedule/cron)
-  vs GitHub Actions — the single-writer rule favours the former; decide
-  cadence and conflict handling with an interactive session holding the board.
+- Claude GitHub App auth: API key vs subscription OAuth token, and secret
+  distribution across the three owners (serialseb, SafeKeepIt, kaukea) —
+  org secrets don't span owners.
+- Injection/actor gating: on public repos anyone can file issues; the
+  workflow must run the orchestrator only for the operator's own
+  issues/comments (actor allowlist), never on third-party text.
+- Workflow-file delivery: .github/workflows/ isn't a managed package path
+  today; decide how the package lays it (kauk delivery vs manual per repo)
+  and note pushes touching workflows need the workflows permission.
+- Race with a live local session on main: cloud orchestrator pushes intake
+  commits; local sessions already pull at start — define retry/ff-only
+  behaviour on push rejection.
 - Project naming and location (user-level project on serialseb).
 
 ## Findings
@@ -35,9 +44,14 @@ Operator rulings (2026-07-18):
   done/cancelled). Issue body = sanitized summary + open questions; the
   sidecar stays the full record.
 - Sync is the ORCHESTRATOR'S job only — pull at session start, push at close
-  (same pattern as kauk sync); child sessions never touch GitHub. Ingestion
-  may additionally run as a scheduled orchestrator-role job so the board
-  converges without an interactive session.
+  (same pattern as kauk sync); child sessions never touch GitHub.
+- Ingestion is EVENT-DRIVEN over GitHub, not polled (operator, 2026-07-18):
+  a GitHub Actions workflow in each repo receives issue/Project events and
+  runs the Claude GitHub integration AS THAT REPO'S ORCHESTRATOR — the
+  checkout carries the vendored orchids package, so the role, skills, and
+  board rules are in place; it ingests the change into sidecar/board and
+  commits to main. Local sessions stay for real work; the cloud orchestrator
+  only triages board events. Works with the Pi off; no idle cron runs.
 - Pilot: orchids + kauk; the fleet follows via the package.
 
 ## Testing
