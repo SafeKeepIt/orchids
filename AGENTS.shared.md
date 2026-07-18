@@ -47,6 +47,7 @@ restructuring one, read its section there — do NOT invent a format from memory
 | CHANGELOG.md | repo root | close: append one entry | no (append-only) | `AGENTS.files.md` §Changelog |
 | README.md | repo root | close, only if user-facing/tooling change | no | `readme-sync` skill |
 | HANDOVER.md | `.git/the-works/` (git-common-dir) — uncommittable | chatter only — written on finish by the child · ingested then DELETED by the parent the moment it is seen | no | `handover` skill |
+| migrations/\<YYYY-MM-DD\>-\<slug\>.md | package root | authored in the same branch as any move/rename/reformat of a managed artifact · applied when the hook reports pending | no — hook-triggered | `AGENTS.files.md` §Migrations |
 
 The functionality/component taxonomy lives in the project's `ARCHITECTURE.md`; agents do
 not invent new values. Pull task and decision content from these files before model memory
@@ -65,6 +66,8 @@ operator), update each file whose condition is met:
 - [ ] **CHANGELOG** — append entry, operator-gated → `AGENTS.files.md` §Changelog
 - [ ] **ARCHITECTURE** — only if a trigger below fired → `AGENTS.files.md` §Architecture
 - [ ] **README** — only if a user-facing or tooling change → `readme-sync` skill
+- [ ] **MIGRATION** — only if the work moved, renamed, or reformatted a managed
+  artifact: a dated entry ships in the same branch → `AGENTS.files.md` §Migrations
 - [ ] **HANDOVER** — written as the closing act → `handover` skill
 
 A workflow is never closed before its Testing gate (below) has been met.
