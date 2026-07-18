@@ -291,3 +291,23 @@ Decision-008 stand; this changes what lives there). Rulings:
   carry the positive record, but dead ends and failures have no committed home;
   a few weeks of use decide whether that archive earns its keep (follow-up task
   `ingested-retention`).
+
+## [2026-07-18 20:28 CEST] Decision-012: orchids publishes at the renamed aihelp repo; org lands on kaukea
+#github #origin #remote #org #kaukea #aihelp #publish
+
+The repo's GitHub home is the former `SafeKeepIt/aihelp`, renamed to
+`orchids` — chosen over creating a fresh repo so the dotai-sync era
+stays attached. Its history was grafted in via an `ours` merge
+(unrelated histories, tree untouched): every aihelp file was a
+superseded May–June draft, so nothing was content-merged. Public
+visibility retained (kauk clones unauthenticated by default).
+
+Org naming: `kauk.ai` is impossible (GitHub names can't contain dots,
+one case-insensitive namespace) and `kaukai` — settled on kauk's board
+— turned out to be held by a dormant 2022 user account, as is `kauk`
+(release ticket filed). Ruling: the org name is **kaukea** (6 letters,
+kauk-kin), picked from a 409-name availability sweep. The operator
+creates the org in the web UI (no API exists); the repo then transfers
+`SafeKeepIt` → `kaukea`, with GitHub redirects covering both the
+rename and the transfer. Dormant-release requests for `kauk`/`kaukai`
+may still upgrade the name later; a rename from `kaukea` redirects.
