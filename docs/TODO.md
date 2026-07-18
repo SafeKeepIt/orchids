@@ -28,6 +28,7 @@ Badge: `type · status · urgency · readiness · component · gh#`.
 - `housekeeping · todo · · queued · process ·` [Configure origin remote; push pending closes](TODO.md.d/origin-remote-missing.md)
 - `feature · todo · · queued · process ·` [Hide machinery skills from the slash list (user-invocable pass)](TODO.md.d/skill-slash-visibility.md)
 - `feature · todo · · queued · process ·` [Standard tree display+selection for package installs (upstream kauk)](TODO.md.d/package-select-tree.md) ~kauk-skill-symlink-write
+- `feature · todo · · queued · process ·` [Sync suggests a reset when the package changed (upstream kauk)](TODO.md.d/sync-suggest-reset.md) ~package-select-tree ~kauk-skill-symlink-write
 
 ## Role delivery
 
