@@ -31,6 +31,14 @@
 - Project naming and location (user-level project on serialseb).
 
 ## Findings
+- Result: FUNCTIONAL (f/github-board-sync, 2026-07-18). Shipped: board_gh.py
+  (issue projection + Project rows + pull ingestion), the user Project
+  "Orchidarium" (private, 28 rows), central board-sync workflow + shim
+  (kauk laid), orchestrator pull-at-boot/push-after-write wiring. Live-tested
+  both repos end-to-end (orchids ingest ed3e4bb, kauk shim 8ca6645).
+  Increments remain per the 2026-07-19 test plan below: body/comment and
+  Project-drag ingestion, Claude-app triage, and the privacy fallout fix
+  (private package repo vs kauk's runner access, Decision-013).
 - Operator problem (2026-07-18): ~15 concurrent projects, some interdependent;
   no cross-project review of pending work and priorities. Console UI can't
   carry it; GitHub Projects v2 chosen as the view.

@@ -21,9 +21,29 @@ _base: `f65ad36`_
   `_closed` streams are promoted by the ingester (single-writer on the board
   and decisions) then archived to `_ingested/` (provisional retention).
 
+- 📋 The board on GitHub: active tasks become labelled issues (`gh#` on the
+  badge), the private user Project **Orchidarium** aggregates all repos'
+  active work with Status/Urgency/Readiness/Component fields, and an
+  actor-gated `board-sync` workflow ingests phone-born issues and couch
+  closes into the file board — files stay canonical; the orchestrator pulls
+  at boot and pushes after board writes.
+
 ### 🐛 Bug fixes
 
 ---
+
+#### 📋 `f/github-board-sync` → `archive/github-board-sync`
+
+The fleet's cross-repo visibility pilot (orchids + kauk): `tools/board_gh.py`
+projects the board to GitHub issues and Orchidarium Project rows and ingests
+GitHub-born changes back; `.github/workflows/board-sync.yml` runs the
+deterministic ingest on issue events (consumers carry only a thin reusable-
+workflow shim); the orchestrator skill owns both directions. Known gaps and
+the day-two scenarios live in the sidecar's 2026-07-19 test plan; repo
+visibility fallout is ruled by Decision-013.
+
+_Board: [github-board-sync](docs/TODO.md.d/github-board-sync.md) · decisions:
+Decision-012, Decision-013._
 
 #### 📓 `f/workstream-log` → `archive/workstream-log`
 
