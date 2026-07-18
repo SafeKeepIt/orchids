@@ -181,7 +181,7 @@ SELECT_FIELDS = {
     "Readiness": ["queued", "working", "blocked-on-answers", "plan-ready",
                   "complete"],
 }
-TEXT_FIELDS = ["Component", "Repo"]
+TEXT_FIELDS = ["Component"]
 
 
 def ensure_project():
@@ -278,7 +278,6 @@ def project_sync(board: Board):
             set_field(project["id"], item_id, fields["Readiness"], stage)
         if t.component:
             set_field(project["id"], item_id, fields["Component"], t.component)
-        set_field(project["id"], item_id, fields["Repo"], board.repo)
         n += 1
     print(f"project {PROJECT_TITLE}: {n} rows ensured for {board.repo}")
 
