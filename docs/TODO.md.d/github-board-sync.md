@@ -59,6 +59,42 @@ Operator rulings (2026-07-18):
 - Pilot: orchids + kauk; the fleet follows via the package.
 
 ## Testing
-An issue filed from the phone appears as a sidecar + board line after the next
-sync; a board status change closes/updates its issue; the Project shows both
-repos' active tasks with correct priority/readiness after push-back.
+Pilot verified live 2026-07-18: projection (20+8 issues, gh# badges), Project
+rows (Orchidarium, 28), ingestion (stub + closed-from-GitHub), event path on
+both repos (orchids direct ed3e4bb, kauk shim 8ca6645), idempotent re-runs.
+
+## Test plan — 2026-07-19 (capabilities → outcomes)
+Run in real conditions, not synthetic loops. Pass = the stated outcome,
+nothing else changed.
+
+1. **Phone-born task.** File an issue from the phone on orchids, no label.
+   → Within ~1 min a `📋 Board ingest` commit lands on main: stub sidecar
+   (`created_by: gh-ingest`) + board line with its gh#.
+2. **Couch close.** Close a real board issue from the phone.
+   → Ingest commit flips that task's board status to `done`; nothing else moves.
+3. **Board-side close.** Mark a task done locally, run push.
+   → Its issue closes with the "task reached" comment; Orchidarium row Status
+   flips to done at next sync.
+4. **Session intake.** Intake a new task on the board, push.
+   → Issue + Orchidarium row appear with Status/Urgency/Readiness/Component
+   matching the badge; gh# committed on the badge.
+5. **Field drift.** Change a task's urgency on the board, push.
+   → Only that row's Urgency changes in Orchidarium.
+6. **Orchestrator boot.** Start a fresh orchestrator session after (1).
+   → Pull runs before the board read; the untriaged stub is surfaced in the
+   render; groom assigns type/component and push updates the issue body.
+7. **Central update propagation.** Edit the central workflow on orchids main
+   (e.g. a log line); file a kauk issue.
+   → kauk's run shows the new logic with no kauk-side change (shim untouched).
+8. **Write race.** Hold an unpushed board commit locally; fire (1) meanwhile;
+   then push local.
+   → Both land (workflow rebase-retry; local pull-at-start); no lost lines.
+9. **Actor gate.** An issue authored by a non-operator account.
+   → The workflow job is skipped; nothing is committed.
+10. **Known gaps (expected to fail — feed the next increment).** a) Editing
+    an issue's body/comments on GitHub is not ingested into the sidecar.
+    b) Dragging a card between Status columns in Orchidarium does not reach
+    the board. c) No Claude-app triage of stubs. Confirm each is still a gap,
+    then scope the increment.
+
+Outcome record: tick each scenario in this section with commit SHAs / run ids.
