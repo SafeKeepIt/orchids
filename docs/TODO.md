@@ -27,6 +27,7 @@ Badge: `type · status · urgency · readiness · component · gh#`.
 - `housekeeping · todo · low · queued · process ·` [Decide retention for ingested workstream logs](TODO.md.d/ingested-retention.md) ~workstream-log
 - `housekeeping · done · · complete/interactive · process ·` [Configure origin remote; push pending closes](TODO.md.d/origin-remote-missing.md)
 - `feature · todo · · queued · process ·` [Hide machinery skills from the slash list (user-invocable pass)](TODO.md.d/skill-slash-visibility.md)
+- `feature · todo · · queued · process ·` [Manifest entry attributes copy/ro (upstream kauk)](TODO.md.d/manifest-copy-ro.md) ~github-board-sync
 - `feature · todo · · queued · process ·` [Standard tree display+selection for package installs (upstream kauk)](TODO.md.d/package-select-tree.md) ~kauk-skill-symlink-write
 - `feature · todo · · queued · process ·` [Sync suggests a reset when the package changed (upstream kauk)](TODO.md.d/sync-suggest-reset.md) ~package-select-tree ~kauk-skill-symlink-write
 - `feature · todo · high · queued · process ·` [Cross-repo board view: GitHub issues + user-level Project, orchestrator-synced](TODO.md.d/github-board-sync.md) ~cross-repo-inbox ~external-blockers
