@@ -6,9 +6,12 @@
 - None.
 
 ## Questions
-- Precedence when the file's attributes say `copy,ro` but the consumer's
-  .ai.toml says otherwise for the same path (author contract vs consumer
-  tuning).
+- ~~Precedence between the file's attributes and consumer .ai.toml~~ —
+  RESOLVED (operator, 2026-07-18): the package is always right. Deferred
+  extension (much later, explicitly out of scope now): a consumer with push
+  permission on the package source may change the attribute AT THE SOURCE
+  and that is respected — write access to the package is the override, not
+  a local setting.
 - Does sync re-copy an `ro` file when the package source changes? (Intended
   reading: yes — ro guards against CONSUMER edits, not package updates; that
   is what distinguishes it from `template`.)
