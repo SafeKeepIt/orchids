@@ -233,3 +233,27 @@ Two rulings from the-works workstream:
 
 Context, not ruling: skills describe only the current world; legacy-conversion
 clauses belong in migrations, never in skill text.
+
+## [2026-07-18 18:36 CEST] Decision-009: Cross-repo writes are gated, surface-bound, and never the suggested route
+#kauk #permissions #settings #cross-repo #skills #agents #symlinks
+
+Narrows Decision-007's third ruling (the blanket `Edit/Write(.ai/repositories/**)`
+allow rules). Decision-007's other rulings stand: the resolve-the-symlink write
+procedure remains the sanctioned mechanism, and the harness symlink refusal remains
+a limitation, not a policy signal. Three rules, by strength:
+
+- **Hard gate.** No standing write-right over `.ai/repositories/**` as a whole.
+  Because `kauk sync` pushes package edits back upstream, a clone write is a
+  cross-repository change propagating fleet-wide — the harness permission prompt is
+  the authorization gate, per occasion, not standing.
+- **Surface boundary.** The fleet `settings.json` allows frictionless writes only
+  inside a package's content surfaces: `agents/`, `skills/`, `files/` (the
+  direct-into-repo symlink folder — the rule attaches to the folder, whatever it
+  holds). Machinery (`manifest.conf`, `settings.json`, `hooks/`, `tools/`, `bin/`)
+  is never writable from a consuming repo; machinery changes happen only in the
+  package's own repo, through its own workflow.
+- **Reasoning norm.** An agent avoids even SUGGESTING edits to a repository it is
+  not working from: capture the issue (TODO naming the source repo, or report to
+  the operator) and let the fix ride the source repo's workflow (`agent-behaviour`
+  skill). Decision-007's write-through path is used only on explicit operator
+  direction.
