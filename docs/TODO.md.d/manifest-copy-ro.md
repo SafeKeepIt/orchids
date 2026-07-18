@@ -6,20 +6,26 @@
 - None.
 
 ## Questions
-- Attribute syntax placement: trailing `[copy,ro]` on any manifest entry line
-  — confirm it applies to `link` (and `skill`?) entries, and how it interacts
-  with per-repo .ai.toml delivery modes (author-specified attribute vs
-  consumer-tuned mode precedence).
+- Precedence when the file's attributes say `copy,ro` but the consumer's
+  .ai.toml says otherwise for the same path (author contract vs consumer
+  tuning).
 - Does sync re-copy an `ro` file when the package source changes? (Intended
   reading: yes — ro guards against CONSUMER edits, not package updates; that
   is what distinguishes it from `template`.)
+- Non-markdown deliveries (e.g. a workflow .yml) cannot carry markdown
+  frontmatter — comment-based marker (`# kauk: copy,ro`), a sidecar
+  attribute file, or manifest fallback for those?
 
 ## Findings
-- Operator spec (2026-07-18): extend the kauk manifest with per-entry
-  attributes `[copy,ro]`, matching other tools' featuresets (chezmoi-style
-  attributes). `copy` lays a real file instead of a symlink; `ro` chmods it
-  read-only AND excludes it from sync take-up of consumer-side changes
-  (which sync doesn't do today anyway — the attribute makes it a contract).
+- Operator spec (2026-07-18, corrected): the attributes live in the
+  delivered FILE'S OWN FRONTMATTER, not on manifest.conf lines, and apply
+  to file deliveries (link-type), not skills. Precedent: skill frontmatter
+  already carries non-schema keys under `metadata:` (`tags:`, `share:`) —
+  the harness tolerates them; delivery attributes extend the same channel
+  (chezmoi-style attributes, matching other tools' featuresets). `copy`
+  lays a real file instead of a symlink; `ro` chmods it read-only AND
+  contracts that sync never takes up consumer-side changes (which it
+  doesn't do today anyway — the attribute makes it explicit).
 - Killer use case: `.github/workflows/` shims. `template` never propagates
   updates; a `link` is a dangling symlink on GitHub. `copy,ro` gives a real
   committed file Actions will run, that consumers can't drift, and that sync
