@@ -425,3 +425,28 @@ reader interprets.
 `--visible` marks a payload the SENDING agent intends the user to see. It is about
 agent-to-user surfacing through an agent-to-agent channel, and is unrelated to
 whether operators address agents by name (they do not).
+
+## [2026-07-20 01:44 CEST] Decision-019: Per-role model and effort are pinned in agent-def frontmatter; the orchestrator scales the architect by complexity
+#workflow #agents #model #effort #frontmatter #orchestrator #tiering
+
+Every agent def carries a `model:` and `effort:` YAML default, replacing the stale
+generic tier names (`opus`/`sonnet`/`haiku`) with concrete current IDs. Registered
+(operator, 2026-07-20):
+
+- orchestrator — `claude-fable-5`, effort `high`
+- architect — `claude-opus-4-8`, effort `xhigh` (the pegged default)
+- builder — `claude-sonnet-5`, effort `high`; jobs are short-lived by design
+- groomer — `claude-sonnet-5`, effort `low`
+- housekeeper — `claude-haiku-4-5`, effort `low`
+- bus (and the other pure-mechanism subagents) — `claude-haiku-4-5`, effort `low`
+
+The architect's model is NOT fixed: the orchestrator scales it from the sized
+complexity at handoff — up to `claude-fable-5` for the hardest long-horizon builds
+(Fable pricing exceeds Opus-tier, so it is a per-task escalation, never the default),
+the `claude-opus-4-8` peg for ordinary features, or down to `claude-sonnet-5` for
+genuinely simple mechanical work. Effort scales on the same read. The frontmatter
+value is the floor the override starts from; the orchestrator states any deviation
+and gets operator agreement before launching. This heuristic lives in the
+orchestrator definition. Sibling of Decision-018 / [[agent-metadata]], which surfaces
+model+effort on the BUS at runtime — this pins the role DEFAULTS in the definition, a
+different layer.

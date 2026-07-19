@@ -1,5 +1,23 @@
 - created: 2026-07-20
 - created_by: opus-4.8
+- completed: 2026-07-20
+- completed_during: main (direct workflow-component authoring)
+
+## Result
+
+done. Implemented directly on `main` (workflow component — the orchestrator's own
+domain, no architect). Operator registered the choices 2026-07-20; see Decision-019.
+
+- `model:` + `effort:` set in all six agent-def frontmatters with concrete current IDs:
+  orchestrator `claude-fable-5`/high, architect `claude-opus-4-8`/xhigh (pegged),
+  builder `claude-sonnet-5`/high, groomer `claude-sonnet-5`/low, housekeeper
+  `claude-haiku-4-5`/low, bus `claude-haiku-4-5`/low.
+- Orchestrator definition gained the model-tier heuristic: it scales the architect's
+  model (fable ↔ opus ↔ sonnet) and effort from sized complexity at handoff, floor =
+  the frontmatter default, deviations stated + operator-agreed before launch.
+- Harness-honours-`effort:` question (see below) resolved pragmatically: the value is
+  the declared default the orchestrator reads and applies via `--effort`; if a later
+  harness/kauk reader honours it natively, no change is needed.
 
 ## Blockers
 
