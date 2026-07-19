@@ -8,20 +8,34 @@ following prose.
 
 Layout (uncommittable, git-common-dir, so every worktree of the repo shares it):
 
-    <git-common-dir>/the-works/bus/<agent-id>/<datetime>.json
+    <git-common-dir>/the-works/bus/<session-id>/<datetime>.json
 
 The set of folders IS the registry — an agent exists for messaging purposes iff
-its folder does. Broadcast writes a copy into each. Messages are ephemeral and
-deleted on consumption, so receiving is "take what is there", with no bookkeeping.
+its folder does. A SessionEnd hook removes it, so sending to an agent that has
+finished fails immediately rather than writing into a folder nobody watches.
+
+Messages are ephemeral and deleted on consumption, so receiving is "take what is
+there", with no bookkeeping. There is NO delivery guarantee: a sender expects no
+answer and decides for itself whether to retry, abandon, or error.
+
+Identity is the session id, read from the environment. It is not derived from
+location: two sessions can share a directory, and a subagent inherits its
+parent's environment verbatim — which is deliberate, since a bus sidecar must
+resolve to its PARENT's inbox.
 
 Usage:
-  bus.py init <agent-id>                       create this agent's inbox
-  bus.py teardown <agent-id>                   remove it (session end)
+  bus.py whoami                                this session's id
+  bus.py init [id]                             create an inbox
+  bus.py teardown [id]                         remove it (session end)
   bus.py list                                  registry: one agent id per line
   bus.py send --from A --to B --type t --body X [--visible]
                                                [--request-id R] [--in-reply-to R]
   bus.py broadcast --from A --type t --body X [--visible]
-  bus.py receive <agent-id>                    drain: JSON array, oldest first
+  bus.py receive [id]                          drain: JSON array, oldest first
+  bus.py identity                              immutable facts about this session
+  bus.py status                                mutable state: occupancy and spend
+  bus.py announce                              broadcast identity (session start)
+  bus.py depart                                broadcast departure (session end)
   bus.py root                                  print the bus root
 """
 import argparse
@@ -33,36 +47,48 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-TYPES = ("post", "broadcast", "request", "reply", "status")
+TYPES = ("post", "broadcast", "request", "reply", "status", "identity", "departure")
+
+# Logical request ids the sidecar answers itself, without waking its parent.
+REQUEST_IDENTITY = "orchid:identity"
+REQUEST_STATUS = "orchid:status"
+
+TOKEN_CLASSES = (
+    "input_tokens",
+    "output_tokens",
+    "cache_read_input_tokens",
+    "cache_creation_input_tokens",
+)
+
+
+def git(*args: str) -> str:
+    """Run a git command, returning '' rather than raising outside a repo."""
+    try:
+        done = subprocess.run(
+            ["git", *args], capture_output=True, text=True, check=True,
+        )
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return ""
+    return done.stdout.strip()
 
 
 def bus_root() -> Path:
-    gcd = subprocess.run(
-        ["git", "rev-parse", "--git-common-dir"],
-        capture_output=True, text=True, check=True,
-    ).stdout.strip()
-    return (Path(gcd).resolve() / "the-works" / "bus")
+    common = git("rev-parse", "--git-common-dir")
+    if not common:
+        sys.exit("bus: not inside a git repository — no bus root")
+    return Path(common).resolve() / "the-works" / "bus"
 
 
 def whoami() -> str:
-    """Derive this session's agent id from where it is running.
+    """This session's id, straight from the environment.
 
-    Derived rather than assigned so the hook and the bus sidecar compute the same
-    answer independently — which is what lets the id be withheld from the parent
-    (it must ask its bus) without anyone having to pass it around.
-
-    A linked worktree is a feature: its directory name is the feature id.
-    The main checkout is the repository's orchestrator.
+    Every session has one and can read its own. A subagent inherits its parent's,
+    which is what lets a bus sidecar find its parent's inbox without being told.
     """
-    git_dir = subprocess.run(
-        ["git", "rev-parse", "--git-dir"],
-        capture_output=True, text=True, check=True,
-    ).stdout.strip()
-    top = subprocess.run(
-        ["git", "rev-parse", "--show-toplevel"],
-        capture_output=True, text=True, check=True,
-    ).stdout.strip()
-    return Path(top).name if "/worktrees/" in git_dir else "orch"
+    session = os.environ.get("CLAUDE_CODE_SESSION_ID", "").strip()
+    if not session:
+        sys.exit("bus: CLAUDE_CODE_SESSION_ID is unset — not inside an agent session")
+    return session
 
 
 def inbox(agent_id: str) -> Path:
@@ -85,6 +111,74 @@ def deliver(target: Path, envelope: dict) -> None:
     os.replace(tmp, final)          # atomic; fires the watcher's moved_to
 
 
+def transcript() -> Path | None:
+    """This session's transcript, located by session id across project folders."""
+    projects = Path.home() / ".claude" / "projects"
+    matches = sorted(projects.glob(f"*/{whoami()}.jsonl"))
+    return matches[-1] if matches else None
+
+
+def usage_entries(path: Path):
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        try:
+            entry = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        usage = (entry.get("message") or {}).get("usage")
+        if isinstance(usage, dict):
+            yield usage
+
+
+def identity_of() -> dict:
+    """Immutable facts, fixed for this session's whole life.
+
+    Model and effort are deliberately absent: they can change mid-session, so they
+    are not identity, and pinning them here would bake in a value that goes stale.
+    """
+    top = git("rev-parse", "--show-toplevel")
+    worktree = Path(top).name if top else None
+    linked = "/worktrees/" in git("rev-parse", "--git-dir")
+    return {
+        "session_id": whoami(),
+        "agent_type": os.environ.get("CLAUDE_CODE_AGENT") or None,
+        "worktree": worktree,
+        "feature_id": worktree if linked else None,
+        "parent_session": os.environ.get("ORCHID_PARENT_SESSION") or None,
+    }
+
+
+def status_of() -> dict:
+    """Mutable state, read off the transcript — the parent is never consulted.
+
+    Two consumers with near-identical payloads: an agent watching context
+    occupancy (its own death condition) and an operator watching spend. Token
+    classes stay broken out because they bill at different rates, so a single
+    total cannot produce cost.
+
+    Raw counts only. Expressing occupancy against a window, or classes as money,
+    needs the model — which is parked, so interpretation is the reader's.
+    """
+    path = transcript()
+    if path is None:
+        return {"session_id": whoami(), "state": "unknown", "reason": "no transcript"}
+
+    spend = dict.fromkeys(TOKEN_CLASSES, 0)
+    latest = None
+    for usage in usage_entries(path):
+        latest = usage
+        for field in TOKEN_CLASSES:
+            spend[field] += usage.get(field, 0) or 0
+
+    occupancy = sum((latest or {}).get(f, 0) or 0 for f in TOKEN_CLASSES
+                    if f != "output_tokens")
+    return {
+        "session_id": whoami(),
+        "state": "live",
+        "context_tokens": occupancy,
+        "spend": spend,
+    }
+
+
 def envelope_of(args, to: str) -> dict:
     return {
         "id": uuid.uuid4().hex[:12],
@@ -99,21 +193,28 @@ def envelope_of(args, to: str) -> dict:
     }
 
 
+def fan_out(sender: str, envelope_for) -> int:
+    root = bus_root()
+    if not root.is_dir():
+        return 0
+    peers = [d for d in sorted(root.iterdir()) if d.is_dir() and d.name != sender]
+    for peer in peers:
+        deliver(peer, envelope_for(peer.name))
+    return len(peers)
+
+
 def cmd_send(args) -> None:
     target = inbox(args.to)
     if not target.is_dir():
-        sys.exit(f"bus: no such agent {args.to!r} (no inbox) — is it running?")
+        sys.exit(f"bus: no such agent {args.to!r} (no inbox) — it has finished or never started")
     deliver(target, envelope_of(args, args.to))
 
 
 def cmd_broadcast(args) -> None:
-    root = bus_root()
-    if not root.is_dir():
+    if not bus_root().is_dir():
         sys.exit("bus: no bus root — nothing to broadcast to")
-    peers = [d for d in sorted(root.iterdir()) if d.is_dir() and d.name != args.sender]
-    for peer in peers:
-        deliver(peer, envelope_of(args, peer.name))
-    print(f"broadcast to {len(peers)} agent(s)")
+    reached = fan_out(args.sender, lambda name: envelope_of(args, name))
+    print(f"broadcast to {reached} agent(s)")
 
 
 def cmd_receive(args) -> None:
@@ -124,7 +225,10 @@ def cmd_receive(args) -> None:
             try:
                 out.append(json.loads(f.read_text(encoding="utf-8")))
             except (json.JSONDecodeError, OSError) as exc:
+                # left on disk deliberately: a malformed envelope is evidence, and
+                # deleting it would destroy the only copy of the thing to debug
                 out.append({"type": "malformed", "file": f.name, "error": str(exc)})
+                continue
             f.unlink(missing_ok=True)               # ephemeral: consumed is gone
     print(json.dumps(out, indent=2))
 
@@ -152,6 +256,35 @@ def cmd_list(args) -> None:
                 print(d.name)
 
 
+def announcement(kind: str, body: dict, sender: str):
+    def build(to: str) -> dict:
+        return {
+            "id": uuid.uuid4().hex[:12],
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "from": sender,
+            "to": to,
+            "type": kind,
+            "visible": False,
+            "request_id": REQUEST_IDENTITY,
+            "in_reply_to": None,
+            "body": body,
+        }
+    return build
+
+
+def cmd_announce(args) -> None:
+    me = whoami()
+    inbox(me).mkdir(parents=True, exist_ok=True)
+    reached = fan_out(me, announcement("identity", identity_of(), me))
+    print(f"announced to {reached} agent(s)")
+
+
+def cmd_depart(args) -> None:
+    me = whoami()
+    reached = fan_out(me, announcement("departure", {"session_id": me}, me))
+    print(f"departure sent to {reached} agent(s)")
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description="repo-scoped agent message bus")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -165,13 +298,19 @@ def main() -> None:
     sub.add_parser("whoami").set_defaults(func=lambda a: print(whoami()))
     sub.add_parser("list").set_defaults(func=cmd_list)
     sub.add_parser("root").set_defaults(func=lambda a: print(bus_root()))
+    sub.add_parser("announce").set_defaults(func=cmd_announce)
+    sub.add_parser("depart").set_defaults(func=cmd_depart)
+    sub.add_parser("identity").set_defaults(
+        func=lambda a: print(json.dumps(identity_of(), indent=2)))
+    sub.add_parser("status").set_defaults(
+        func=lambda a: print(json.dumps(status_of(), indent=2)))
 
     def msg_args(s):
         s.add_argument("--from", dest="sender", required=True)
         s.add_argument("--type", default="post", choices=TYPES)
         s.add_argument("--body", required=True)
         s.add_argument("--visible", action="store_true",
-                       help="surface to the operator, not just the agent")
+                       help="the sending agent intends this for the user to see")
         return s
 
     s = msg_args(sub.add_parser("send"))

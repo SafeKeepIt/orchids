@@ -1,18 +1,22 @@
 #!/usr/bin/env bash
-# SessionStart hook — give every session in this repository a mailbox.
+# SessionStart hook — put every session in this repository on the message bus.
+#
+# A hook rather than a prompt instruction on purpose: code does not drift, models
+# do, and AGENTS.md / CLAUDE.md get bypassed regularly. This applies to every
+# agent in every flow, not only the ones that happen to read their briefing.
 #
 # Two jobs, and only the first is enforceable from a shell:
-#   1. create this agent's inbox (structural — it exists whatever the model does);
-#   2. inject the instruction to load the bus sidecar (a model action; a hook cannot
-#      spawn a subagent, so this step is prompted, not enforced).
+#   1. create this session's inbox (structural — it exists whatever the model does);
+#   2. instruct the session to load its bus and announce itself (a model action; a
+#      hook cannot spawn a subagent, so this step is prompted, not enforced).
 #
-# The injection deliberately carries NO identity and NO path. An agent that skips
-# loading its bus therefore cannot address anything, cannot be addressed, and does
-# not know its own name — the gate is the capability itself rather than a nudge.
+# The announcement is what makes step 2 verifiable: an agent that never announces
+# is visibly absent to every peer, so a skipped bus is detectable rather than a
+# silently deaf agent. Note this is detection, NOT a capability gate — the session
+# id is an environment variable and nothing here can withhold it.
 set -eu
 
 root="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
-# consuming repos get it laid at .claude/tools/; orchids itself holds the source
 for candidate in "$root/.claude/tools/bus.py" "$root/tools/bus.py"; do
   [ -f "$candidate" ] && bus="$candidate" && break
 done
@@ -22,5 +26,5 @@ done
 python3 "$bus" init >/dev/null 2>&1 || exit 0
 
 cat <<'JSON'
-{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"MESSAGING: you can exchange messages with the other agents in this repository. Load your bus sidecar now — spawn a subagent with subagent_type \"bus\" and the prompt \"You are my bus. Report my identity and how to reach the others.\" It is your ONLY means of sending or receiving, and it will tell you who you are. Do this before starting work: messages addressed to you are already accumulating, and without a bus you will never see them."}}
+{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"MESSAGING: you can exchange messages with the other agents in this repository. Load your bus sidecar now — spawn a subagent with subagent_type \"bus\" and the prompt \"You are my bus. Announce me and stay listening.\" Do this BEFORE starting work: it announces you to your peers, and until it runs you are invisible to them and will silently miss anything broadcast to you. Ask your bus in plain language to send things; arriving messages appear on their own."}}
 JSON

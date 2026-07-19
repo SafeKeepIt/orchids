@@ -47,6 +47,17 @@
           }
         ]
       }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "root=\"$(git rev-parse --show-toplevel 2>/dev/null)\"; [ -x \"$root/.claude/hooks/bus-end.sh\" ] && \"$root/.claude/hooks/bus-end.sh\"; exit 0",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }
