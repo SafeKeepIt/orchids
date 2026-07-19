@@ -27,9 +27,39 @@ build approval are human-only, always.
 | architect | opus | worktree session (`.claude/worktrees/<id>`, branch `f/<id>`) | One feature; its sidecar is the whole scope. Read-only discovery (parallel explorers) → plan agreed with the operator → **no file edit before MAKE IT SO** → builds/tests → signals `THAT IS ALL`. Never reads the board or prior conversation. |
 | builder | sonnet | headless subagent from the architect | Exactly one step-spec; returns typed diff + self-test. |
 | housekeeper | sonnet | headless, in the MAIN repo, after operator says "close it" | The deterministic close: verify docs, tag, squash-merge, push, remove worktree + branch. Verifies documentation, never authors it. |
+| bus | haiku | one per session, loaded at session start | Not on the pipeline — the sidecar that connects a session to the message bus. Announces its parent, watches its inbox, relays messages up, sends on request. Owns the mechanism so no other role learns it. Does nothing else. |
 
 Isolation is per-dispatch (native worktrees), not a per-repo mode. One writer
 per task, always.
+
+## The message bus
+
+A cross-cutting channel between top-level sessions, orthogonal to the pipeline —
+no role depends on it to do its own job, and it belongs to no single agent type.
+
+```
+session ──spawns──> bus sidecar ──announce──> every peer's inbox
+                          │
+   inbox events ──────────┘──SendMessage──> its own parent
+```
+
+- **Address** = the session id (`CLAUDE_CODE_SESSION_ID`), never derived from
+  location. Role and worktree are separate facts, not folded into the address.
+- **Transport** = one JSON file per message under
+  `$(git rev-parse --git-common-dir)/the-works/bus/<session-id>/`, so every
+  worktree of a repo shares one bus and nothing is committed. The set of folders
+  IS the registry; there is no broker.
+- **Membership** is established by hooks, not prompts: `SessionStart` creates the
+  inbox, `SessionEnd` broadcasts a departure and removes it — so a send to a
+  finished agent fails immediately instead of vanishing into an unwatched folder.
+- **Only top-level sessions** are members. Subagents belong to their spawner and
+  already have `SendMessage`.
+- **No delivery guarantee.** Messages are ephemeral, unacknowledged, and die with
+  the inbox. A sender expects no answer and chooses to retry, abandon, or error.
+- `orchid:identity` (broadcast once, immutable) and `orchid:status` (pulled,
+  mutable — context occupancy and token spend) are answered by the sidecar off the
+  parent's transcript, so they cost the parent no context and keep answering while
+  it is busy or wedged.
 
 ## The sidecar contract
 
@@ -69,10 +99,10 @@ symlink, everyone), `template` (install-time copy, then project-owned),
 ## Repo layout
 
 ```
-agents/            five role definitions (→ .claude/agents/)
+agents/            five pipeline roles + bus sidecar (→ .claude/agents/)
 skills/<name>/     SKILL.md packages (→ .claude/skills/, per role)
-hooks/             architect-close.sh
-tools/             board_lint.py · board_stale.py (→ .claude/tools/)
+hooks/             architect-close.sh · bus-init.sh · bus-end.sh (→ .claude/hooks/)
+tools/             board_lint.py · board_stale.py · bus.py (→ .claude/tools/)
 templates/         AGENTS.md (template) · CLAUDE.md (prefix block)
 migrations/        dated structural-upgrade instructions (YYYY-MM-DD-<slug>.md); applied
                    per clone against the .git/the-works/migrated watermark

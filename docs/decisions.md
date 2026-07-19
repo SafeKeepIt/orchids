@@ -324,3 +324,104 @@ whatever surface goes public, and an explicit operator go. The
 pre-publication-cleanup push gate applies to visibility changes exactly as to
 pushes; no future session flips a repo public as a side effect of another
 task.
+
+## [2026-07-19 20:15 CEST] Decision-014: An agent's address is its session id
+#message-bus #identity #session-id #agents #bus
+
+Agent identity is `CLAUDE_CODE_SESSION_ID`, read from the environment. The first
+draft derived it from the working directory — a linked worktree became its feature
+id, the main checkout became `orch`. That ignored the environment, which already
+publishes the answer, and collided for any two sessions sharing a location: the
+orchestrator and a groomer both resolved to `orch` and would have drained each
+other's mail.
+
+Role (`CLAUDE_CODE_AGENT`) and worktree stay SEPARATE fields rather than being
+folded into the address. A session id is unique but not guessable; a role name is
+guessable but not unique. Conflating them yields something that is neither, and a
+session-derived suffix on a name destroys the very property that makes an address
+an address.
+
+The creator learns the created agent's address because the created agent announces
+it, naming its parent — flow is one-way, creator to created, so every edge of the
+tree is known without a lookup service. `--session-id` can also mint one at launch
+if a creator needs to know before first contact.
+
+A subagent inherits its parent's environment verbatim (session id, role, PID —
+verified). That is load-bearing, not a defect: it is what lets a bus sidecar
+resolve to its PARENT's mailbox without being told who its parent is.
+
+## [2026-07-19 20:15 CEST] Decision-015: Only top-level sessions sit on the bus
+#message-bus #agents #subagents #scope
+
+Bus membership is top-level sessions only. Subagents are the responsibility of the
+agent that spawned them and already have `SendMessage` for talking to their owner;
+they get no inbox and no address.
+
+This dissolves the identity problem for sessions that have no stable name of their
+own — several concurrent builders under one architect share no distinguishing role,
+so naming them needed either a session-derived suffix (unguessable, therefore not an
+address) or a per-task name (bookkeeping for a case nobody needs). Neither is built.
+
+## [2026-07-19 20:15 CEST] Decision-016: No delivery guarantee, by design
+#message-bus #delivery #reliability #bus
+
+The bus offers no acknowledgement, no retry, no timeout and no redelivery. Messages
+are deleted on consumption; a session's inbox is destroyed at SessionEnd along with
+anything still unread.
+
+A sending agent must expect never to receive an answer and decide for itself whether
+to retry, abandon, or error. This is deliberate and pre-existing: building acks would
+mean claim-then-delete, in-flight state, and a scheduler for timeouts — a broker,
+which is exactly what the filesystem is being used to avoid.
+
+Consequence accepted: a sidecar that dies between draining and handing up loses those
+messages silently. The mitigation is not redelivery, it is that a requester notices
+its own silence.
+
+## [2026-07-19 20:15 CEST] Decision-017: The hook is the mechanism, not secrecy
+#message-bus #hooks #sessionstart #sessionend #gate
+
+Bus membership is established by SessionStart and SessionEnd hooks rather than by
+instructions in agent prompts. Code does not drift; models do, and AGENTS.md and
+CLAUDE.md get bypassed regularly. A hook applies to every agent in every flow,
+including ones that never read their briefing.
+
+The first draft claimed the session id was "withheld and returned by the bus — a gate
+rather than a nudge", so an agent skipping its bus could not address anything. That
+claim is false and has been removed: the id is an environment variable any agent can
+read. What the design actually provides is DETECTION, not prevention — an agent that
+never announces is visibly absent to every peer, so a skipped bus is discoverable
+rather than silently deaf.
+
+Loading the sidecar remains a model action, because a hook cannot spawn a subagent.
+That is the acknowledged soft spot, accepted until the broader injection-integrity
+problem is addressed.
+
+## [2026-07-19 20:15 CEST] Decision-018: Identity is broadcast, status is asked for
+#message-bus #identity #status #tokens #orchid #request-response
+
+Immutable facts are broadcast once at load (`orchid:identity`): session id, agent
+type, worktree, feature id, parent session. Mutable state is pulled on demand
+(`orchid:status`): state, context occupancy, token spend.
+
+Both logical requests are answered BY THE SIDECAR, off the parent's transcript, which
+it can read because it shares the parent's session id. The parent is never woken, so
+the exchange costs it no context — and status keeps answering while the parent is
+busy, wedged, or mid-compaction. A parent that has never reported yields `unknown`
+rather than silence, so a stalled agent stays distinguishable from a deaf one.
+
+Token counts serve two consumers with near-identical payloads: an agent watching
+context occupancy (its own death condition — context exhaustion degrades quietly
+rather than failing loudly) and an operator watching spend. The four token classes
+are carried broken out, never summed, because they bill at different rates and a
+single total cannot yield cost.
+
+Model and effort are deliberately NOT in identity: they can change mid-session (a
+model disengaging, tokens running out), so identity-at-birth and status-at-time
+would disagree. Adding them needs a rule for which wins, so they are parked rather
+than half-built. Without a model there is no denominator, so counts ship raw and the
+reader interprets.
+
+`--visible` marks a payload the SENDING agent intends the user to see. It is about
+agent-to-user surfacing through an agent-to-agent channel, and is unrelated to
+whether operators address agents by name (they do not).

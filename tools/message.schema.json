@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://orchids.kaukea/message.schema.json",
+  "title": "Bus message envelope",
+  "description": "The on-disk format of one bus message. Owned by tools/bus.py; this schema is the canonical definition of the envelope.",
+  "type": "object",
+  "required": ["id", "ts", "from", "to"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique message id. A reply references it via in_reply_to; there is no separate request id."
+    },
+    "ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the message was created."
+    },
+    "from": {
+      "type": "string",
+      "description": "Sender agent id."
+    },
+    "to": {
+      "type": "string",
+      "description": "Recipient: an agent id (directed), or `*` (everyone / broadcast)."
+    },
+    "in_reply_to": {
+      "type": "string",
+      "description": "The id of the request this message answers. Present only on a reply."
+    },
+    "notify_user": {
+      "const": true,
+      "description": "Present and true only when the sending agent intends the user to see this."
+    },
+    "body": {
+      "description": "The payload. Optional; any type. A standard request's body is a fixed identifier string (e.g. \"identity\", \"status\") that the recipient's sidecar answers itself."
+    }
+  }
+}

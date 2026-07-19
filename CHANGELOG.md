@@ -6,6 +6,20 @@ _base: `f65ad36`_
 
 ### ✨ New features
 
+- 📮 Message bus: independent agent sessions in one repository can talk to each
+  other. A `bus` sidecar owns the entire mechanism, so no other role learns the
+  format, the paths, or the ordering rules; agents ask it in plain language.
+  Membership is established by hooks rather than prompts (code does not drift,
+  models do): `SessionStart` creates the inbox and asks the session to load its
+  bus and announce itself, `SessionEnd` broadcasts a departure and removes the
+  inbox so a later send fails immediately instead of vanishing. An agent's
+  address is its session id; only top-level sessions are members. Identity is
+  broadcast once, while status — context occupancy and token spend — is pulled
+  on demand and answered by the sidecar off the parent's transcript, costing the
+  parent no context and still answering while it is busy or wedged. There is no
+  delivery guarantee by design: a sender expects no answer and decides for
+  itself whether to retry, abandon, or error.
+
 - 📋 Registry file set: README (the why/what) + ARCHITECTURE (the how) front
   door, the "install kauk/orchids" bootstrap contract
   (`Agent-installation.md`), and `docs/decisions.md` seeded with the
