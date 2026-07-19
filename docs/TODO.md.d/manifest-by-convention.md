@@ -8,10 +8,12 @@ _None._
 
 ## Questions
 
-- Does this land before or after the real kauk CLI? `manifest.conf` is parsed by the
-  `kauk-sync` stopgap, which is documented as dying when the real CLI ships — so the fix may
-  belong in that CLI's design rather than in the stopgap. The lint below is worth doing
-  either way because it is a few lines.
+- Does the DERIVATION land before or after the real kauk CLI? `manifest.conf` is parsed by
+  the `kauk-sync` stopgap, documented as dying when the real CLI ships, so the redesign may
+  belong in that CLI instead.
+- The LINT is not subject to that question. Drift accrues per file added, so waiting for the
+  CLI does not hold the problem still — it compounds it. Split the task: lint now, derivation
+  whenever the CLI question resolves.
 
 ## Findings
 
@@ -42,10 +44,11 @@ Derive distribution from the tree instead of authoring it. Directory conventions
 per-file `link` and `skill` lines; whatever cannot be derived (delivery semantics, package
 options) moves somewhere that is not a parallel copy of the directory listing.
 
-**Do the cheap half first regardless of the above:** a lint that compares the payload
-directories against the manifest and fails on anything present in the tree but undeclared.
-That alone converts the silent failure into a loud one, and would have caught the 19 July bug
-at commit time.
+**Do the lint NOW, not as a first half of a later project.** A check comparing the payload
+directories against the manifest, failing on anything present in the tree but undeclared. It
+converts a silent failure into a loud one, would have caught the 19 July bug at commit time,
+and is worth doing even if every other line of this task is thrown away — because the cost of
+not having it is paid per file added, and files are being added now.
 
 ## Testing
 
