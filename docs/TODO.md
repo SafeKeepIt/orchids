@@ -36,6 +36,7 @@ Badge: `type · status · urgency · readiness · component · gh#`.
 - `feature · todo · urgent · queued · process ·` [Injection integrity: make instructions arrive intact, not summarised](TODO.md.d/injection-integrity.md) ~session-start-hook
 - `feature · todo · · queued · process ·` [Sidecar liveness: prove an agent is still listening after load](TODO.md.d/bus-liveness.md) ~message-bus
 - `feature · todo · · queued · process ·` [Agent metadata: model, effort and token denominators on the bus](TODO.md.d/agent-metadata.md) ~message-bus
+- `bug · todo · urgent · queued · process ·` [Distribution is a hand-typed index: derive it from the tree, and fail loudly meanwhile](TODO.md.d/manifest-by-convention.md) ~role-dag-frontmatter
 - `feature · todo · idea · queued · · gh#15` [Writing emails — scope to be defined by the operator](TODO.md.d/writing-emails.md)
 
 ## Role delivery
