@@ -18,9 +18,20 @@ _None._
 - **`settings.json` is delivered as a `link`** (`link settings.json .claude/settings.json`),
   so every consuming repo SYMLINKS one shared file. Verified: seb.tv's `.claude/settings.json`
   points into its orchids clone.
-- **Therefore a repo cannot have its own hooks.** Adding a TV-specific hook to seb.tv means
-  editing the shared file, which imposes it on kauk, signmc, TitanShield and everything else.
-  There is no per-repo surface in use — hooks that should be local end up in one global pool.
+- **Correction (verified 2026-07-19): a repo CAN opt out, but cannot COMPOSE.** kauk refuses
+  to lay a link over a real file — `BLOCKED <link> (real file present — run 'kauk install' to
+  migrate, or mark it local/copy in .ai.toml)` — so `.ai.toml` delivery modes are a designed
+  per-repo escape hatch. What does not exist is a MERGE: a repo takes the package's settings
+  wholesale, or owns its own and thereafter stops receiving package updates. Adding one
+  TV-specific hook to seb.tv today means either imposing it on every other repo or forking
+  the whole file.
+- **Nothing is silently overwritten.** kauk BLOCKS on a real file and reports; `copy_one` is
+  explicitly "never overwrite" and reports DRIFT instead. An earlier worry that installs may
+  have clobbered pre-existing settings is unfounded — verified in the kauk source.
+- **Claude Code does read a symlinked `settings.json`** — proven empirically, not assumed:
+  the `UserPromptSubmit` migration and ingestion hooks and the `Stop` close hook all fired
+  repeatedly through 19 July from seb.tv, whose `.claude/settings.json` is a symlink into its
+  orchids clone.
 - **Hook entries carry no provenance.** Each is an anonymous shell string inside a shared
   array. Nothing records which package, feature or session added it, so nothing can remove it,
   audit it, or tell a stale entry from a live one. The `hooks` object is append-only by
