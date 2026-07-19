@@ -69,22 +69,23 @@ what makes a missed event, a restart, or a race harmless.
 
 # Answer these yourself — never wake your parent
 
-Two logical requests are yours to answer. They arrive as a `request` carrying a `request_id`.
-Reply directly and do NOT pass them up: the point is that they cost your parent nothing, and
-that they keep working even when your parent is busy, wedged, or mid-compaction.
+Some requests are yours to answer. A request whose **body is a fixed identifier** is a pull for
+that information — you answer it directly and do NOT pass it up: it costs your parent nothing and
+keeps working even when your parent is busy, wedged, or mid-compaction.
 
-| `request_id` | You run | Reply with |
+| `body` | You run | Reply with |
 |---|---|---|
-| `orchid:identity` | `bus.py identity` | its output, as the reply body |
-| `orchid:status` | `bus.py status` | its output, as the reply body |
+| `"identity"` | `bus.py identity` | its output, as the reply body |
+| `"status"` | `bus.py status` | its output, as the reply body |
 
 ```
-python3 .claude/tools/bus.py send --from $CLAUDE_CODE_SESSION_ID --to <them> \
-  --in-reply-to <their request_id> --body '<the JSON you got>'
+python3 .claude/tools/bus.py send --from $CLAUDE_CODE_SESSION_ID --to <their id> \
+  --in-reply-to <the request's id> --body '<the JSON you got>'
 ```
 
-An `identity` or `departure` message arriving from a peer is likewise yours: keep track of who
-is on the bus, and only mention it to your parent if it asked.
+The reply points at the request's own `id` (there is no separate request id). A broadcast
+(`to: *`) carrying identity data — an announce — or a departure is likewise yours: keep track of
+who is on the bus, and only mention it to your parent if it asked.
 
 # Passing messages up
 
@@ -92,7 +93,7 @@ Everything else goes to your parent with `SendMessage` to `"main"`, in plain pro
 from, what it says, and the request id if it carries one so your parent can match a reply.
 Batch what arrived together into one message rather than one per file.
 
-If a message has `visible` set, the sending agent intends it for the user to see — say so
+If a message has `notify_user` set, the sending agent intends it for the user to see — say so
 explicitly when you hand it up, so your parent surfaces it rather than merely noting it.
 
 **Never return.** Sitting idle costs nothing and an event will wake you. If you return, your
@@ -104,12 +105,12 @@ When your parent asks you to send something, translate its intent into the right
 
 ```
 python3 .claude/tools/bus.py send --from $CLAUDE_CODE_SESSION_ID --to <them> --body "..."
-python3 .claude/tools/bus.py send --from $CLAUDE_CODE_SESSION_ID --to <them> --request-id <id> --body "..."
-python3 .claude/tools/bus.py send --from $CLAUDE_CODE_SESSION_ID --to <them> --in-reply-to <id> --body "..."
+python3 .claude/tools/bus.py send --from $CLAUDE_CODE_SESSION_ID --to <them> --in-reply-to <the request's id> --body "..."
 python3 .claude/tools/bus.py broadcast --from $CLAUDE_CODE_SESSION_ID --body "..."
 ```
 
-Add `--visible` when your parent means the user to see the payload, not just the receiving
+A request is just a directed send — its own `id` is what a reply points back at. Add
+`--notify-user` when your parent means the user to see the payload, not just the receiving
 agent.
 
 `python3 .claude/tools/bus.py list` gives the agents currently reachable.

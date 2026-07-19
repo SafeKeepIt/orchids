@@ -28,9 +28,8 @@ Usage:
   bus.py init [id]                             create an inbox
   bus.py teardown [id]                         remove it (session end)
   bus.py list                                  registry: one agent id per line
-  bus.py send --from A --to B [--body X] [--visible]
-                                               [--request-id R] [--in-reply-to R]
-  bus.py broadcast --from A [--body X] [--visible]
+  bus.py send --from A --to B [--body X] [--notify-user] [--in-reply-to ID]
+  bus.py broadcast --from A [--body X] [--notify-user]
   bus.py receive [id]                          drain: JSON array, oldest first
   bus.py identity                              immutable facts about this session
   bus.py status                                mutable state: occupancy and spend
@@ -47,9 +46,10 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Logical request ids the sidecar answers itself, without waking its parent.
-REQUEST_IDENTITY = "orchid:identity"
-REQUEST_STATUS = "orchid:status"
+# Standard request bodies the sidecar answers itself, without waking its parent:
+# a message whose body is one of these is a pull for that information. Closed set,
+# handled deterministically so it costs no tokens in the parent or the sidecar.
+FIXED = ("identity", "status")
 
 TOKEN_CLASSES = (
     "input_tokens",
@@ -177,20 +177,38 @@ def status_of() -> dict:
     }
 
 
-def envelope_of(args, to: str) -> dict:
+def make_envelope(sender: str, to: str, *, body=None, notify_user=False,
+                  in_reply_to=None) -> dict:
+    """Build a message envelope carrying only the fields that mean something.
+
+    id/ts/from/to are always present. `to` is a recipient id or `*` (everyone).
+    Everything else appears only when set: no in_reply_to unless it answers a
+    request, no notify_user unless the user should see it, no body when there
+    is none. A request is not tagged — its id is its identifier, and a standard
+    request is recognised by its body (see the fixed identifiers).
+    """
     env = {
         "id": uuid.uuid4().hex[:12],
         "ts": datetime.now(timezone.utc).isoformat(),
-        "from": args.sender,
+        "from": sender,
         "to": to,
-        "visible": bool(getattr(args, "visible", False)),
-        "request_id": getattr(args, "request_id", None),
-        "in_reply_to": getattr(args, "in_reply_to", None),
     }
-    body = getattr(args, "body", None)
+    if notify_user:
+        env["notify_user"] = True
+    if in_reply_to is not None:
+        env["in_reply_to"] = in_reply_to
     if body is not None:
         env["body"] = body
     return env
+
+
+def envelope_of(args, to: str) -> dict:
+    return make_envelope(
+        args.sender, to,
+        body=getattr(args, "body", None),
+        notify_user=bool(getattr(args, "notify_user", False)),
+        in_reply_to=getattr(args, "in_reply_to", None),
+    )
 
 
 def fan_out(sender: str, envelope_for) -> int:
@@ -213,7 +231,8 @@ def cmd_send(args) -> None:
 def cmd_broadcast(args) -> None:
     if not bus_root().is_dir():
         sys.exit("bus: no bus root — nothing to broadcast to")
-    reached = fan_out(args.sender, lambda name: envelope_of(args, name))
+    # every copy is addressed to `*`, though each lands in a specific peer's folder
+    reached = fan_out(args.sender, lambda name: envelope_of(args, "*"))
     print(f"broadcast to {reached} agent(s)")
 
 
@@ -257,17 +276,10 @@ def cmd_list(args) -> None:
 
 
 def announcement(body: dict, sender: str):
+    # a push, not a request: broadcast (to `*`) carrying the data itself, so a
+    # receiving sidecar records it. No id-tag — the body IS the payload.
     def build(to: str) -> dict:
-        return {
-            "id": uuid.uuid4().hex[:12],
-            "ts": datetime.now(timezone.utc).isoformat(),
-            "from": sender,
-            "to": to,
-            "visible": False,
-            "request_id": REQUEST_IDENTITY,
-            "in_reply_to": None,
-            "body": body,
-        }
+        return make_envelope(sender, "*", body=body)
     return build
 
 
@@ -307,18 +319,17 @@ def main() -> None:
     def msg_args(s):
         s.add_argument("--from", dest="sender", required=True)
         s.add_argument("--body")
-        s.add_argument("--visible", action="store_true",
+        s.add_argument("--notify-user", dest="notify_user", action="store_true",
                        help="the sending agent intends this for the user to see")
         return s
 
     s = msg_args(sub.add_parser("send"))
     s.add_argument("--to", required=True)
-    s.add_argument("--request-id", dest="request_id")
     s.add_argument("--in-reply-to", dest="in_reply_to")
     s.set_defaults(func=cmd_send)
 
     s = msg_args(sub.add_parser("broadcast"))
-    s.set_defaults(func=cmd_broadcast, to=None, request_id=None, in_reply_to=None)
+    s.set_defaults(func=cmd_broadcast, to=None, in_reply_to=None)
 
     args = p.parse_args()
     if getattr(args, "agent_id", "sentinel") is None:
