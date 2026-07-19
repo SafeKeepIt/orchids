@@ -34,6 +34,8 @@ Badge: `type · status · urgency · readiness · component · gh#`.
 - `housekeeping · paused · low · blocked-on-answers · process · gh#14` [Install-id migration to the kaukea org — parked until the org name is final](TODO.md.d/install-id-kaukea.md)
 - `feature · todo · · queued · process ·` [Orchard: messaging across repository boundaries](TODO.md.d/orchard.md) ~status-channel ~cross-repo-inbox
 - `feature · todo · urgent · queued · process ·` [Injection integrity: make instructions arrive intact, not summarised](TODO.md.d/injection-integrity.md) ~session-start-hook
+- `feature · todo · · queued · process ·` [Sidecar liveness: prove an agent is still listening after load](TODO.md.d/bus-liveness.md) ~message-bus
+- `feature · todo · · queued · process ·` [Agent metadata: model, effort and token denominators on the bus](TODO.md.d/agent-metadata.md) ~message-bus
 - `feature · todo · idea · queued · · gh#15` [Writing emails — scope to be defined by the operator](TODO.md.d/writing-emails.md)
 
 ## Role delivery

@@ -36,3 +36,10 @@ once the repo-scoped bus is proven in use.
 
 To agree when the task is groomed — expected shape: an agent in one repository addresses an
 agent in another and the message is delivered, with broadcast still confined to its own repo.
+
+## Wall item promoted from the bus build (2026-07-19)
+
+- **Phase-two lean HELLO + lazy metadata fetch.** The bus announces identity eagerly at load,
+  which is fine at small n. Once membership is large and interest is sparse — the cross-repo
+  case — announcing everything to everyone stops paying. Fetch metadata on demand instead.
+  Left for Orchard because it only bites at Orchard's scale.
