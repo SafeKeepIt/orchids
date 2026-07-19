@@ -39,15 +39,24 @@ will start doing it by hand and the format will drift.
 
 # Receiving
 
-Arm ONE persistent `Monitor` on your parent's inbox, with a `description` the operator can
-attribute at a glance — `messages · <parent-agent-type>`:
+Arm ONE `Monitor` on your parent's inbox using the **Monitor tool** — not a Bash command — with
+a `description` the operator can attribute at a glance, `messages · <parent-agent-type>`:
 
 ```
-inotifywait -m -e create,moved_to --format '%f' $(python3 .claude/tools/bus.py root)/$CLAUDE_CODE_SESSION_ID
+persistent: true
+command: inotifywait -m -e create,moved_to --format '%f' "$(python3 .claude/tools/bus.py root)/$CLAUDE_CODE_SESSION_ID"
 ```
+
+**`persistent: true` is mandatory.** Without it the watch defaults to a five-minute timeout and
+then expires silently, leaving your parent deaf with no indication anything is wrong. This is
+the single most important line in this file.
 
 (`tail -F` on the folder is not a substitute; if `inotifywait` is missing, poll with
 `while true; do …; sleep 2; done`.)
+
+**Your turn ends after arming, and that is correct.** You are not expected to block. Each file
+event arrives as a new notification that wakes you, even though your previous turn finished —
+verified behaviour, not an assumption. Do not attempt to hold the turn open with a sleep loop.
 
 **On ANY event, drain the whole folder** — never just the file named in the event:
 
