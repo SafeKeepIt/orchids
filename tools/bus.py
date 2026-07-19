@@ -44,6 +44,27 @@ def bus_root() -> Path:
     return (Path(gcd).resolve() / "the-works" / "bus")
 
 
+def whoami() -> str:
+    """Derive this session's agent id from where it is running.
+
+    Derived rather than assigned so the hook and the bus sidecar compute the same
+    answer independently — which is what lets the id be withheld from the parent
+    (it must ask its bus) without anyone having to pass it around.
+
+    A linked worktree is a feature: its directory name is the feature id.
+    The main checkout is the repository's orchestrator.
+    """
+    git_dir = subprocess.run(
+        ["git", "rev-parse", "--git-dir"],
+        capture_output=True, text=True, check=True,
+    ).stdout.strip()
+    top = subprocess.run(
+        ["git", "rev-parse", "--show-toplevel"],
+        capture_output=True, text=True, check=True,
+    ).stdout.strip()
+    return Path(top).name if "/worktrees/" in git_dir else "orch"
+
+
 def inbox(agent_id: str) -> Path:
     if not agent_id or "/" in agent_id or agent_id.startswith("."):
         sys.exit(f"bus: invalid agent id {agent_id!r}")
@@ -135,15 +156,13 @@ def main() -> None:
     p = argparse.ArgumentParser(description="repo-scoped agent message bus")
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    for name, fn in (("init", cmd_init), ("teardown", cmd_teardown)):
+    for name, fn in (("init", cmd_init), ("teardown", cmd_teardown),
+                     ("receive", cmd_receive)):
         s = sub.add_parser(name)
-        s.add_argument("agent_id")
+        s.add_argument("agent_id", nargs="?", default=None)
         s.set_defaults(func=fn)
 
-    s = sub.add_parser("receive")
-    s.add_argument("agent_id")
-    s.set_defaults(func=cmd_receive)
-
+    sub.add_parser("whoami").set_defaults(func=lambda a: print(whoami()))
     sub.add_parser("list").set_defaults(func=cmd_list)
     sub.add_parser("root").set_defaults(func=lambda a: print(bus_root()))
 
@@ -165,6 +184,8 @@ def main() -> None:
     s.set_defaults(func=cmd_broadcast, to=None, request_id=None, in_reply_to=None)
 
     args = p.parse_args()
+    if getattr(args, "agent_id", "sentinel") is None:
+        args.agent_id = whoami()
     args.func(args)
 
 

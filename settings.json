@@ -36,6 +36,17 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "root=\"$(git rev-parse --show-toplevel 2>/dev/null)\"; [ -x \"$root/.claude/hooks/bus-init.sh\" ] && \"$root/.claude/hooks/bus-init.sh\"; exit 0",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }
