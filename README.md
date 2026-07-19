@@ -32,6 +32,13 @@ Nothing lives in chat. Scope, findings, decisions, progress — all of it is
 files in the repo, so any agent picks up cold exactly where the last one
 stopped.
 
+One more agent isn't on the line at all. Every session quietly loads a **bus** —
+a sidecar that lets independent agents in the same repository talk to each other,
+so the orchestrator can hold a live picture of who is running, how far along they
+are, and how much context they have left before they need handing over. You'll
+see it as a `messages · …` line in your pane. You never address agents yourself;
+it's how they reach each other, not you.
+
 ## Skills: the knowledge that travels with you
 
 Fix a lesson once, and every repo knows it on the next sync.

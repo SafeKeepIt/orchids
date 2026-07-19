@@ -99,10 +99,10 @@ symlink, everyone), `template` (install-time copy, then project-owned),
 ## Repo layout
 
 ```
-agents/            five role definitions (→ .claude/agents/)
+agents/            five pipeline roles + bus sidecar (→ .claude/agents/)
 skills/<name>/     SKILL.md packages (→ .claude/skills/, per role)
-hooks/             architect-close.sh
-tools/             board_lint.py · board_stale.py (→ .claude/tools/)
+hooks/             architect-close.sh · bus-init.sh · bus-end.sh (→ .claude/hooks/)
+tools/             board_lint.py · board_stale.py · bus.py (→ .claude/tools/)
 templates/         AGENTS.md (template) · CLAUDE.md (prefix block)
 migrations/        dated structural-upgrade instructions (YYYY-MM-DD-<slug>.md); applied
                    per clone against the .git/the-works/migrated watermark

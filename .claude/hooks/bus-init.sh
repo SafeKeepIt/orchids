@@ -1,0 +1,1 @@
+/home/sudoku/src/serialseb/orchids/.claude/worktrees/message-bus/hooks/bus-init.sh
