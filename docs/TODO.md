@@ -14,7 +14,7 @@ Badge: `type · status · urgency · readiness · component · gh#`.
 ## Process machinery
 
 - `feature · done · · complete · process ·` [Tool split: package manager moved to kauk; orchids data-only](TODO.md.d/tool-split-to-kauk.md)
-- `feature · todo · · blocked-on-answers · process · gh#2` [Architect close choreography without fragile hooks](TODO.md.d/hook-choreography.md)
+- `feature · todo · · plan-ready · process · gh#2` [Bus-driven close choreography: retire the finishing hooks](TODO.md.d/hook-choreography.md) ~bus-liveness ~agent-metadata ~tmux-topology
 - `feature · todo · low · queued · process · gh#3` [Decide the SessionStart self-heal hook](TODO.md.d/session-start-hook.md)
 - `housekeeping · done · · complete · process ·` [Registry file set for orchids itself](TODO.md.d/registry-file-set.md)
 - `bug · cancelled · low · complete · process ·` [~~Self-install: root link entries collide (src == dst)~~](TODO.md.d/self-install-link-collision.md)
