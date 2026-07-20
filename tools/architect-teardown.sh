@@ -42,7 +42,11 @@ esac
 arch_win=""
 [ -n "$arch" ] && arch_win=$(tx display-message -p -t "$arch" '#{window_id}')
 
-# SAFETY: never kill the return target or its window
+# SAFETY: never kill the return target. In Decision-006 the architect is a PANE
+# split into the orchestrator's OWN window, so it shares that window BY DESIGN —
+# killing that one pane closes it and leaves the orchestrator's pane. Refuse only
+# when the architect IS the return pane, or (legacy @window target) its whole
+# window is the return target. Comparing to a %pane ret never matches a @window.
 if [ -z "$arch" ]; then
   echo "architect-teardown: no architect pane found for $id, not closing"
   exit 0
@@ -51,8 +55,8 @@ if [ "$arch" = "$ret" ]; then
   echo "architect-teardown: architect pane equals return target, not closing"
   exit 0
 fi
-if [ -n "$ret_win" ] && [ "$arch_win" = "$ret_win" ]; then
-  echo "architect-teardown: architect pane shares window with return target, not closing"
+if [ "$arch_win" = "$ret" ]; then
+  echo "architect-teardown: architect window is the return target, not closing"
   exit 0
 fi
 
