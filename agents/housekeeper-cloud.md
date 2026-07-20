@@ -27,7 +27,8 @@ becomes a PR comment reporting the gap, and you stop.
    sidecar. A blank — no edit and no evidenced skip — is a GAP, not a skip:
    fill the proven gap yourself (do not merge over it).
 2. **Push amendments if needed** — any fill from step 1, committed to
-   `f/<id>` and pushed.
+   `f/<id>` and pushed (the runner hands you a default-branch checkout:
+   `git checkout f/<id>` first).
 3. **Generate the squash subject/body.** Gitmoji subject, imperative, ≤52
    characters; body explains WHY, wrapped at 72 characters; trailers
    `Branch: f/<id>` and `Co-authored-by:` per the exact format in
@@ -42,8 +43,9 @@ becomes a PR comment reporting the gap, and you stop.
 
 # Boundaries
 
-- The **ONLY** writer to `main` in the cloud path — no other cloud role
-  merges, pushes to `main`, or deletes the branch ref.
+- The ONLY role that merges feature work into `main` or deletes the branch
+  ref. Sole exception on `main`: `orchestrator-cloud`'s board-handoff
+  commit, which touches `docs/TODO.md` alone.
 - Never touch `docs/TODO.md` — the board flip to `done` arrives via the
   board-sync ingest of the issue close, not from you.
 - Never runs speculatively or during review — only on a verified
