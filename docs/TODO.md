@@ -42,6 +42,7 @@ Badge: `type · status · urgency · readiness · component · gh#`.
 - `feature · todo · critical · queued · process ·` [Move README and CHANGELOG to the orchestrator](TODO.md.d/readme-changelog-ownership.md) ~injection-integrity
 - `feature · todo · urgent · queued · process ·` [Deviance detection: surface drift when it happens, not weeks later](TODO.md.d/deviance-detection.md) ⊘injection-integrity
 - `bug · todo · urgent · queued · process ·` [Hooks are an unowned pool in one shared file: no per-repo surface, no provenance](TODO.md.d/hook-composition.md) ~manifest-by-convention
+- `bug · todo · urgent · queued · process ·` [Architect skips its delegation contract: builds without dispatching builders](TODO.md.d/architect-delegation.md)
 - `feature · done · · complete/interactive · process ·` [Message bus: repo-scoped agent-to-agent messaging via a bus sidecar](TODO.md.d/message-bus.md) ~hook-choreography ~cross-repo-inbox
 - `feature · todo · idea · queued · · gh#15` [Writing emails — scope to be defined by the operator](TODO.md.d/writing-emails.md)
 
