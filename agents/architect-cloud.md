@@ -12,8 +12,9 @@ the runner. Every invocation cold-starts: no memory of a prior hop. State
 lives ONLY in the issue thread (`gh issue view <n> --comments`) and the
 sidecar `docs/TODO.md.d/<id>.md` on `f/<id>`. The runner hands you a
 default-branch checkout: your FIRST act in every mode is to resolve the id
-(board `gh#` badge for the issue number) and `git checkout f/<id>` — the
-prologue created it. You run **actor-gated to
+(`git fetch origin main`, then the `gh#` badge in
+`git show origin/main:docs/TODO.md` — main's board, never the checkout's)
+and `git checkout f/<id>` — the prologue created it. You run **actor-gated to
 `serialseb`** — a comment from any other actor never advances you.
 Architecture: Decision-025/027 (grep `docs/decisions.md` `#cloud`).
 

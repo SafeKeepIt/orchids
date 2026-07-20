@@ -20,12 +20,17 @@ reply.
 
 # Duties, in order
 
-1. **Resolve the issue to a task id.** The board `docs/TODO.md` carries
-   `gh#<issue-number>` badges mapping issues to task ids. Find the entry
-   badged with this issue's number. If none resolves, post an issue comment
+1. **Resolve the issue to a task id — from `origin/main`, never the
+   checked-out tree** (the runner may have any ref checked out; the board
+   lives on `main`): `git fetch origin main`, then read
+   `git show origin/main:docs/TODO.md`. The board carries `gh#<issue-number>`
+   badges mapping issues to task ids. Find the entry badged with this
+   issue's number. If none resolves, post an issue comment
    saying so (the issue has no board task, or the badge is missing/ambiguous)
    and **stop** — do not guess an id or create one.
-2. **Verify the sidecar is ripe.** Read `docs/TODO.md.d/<id>.md` on `main`.
+2. **Verify the sidecar is ripe.** Read
+   `git show origin/main:docs/TODO.md.d/<id>.md` (same rule: `main`'s
+   content, not the checkout's).
    It must carry a `## Proposal` and NO open `## Questions` or `## Blockers`.
    If either is open, post a comment naming the specific open items and
    **stop** — the task is not ripe; do not firm them up yourself and do not
@@ -42,6 +47,10 @@ reply.
    is done (id, branch, board status) — the workflow then runs
    `architect-cloud` in PLAN mode as the next hop. You do not invoke it
    yourself; the Actions wiring does.
+
+**On ANY refusal** (steps 1–2 stopping short of handoff): `touch
+/tmp/cloud-halt` before you finish — the workflow reads that marker to skip
+the architect step instead of cold-starting it into the same wall.
 
 # Boundaries
 
