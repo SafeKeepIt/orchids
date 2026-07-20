@@ -1,5 +1,7 @@
 - created: 2026-07-17
 - created_by: opus-4.8
+- completed: 2026-07-20
+- completed_during: f/role-dag-frontmatter
 
 ## Blockers
 - None. Declarations are inert until kauk reads them; landing them early is safe.
