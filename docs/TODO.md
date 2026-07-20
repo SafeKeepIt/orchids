@@ -38,7 +38,7 @@ Badge: `type · status · urgency · readiness · component · gh#`.
   - `feature · todo · · queued · process ·` [Orchard view: consolidate the fleet, show priorities and cross-repo edges](TODO.md.d/orchard-view.md) ⊘orchard-summary
   - `feature · todo · · queued · process ·` [Orchard launch: session per repo, orchestrator told the pick and double-checks](TODO.md.d/orchard-launch.md) ⊘orchard-view
   - `feature · todo · · queued · process ·` [Tmux topology: window per architect, stacked pane per coder, focus returns on close](TODO.md.d/tmux-topology.md) ~hook-choreography ~fleet-sidebar
-  - `feature · todo · · queued · process ·` [Fleet sidebar: always-visible navigable job states with phase emojis](TODO.md.d/fleet-sidebar.md) ⊘session-naming ~bus-liveness ~agent-metadata
+  - `feature · todo · · plan-ready · process · gh#23` [Fleet sidebar: always-visible navigable job states with phase emojis](TODO.md.d/fleet-sidebar.md) ⊘session-naming ~bus-liveness ~agent-metadata
   - `bug · todo · urgent · blocked-on-answers · process ·` [Session and feature naming: short, descriptive, visible — sidebar prerequisite](TODO.md.d/session-naming.md)
   - `feature · todo · urgent · working · process ·` [Handover contract: build-ready sidecars, questions front-loaded before launch](TODO.md.d/handover-contract.md) ~architect-delegation ~injection-integrity
   - `feature · todo · urgent · plan-ready · process ·` [Cloud architect: automate the analyzable share of the architect's job](TODO.md.d/cloud-architect.md) ~handover-contract
@@ -76,4 +76,3 @@ Badge: `type · status · urgency · readiness · component · gh#`.
 - `feature · todo · idea · queued · sync · gh#18` [Dynamic skill delivery per role](TODO.md.d/dynamic-skill-delivery.md)
 - `feature · todo · idea · queued · sync · gh#19` [Multi-source namespacing](TODO.md.d/multi-source-namespacing.md)
 - `feature · todo · idea · blocked-on-answers · sync · gh#20` [Agents: external dependencies beyond in-package skills](TODO.md.d/agent-external-deps.md) ~agents-first-class ~multi-source-namespacing
-- `feature · todo · · queued · · gh#23` [Navigate work in progress across repositories and agents](TODO.md.d/navigate-work-in-progress-across-repositories-an.md)

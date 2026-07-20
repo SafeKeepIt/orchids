@@ -8,13 +8,15 @@
 
 ## Questions
 
-- Data source for live state: the message bus already carries identity/status
-  ([[bus-liveness]], [[agent-metadata]]) — is the sidebar a bus consumer, or does it read
-  cheaper on-disk state? (A dead sidecar goes silent either way — liveness matters.)
-- One global sidebar per client, or one per session? It lists EVERY repo and job, but tmux
-  panes belong to a session — a global view in every session means one renderer, n mounts.
-- Implementation: a TUI in a pinned pane (watch-style refresh) is the obvious shape —
-  anything better?
+- ~~Data source for live state: bus consumer, or cheaper on-disk state?~~ Answered by the
+  operator's issue #23 spec: the BUS — agents broadcast their current activity; subagents
+  appear by name as they are called and return.
+- ~~One global sidebar per client, or one per session?~~ Answered: mounted in every
+  session, always visible by default, always showing the SAME global content (one
+  renderer, n mounts).
+- ~~Implementation: a TUI in a pinned pane — anything better?~~ Answered: a pinned LEFT
+  pane sized to 1/6th of the width (to be refined from actual usage); the
+  TUI-in-a-pane shape stands.
 
 ## Findings
 
@@ -26,16 +28,33 @@
   architect). Bonus, addable later: the cleanup/close state.
 - Explicitly the mitigation for the UX overload of session-per-repo × window-per-task ×
   pane-per-coder ([[tmux-topology]]).
+- GitHub issue #23 ("Navigate work in progress across repositories and agents",
+  operator-filed) duplicated this task; merged 2026-07-21 — stub entry and sidecar
+  removed, the `gh#23` badge binds here. Spec details from the issue body:
+  - Status vocabulary, one emoji each: Waiting on user · Running (actively doing
+    something) · Standby (work complete, not closed) · Completed · Failed.
+  - An entry waiting on the operator (question asked / operator-blocked) FLASHES.
+  - Navigation maps the tmux topology: session = repo, window = feature, pane =
+    activity (an orchestrator may have several activities).
+  - Agents broadcast their current activity to the bus (Questioning, Analyzing,
+    Thinking, …) — that text is the row's activity label; subagents are displayed by
+    NAME only, as they get called and come back, to give a sense of what is going on.
+  - Emoji and animated / full colours welcome.
 
 ## Proposal
 
-A pinned narrow pane running the fleet-status renderer: rows = repo → job, columns =
-phase + state emoji; arrow-key navigation, Enter switches client to the target
-session/window. State sourced per the data-source Question; names per
-[[session-naming]].
+A pinned left pane, 1/6th of the client width (refine from real usage), always visible
+by default in every session, every session rendering the same global content: rows =
+repository → feature/job → activity, each row carrying its phase and a status emoji
+from {Waiting on user, Running, Standby, Completed, Failed}; rows needing the operator
+flash. Keyboard up/down navigation; selecting an entry switches the client to the
+repo's session, the feature's window, the activity's pane. Live state comes from the
+bus: agents broadcast their activity, subagents show by name while in flight; names
+per [[session-naming]].
 
 ## Testing
 
-Two repos, three jobs in mixed states: sidebar shows all three correctly (including one
-waiting-for-input surfaced within seconds), navigation lands on the right window, and a
-completed job's row updates when its window closes.
+Two repos, three jobs in mixed states: sidebar shows all three correctly (including
+one waiting-for-input surfaced within seconds AND flashing), keyboard navigation lands
+on the right session/window/pane, and a completed job's row updates when its window
+closes.
