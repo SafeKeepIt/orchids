@@ -35,6 +35,7 @@ Usage:
   bus.py status                                mutable state: occupancy and spend
   bus.py announce                              broadcast identity (session start)
   bus.py depart                                broadcast departure (session end)
+  bus.py signal --state S [--to ID]            lifecycle push (to parent, else broadcast)
   bus.py root                                  print the bus root
 """
 import argparse
@@ -57,6 +58,8 @@ TOKEN_CLASSES = (
     "cache_read_input_tokens",
     "cache_creation_input_tokens",
 )
+
+LIFECYCLE_STATES = ("started", "building", "testing", "done", "finished", "blocked", "abandoned")
 
 
 def git(*args: str) -> str:
@@ -122,9 +125,10 @@ def usage_entries(path: Path):
             entry = json.loads(line)
         except json.JSONDecodeError:
             continue
-        usage = (entry.get("message") or {}).get("usage")
+        message = entry.get("message") or {}
+        usage = message.get("usage")
         if isinstance(usage, dict):
-            yield usage
+            yield usage, message.get("model")
 
 
 def identity_of() -> dict:
@@ -154,26 +158,36 @@ def status_of() -> dict:
     total cannot produce cost.
 
     Raw counts only. Expressing occupancy against a window, or classes as money,
-    needs the model — which is parked, so interpretation is the reader's.
+    needs the model — which now travels alongside the counts as the denominator
+    source. `effort` is best-effort: filled from the environment when a reliable
+    source exists, else None.
     """
     path = transcript()
     if path is None:
-        return {"session_id": whoami(), "state": "unknown", "reason": "no transcript"}
+        return {"session_id": whoami(), "state": "unknown", "reason": "no transcript",
+                "model": None, "effort": None}
 
     spend = dict.fromkeys(TOKEN_CLASSES, 0)
     latest = None
-    for usage in usage_entries(path):
+    model = None
+    for usage, entry_model in usage_entries(path):
         latest = usage
+        if entry_model:
+            model = entry_model
         for field in TOKEN_CLASSES:
             spend[field] += usage.get(field, 0) or 0
 
     occupancy = sum((latest or {}).get(f, 0) or 0 for f in TOKEN_CLASSES
                     if f != "output_tokens")
+    # no reliable reasoning-effort env var is exposed to the CLI today
+    effort = os.environ.get("CLAUDE_CODE_REASONING_EFFORT") or None
     return {
         "session_id": whoami(),
         "state": "live",
         "context_tokens": occupancy,
         "spend": spend,
+        "model": model,
+        "effort": effort,
     }
 
 
@@ -296,6 +310,25 @@ def cmd_depart(args) -> None:
     print(f"departure sent to {reached} agent(s)")
 
 
+def cmd_signal(args) -> None:
+    """A lifecycle signal is a push, like announce/depart: it carries the data
+    itself, not a request for it. Directed at the parent when its inbox is
+    known and live, so only the conductor acts on it; broadcast otherwise, so
+    the signal is not silently lost.
+    """
+    sender = whoami()
+    feature = args.feature or identity_of()["feature_id"]
+    body = {"kind": "lifecycle", "state": args.state, "feature_id": feature}
+    to = args.to or os.environ.get("ORCHID_PARENT_SESSION") or None
+    if to and inbox(to).is_dir():
+        deliver(inbox(to), make_envelope(sender, to, body=body, notify_user=args.notify_user))
+        print(f"signal {args.state} -> {to}")
+        return
+    reached = fan_out(sender, lambda name: make_envelope(sender, "*", body=body,
+                                                          notify_user=args.notify_user))
+    print(f"signal {args.state} broadcast to {reached} agent(s)")
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description="repo-scoped agent message bus")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -330,6 +363,14 @@ def main() -> None:
 
     s = msg_args(sub.add_parser("broadcast"))
     s.set_defaults(func=cmd_broadcast, to=None, in_reply_to=None)
+
+    s = sub.add_parser("signal")
+    s.add_argument("--state", required=True, choices=LIFECYCLE_STATES)
+    s.add_argument("--feature")
+    s.add_argument("--to")
+    s.add_argument("--notify-user", dest="notify_user", action="store_true",
+                   help="the sending agent intends this for the user to see")
+    s.set_defaults(func=cmd_signal)
 
     args = p.parse_args()
     if getattr(args, "agent_id", "sentinel") is None:
