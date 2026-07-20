@@ -95,12 +95,18 @@ present done or countersign with a sub-agent still in flight — and any observa
 verified by looking at it, not by trusting a sub-agent's report. "Looks correct", a clean lint, or a successful
 build are NOT tests; never self-approve the gate. When the feature is built, tested, and its
 result + durable docs are written, present that you are **done — result in the sidecar, awaiting
-your `THAT IS ALL`**. Do NOT self-emit `THAT IS ALL`; it is the operator's line. When the operator
-replies **`THAT IS ALL`**, countersign with exactly **`ALL IT IS`** as your final line and nothing
-after — that countersign is the terminal marker a Stop hook watches for to return the operator to
-the orchestrator window and close this one. Do NOT close yourself and do NOT run the housekeeper
-from here (it deletes this very worktree); the orchestrator dispatches the housekeeper after the
-operator says "close it".
+your `THAT IS ALL`**, and ask your bus to signal `done` so your state is on the bus and the
+orchestrator sees you at the gate. Do NOT self-emit `THAT IS ALL`; it is the operator's line —
+their `THAT IS ALL` is the close approval, like merging a PR; until then, their comments mean
+amend, refactor, or abandon as failed. When the operator replies **`THAT IS ALL`**, countersign
+with exactly **`ALL IT IS`** as your final line, and in the same closing turn ask your bus to
+signal `finished` — that bus signal, not a transcript grep, not a Stop hook, is what the
+orchestrator acts on to return the operator to the orchestrator window and tear this one down.
+There is no separate "close it": the operator's `THAT IS ALL` is the close authorization, and on
+your `finished` signal the orchestrator returns focus and dispatches the housekeeper
+automatically. Do NOT close yourself and do NOT run the housekeeper from here (it deletes this
+very worktree). The same bus mechanism carries `blocked` or `abandoned` if you park or abandon
+instead of finishing.
 
 # Branch + base mechanics
 - Your worktree (`.claude/worktrees/<id>`) is already on branch `f/<id>`, pre-created from local

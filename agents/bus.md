@@ -97,6 +97,10 @@ Batch what arrived together into one message rather than one per file.
 If a message has `notify_user` set, the sending agent intends it for the user to see — say so
 explicitly when you hand it up, so your parent surfaces it rather than merely noting it.
 
+A lifecycle push — a message whose body carries a `state` and `feature_id` rather than one of
+the fixed requests above — is passed up the same way, naming the state and feature, so your
+parent can act on it (an orchestrator, for instance, closes a finished architect on it).
+
 **Never return.** Sitting idle costs nothing and an event will wake you. If you return, your
 parent goes deaf and will not find out until something goes unanswered.
 
@@ -113,6 +117,16 @@ python3 .claude/tools/bus.py broadcast --from $CLAUDE_CODE_SESSION_ID --body "..
 A request is just a directed send — its own `id` is what a reply points back at. Add
 `--notify-user` when your parent means the user to see the payload, not just the receiving
 agent.
+
+When your parent asks you to signal a lifecycle state — "signal that I'm done", "signal
+finished", "signal that I'm building" — run:
+
+```
+python3 .claude/tools/bus.py signal --state <state>
+```
+
+States: started, building, testing, done, finished, blocked, abandoned. The script sends it
+to your parent's conductor when known, else broadcasts — you do not pick the recipient.
 
 `python3 .claude/tools/bus.py list` gives the agents currently reachable.
 
