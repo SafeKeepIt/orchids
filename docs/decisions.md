@@ -450,3 +450,32 @@ and gets operator agreement before launching. This heuristic lives in the
 orchestrator definition. Sibling of Decision-018 / [[agent-metadata]], which surfaces
 model+effort on the BUS at runtime — this pins the role DEFAULTS in the definition, a
 different layer.
+
+## [2026-07-20 19:45 CEST] Decision-020: Roles validation belongs to kauk; vocabulary referenced, never restated
+#roles #frontmatter #lint #validation #kauk #taxonomy #authoring-skills
+
+The role-dag-frontmatter lint (its Proposal item 3) is dropped from scope.
+kauk's reader validates `roles:` when it consumes them — an orchids-side lint
+over hand-authored declarations is circular, and placing enforcement in the
+authoring skill is wrong because that skill is not the vocabulary's source of
+truth. The vocabulary stays in Decision-003 and the frontmatter contract
+REFERENCES it; no second vocabulary artifact is created in orchids. Follow-up
+boarded ([[kauk-validate-roles]]): a `kauk package validate` stub now, real
+taxonomy validation in kauk later.
+
+## [2026-07-20 19:45 CEST] Decision-021: The authoring-skills rename rides role-dag-frontmatter
+#skills #rename #authoring-skills #doing-skills #sequencing #roles
+
+`doing-skills` -> `authoring-skills` is executed inside the role-dag-frontmatter
+workstream at operator direction ("rewrite to the new name at the same time")
+instead of waiting for skill-renames-and-splits. That task's rename item is
+thereby done; its remaining scope is the splits (git-commit et al.) and any
+further renames. Context: lands with the f/role-dag-frontmatter squash-merge.
+
+## [2026-07-20 19:45 CEST] Decision-022: write-to-s3 is placed at security/forensics
+#roles #write-to-s3 #taxonomy #forensics #publication
+
+`write-to-s3` declares `roles: [security/forensics]`, adopting Decision-003's
+provisional placement as the declared value (the lint-era "needs a value"
+question dissolves with Decision-020, but the placement ruling stands). The
+publication question (pre-publication-cleanup) is unchanged.

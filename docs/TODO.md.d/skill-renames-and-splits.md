@@ -2,8 +2,9 @@
 - created_by: opus-4.8
 
 ## Blockers
-- None, but must land before or with `role-dag-frontmatter` — the rename changes the
-  keystone file that defines the frontmatter contract.
+- ~~None, but must land before or with `role-dag-frontmatter` — the rename changes the
+  keystone file that defines the frontmatter contract.~~ Resolved: the rename was
+  executed inside f/role-dag-frontmatter (2026-07-20, Decision-021).
 
 ## Questions
 - `git-commit` split shape: two skills (`git` in `general` + `git-workflow` in
@@ -34,8 +35,9 @@
   name (the `Skill` tool, other SKILL.md cross-references, `.ai.toml` entries).
 
 ## Proposal
-1. Rename `skills/doing-skills/` → `skills/authoring-skills/`; update `manifest.conf`
-   and every cross-reference.
+1. ~~Rename `skills/doing-skills/` → `skills/authoring-skills/`; update `manifest.conf`
+   and every cross-reference.~~ Done in f/role-dag-frontmatter (2026-07-20,
+   Decision-021); lands with its squash-merge.
 2. Split `git-commit` per the agreed shape; resolve the `Branch: main` contradiction
    explicitly in whichever half owns it.
 3. Sweep for other cross-references broken by the renames.
