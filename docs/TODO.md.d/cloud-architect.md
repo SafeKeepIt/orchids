@@ -3,46 +3,46 @@
 
 ## Blockers
 
-- ⊘[[handover-contract]] — operator: without a better-defined orchestrator→architect
-  handover, "cloud agents will not work". To be delivered together, with strong gating.
-- Operator (2026-07-20): BOTH interactive boundaries (question rounds + explicit plan
-  confirmation) are required for now — the error rate is too high to relax either. The
-  autonomous self-authorize path stays parked until that improves; this task's first
-  slice must respect it.
+- ~~⊘handover-contract; both interactive boundaries parked the autonomous path~~ —
+  OVERRULED (operator, 2026-07-20, Decision-027): "for cloud, there is absolutely no
+  blocker." Waiting delays discovering the deviance in the system — start now. The
+  contract is encoded; the gates apply INSIDE the flow (summary → MAKE IT SO; THAT IS
+  ALL → housekeeper), they do not gate starting it.
 
 ## Questions
 
-- ~~Where does the existing close-to-complete design live?~~ Located 2026-07-20:
-  TitanShield `docs/TODO.md.d/rework-task-lists.md` (design `ready` 2026-07-01,
-  implementation operator-deferred "just behind" active work).
-- Which slice of the architect's job goes to the cloud first: analysis + question
-  drafting only, or the full autonomous path (self-authorize → build → PR)?
-- Relationship to the cloud orchestrator lane in [[github-board-sync]] (board-event
-  triage on Actions): same runner infrastructure, or a separate cloud-agent mechanism?
+- First slice: the intake + ripening lanes on issues only (orchestrator + ripener
+  rounds as issue comments, architect kicked off manually), or the full path through
+  MAKE IT SO → pull request in one go?
 
 ## Findings
 
-- Operator (2026-07-20): a close-to-complete design exists for using cloud agents to
-  automate part of the architect's job — features that can be analyzed, questions asked,
-  technical details sorted, then implementation done. Wanted SOON, and explicitly paired
-  with [[handover-contract]] because the handover completeness is what makes an
-  un-interactive agent viable.
 - **The design: TitanShield `docs/TODO.md.d/rework-task-lists.md`** (2026-07-01,
   operator-ratified). Key parts this task implements orchids-side: the AUTONOMOUS origin
-  (`readiness = stage × origin` — already adopted by our §TODO) with the strict
-  self-authorize boundary (simple · no conflicts · no unknowns · questions answered), the
-  shared close spine (review via auto-opened PR because no one is in-session; THAT IS ALL
-  stays the final gate; the housekeeper is the only writer to `main`, closing via
-  `gh pr merge --squash`), and the verified cloud-trigger facts (routines ≥1h, `/fire`
-  OAuth endpoint, `@claude` mention path; PR/Release-only routine triggers). The
-  "questions answered" boundary is exactly the [[handover-contract]] build-ready bar.
+  (`readiness = stage × origin`) with the strict self-authorize boundary, the shared
+  close spine (review via auto-opened PR; THAT IS ALL stays the final gate; the
+  housekeeper is the only writer to `main`, closing via `gh pr merge --squash`), and the
+  verified cloud-trigger facts (routines ≥1h, `/fire` OAuth endpoint, `@claude` mention
+  path; PR/Release-only routine triggers).
+- **The cloud flow (Decision-027):** new feature = a GitHub issue → the orchestrator
+  asks its intake questions before the task reaches the board proper → the ripener's
+  functional-completeness rounds, all as comments on the issue (or a discussion —
+  operator is indifferent) → statistical readiness reached → architect kicked off
+  automatically → tech plan, few or no questions, summary → MAKE IT SO → pull request →
+  THAT IS ALL → housekeeper amends + merges the PR. Locally the same spine runs on
+  worktrees.
+- Question economy (Decision-027): better questions upstream, fewer downstream; the
+  current gates reflect today's error rate and shrink as upstream improves.
+- The [[github-board-sync]] lane (issues mirror, Orchidarium Project, board-sync
+  workflow) already gives the issue substrate and a cloud-triage precedent.
 
 ## Proposal
 
-To be written once the existing design is located ([[handover-contract]] defines the
-interface it plugs into).
+- (scope round in progress; first slice per the open Question, then the architect's
+  tech plan under Decision-025/027)
 
 ## Testing
 
-To agree at grooming; must include one real feature taken through the cloud path with
-every gate honoured (no self-approved MAKE IT SO, no self-approved close).
+To agree when the first slice is scoped; must include one real feature taken through
+the cloud path with every gate honoured (no self-approved MAKE IT SO, no self-approved
+close).

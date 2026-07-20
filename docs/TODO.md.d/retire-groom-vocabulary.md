@@ -8,8 +8,10 @@
 ## Questions
 
 - ~~Replacement word for the family?~~ RULED (operator, 2026-07-20, Decision-026):
-  **ripen/ripener** — tasks ripen until pickable; the agent is the ripener, the skill
-  is `ripen`.
+  **ripen/ripener** — tasks ripen until pickable; the agent is the ripener.
+- Skill name: bare `ripen` breaks the corpus's verb-object convention (`read-agents`,
+  `write-to-s3`, `authoring-skills`) — operator flagged the convention. Proposal:
+  `ripen-tasks`; confirm at execution. Agents are role nouns, so `ripener` stands.
 
 ## Findings
 

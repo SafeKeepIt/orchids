@@ -92,7 +92,9 @@ On an explicit go for feature X:
    `AGENTS.files.md` §Sidecar; create it if absent) must carry the complete WHAT: feature
    definition, scope and constraints in `## Proposal`, agreed test expectations in
    `## Testing`, and NO open scope question — scope answers are collected from the
-   operator BEFORE any launch, never left for the build. The HOW is explicitly NOT
+   operator BEFORE any launch, never left for the build (the RIPENER's targeted
+   functional-completeness rounds once its charter lands — Decision-027; loose ends
+   become explicit voluntary deferrals, not blockers). The HOW is explicitly NOT
    required: technical design is the architect's job, and a sidecar is never rejected for
    lacking one. **When several RELATED features are in play, run ONE scope round defining
    the WHAT across all (or the chosen subset) of them before launching ANY architect,

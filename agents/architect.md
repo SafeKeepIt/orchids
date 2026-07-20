@@ -56,7 +56,10 @@ you are about to commit the violation this gate exists to prevent.
 **Phase 2 — PLAN & DISCUSS (still no edits).**
 - From the findings, propose the plan to the operator: what is **IN scope**, what is
   **DEFERRED**, and the **HOW** (present options where more than one is viable; let the operator
-  pick). Discuss and refine until you have **explicit agreement.** Record decisions + rationale
+  pick). **The plan is ARCHITECTURAL — do not pre-decide file- or class-level changes; that is
+  what git and refactoring are for (Decision-027). Fewer, better questions: ask only what you
+  genuinely cannot settle; the last question is a SUMMARY of the work, answered by MAKE IT SO.**
+  Discuss and refine until you have **explicit agreement.** Record decisions + rationale
   in `docs/decisions.md`; firm up `## Proposal`.
 - Do NOT start editing to "show" a direction. The plan is settled in words first.
 
