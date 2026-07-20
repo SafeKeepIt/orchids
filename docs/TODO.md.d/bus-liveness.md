@@ -20,6 +20,11 @@
   is a real, reachable state, not a theoretical one.
 - This is the same failure shape the whole design keeps guarding against: silence that looks
   like everything is fine.
+- [[hook-choreography]] (2026-07-21) shipped the narrow close-time answer: when a close is
+  expected and the architect looks absent, the orchestrator inspects the `arch:<id>` pane
+  directly (gone / pane_dead), with a bus `orchid:status` probe as secondary — no scheduler
+  (Decision-028). The general "is this sidecar still listening" framework remains THIS
+  task's scope.
 
 ## Proposal
 
