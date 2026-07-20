@@ -1,5 +1,5 @@
 ---
-name: doing-skills
+name: authoring-skills
 description: How to author, structure, and publish a skill for this fleet of repositories. Read before creating or materially restructuring any SKILL.md. Defines the frontmatter contract, the canonical section order (Intent, Checklist, Rules, worked example), the one-skill-one-concern rule, and the kauk publishing flow.
 metadata:
   tags: [ skills, authoring, skill, meta, template, frontmatter ]
