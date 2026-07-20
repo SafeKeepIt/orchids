@@ -24,9 +24,9 @@ build approval are human-only, always.
 |---|---|---|---|
 | orchestrator | opus | top-level session (`claude --agent orchestrator`) | Knows the board, prioritises, holds MOOD, hands ONE feature to an architect on explicit operator go. Never codes; never opens a sidecar in steady state. Authors only the workflow component, directly on `main`. |
 | groomer | sonnet | dispatched per parked task | Prep only: advances one task's readiness, fleshes its sidecar, commits. Never builds, branches, or opens PRs; build-ready parks at `plan-ready`. |
-| architect | opus | worktree session (`.claude/worktrees/<id>`, branch `f/<id>`) | One feature; its sidecar is the whole scope. Read-only discovery (parallel explorers) → plan agreed with the operator → **no file edit before MAKE IT SO** → builds/tests → signals `THAT IS ALL`. Never reads the board or prior conversation. |
+| architect | opus | worktree session (`.claude/worktrees/<id>`, branch `f/<id>`) | One feature; its sidecar is the whole scope. Read-only discovery (parallel explorers) → plan agreed with the operator → **no file edit before MAKE IT SO** → builds/tests → on the operator's `THAT IS ALL`, countersigns and signals `finished` on the bus. Never reads the board or prior conversation. |
 | builder | sonnet | headless subagent from the architect | Exactly one step-spec; returns typed diff + self-test. |
-| housekeeper | sonnet | headless, in the MAIN repo, after operator says "close it" | The deterministic close: verify docs, tag, squash-merge, push, remove worktree + branch. Verifies documentation, never authors it. |
+| housekeeper | sonnet | headless, in the MAIN repo, dispatched on the architect's `finished` signal | The deterministic close: verify docs, tag, squash-merge, push, remove worktree + branch. Verifies documentation, never authors it. |
 | bus | haiku | one per session, loaded at session start | Not on the pipeline — the sidecar that connects a session to the message bus. Announces its parent, watches its inbox, relays messages up, sends on request. Owns the mechanism so no other role learns it. Does nothing else. |
 
 Isolation is per-dispatch (native worktrees), not a per-repo mode. One writer
@@ -101,8 +101,8 @@ symlink, everyone), `template` (install-time copy, then project-owned),
 ```
 agents/            five pipeline roles + bus sidecar (→ .claude/agents/)
 skills/<name>/     SKILL.md packages (→ .claude/skills/, per role)
-hooks/             architect-close.sh · bus-init.sh · bus-end.sh (→ .claude/hooks/)
-tools/             board_lint.py · board_stale.py · bus.py (→ .claude/tools/)
+hooks/             bus-init.sh · bus-end.sh (→ .claude/hooks/)
+tools/             board_lint.py · board_stale.py · bus.py · architect-teardown.sh (→ .claude/tools/)
 templates/         AGENTS.md (template) · CLAUDE.md (prefix block)
 migrations/        dated structural-upgrade instructions (YYYY-MM-DD-<slug>.md); applied
                    per clone against the .git/the-works/migrated watermark
