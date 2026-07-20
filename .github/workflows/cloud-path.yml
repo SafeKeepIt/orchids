@@ -1,0 +1,218 @@
+# cloud-path — event-driven cloud architect spine (Decision-027,
+# docs/TODO.md.d/cloud-architect.md). Roles resolve issue -> feature-id themselves
+# from the board's gh# badges; this workflow stays dumb: detect, gate, invoke.
+#
+# Gate vocabulary (operator comments, actor-gated to serialseb only):
+#   ENGAGE / ⚙          -> hop 1: orchestrator-cloud prologue + architect-cloud PLAN
+#   MAKE IT SO / 🖖      -> hop 2: architect-cloud BUILD
+#   THAT IS ALL / 🚪     -> hop 3: housekeeper-cloud CLOSE
+#   any other PR comment -> architect-cloud REVISE
+#
+# `issue_comment` only fires from the repository's DEFAULT branch — a copy of this
+# file living on a feature branch is invisible to GitHub's event dispatcher until it
+# merges. Until `cloud-path.yml` reaches main, exercise each hop by hand via
+# `workflow_dispatch` (inputs: hop, issue) against the feature branch ref.
+#
+# Pushes made with the built-in GITHUB_TOKEN do not retrigger other workflows — this
+# is GitHub's own loop-prevention default, not a bug in this file.
+
+name: cloud-path
+
+on:
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      hop:
+        description: Hop to run
+        required: true
+        type: choice
+        options:
+          - plan
+          - build
+          - revise
+          - close
+      issue:
+        description: Issue number
+        required: true
+        type: number
+
+concurrency:
+  group: cloud-path-${{ github.event.issue.number || inputs.issue }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  plan:
+    # Comment on an ISSUE (not PR) with ENGAGE/⚙, or a matching manual dispatch.
+    if: |
+      (github.event_name == 'issue_comment' &&
+       github.event.comment.user.login == 'serialseb' &&
+       !github.event.issue.pull_request &&
+       (contains(github.event.comment.body, 'ENGAGE') || contains(github.event.comment.body, '⚙'))) ||
+      (github.event_name == 'workflow_dispatch' && inputs.hop == 'plan')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # .claude/agents + .claude/skills are committed as absolute symlinks into the
+      # kauk-managed .ai/ clone, which does not exist on a runner — overlay the
+      # in-repo sources so `claude --agent <role>` and skills resolve in CI.
+      - name: Wire repo agents and skills
+        run: |
+          rm -rf .claude/agents .claude/skills
+          mkdir -p .claude
+          cp -r agents .claude/agents
+          cp -r skills .claude/skills
+      - name: Install claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Git identity
+        run: |
+          git config user.name "cloud-path"
+          git config user.email "actions@github.com"
+      - name: orchestrator-cloud prologue
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          claude -p --agent orchestrator-cloud --permission-mode bypassPermissions \
+            "Hop: PLAN prologue. Issue #${ISSUE_NUMBER}. Comment: ${COMMENT_BODY}"
+      - name: architect-cloud PLAN
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          claude -p --agent architect-cloud --permission-mode bypassPermissions \
+            "Hop: PLAN. Issue #${ISSUE_NUMBER}. Comment: ${COMMENT_BODY}"
+
+  build:
+    # Comment on an ISSUE (not PR) with MAKE IT SO/🖖, or a matching manual dispatch.
+    if: |
+      (github.event_name == 'issue_comment' &&
+       github.event.comment.user.login == 'serialseb' &&
+       !github.event.issue.pull_request &&
+       (contains(github.event.comment.body, 'MAKE IT SO') || contains(github.event.comment.body, '🖖'))) ||
+      (github.event_name == 'workflow_dispatch' && inputs.hop == 'build')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # .claude/agents + .claude/skills are committed as absolute symlinks into the
+      # kauk-managed .ai/ clone, which does not exist on a runner — overlay the
+      # in-repo sources so `claude --agent <role>` and skills resolve in CI.
+      - name: Wire repo agents and skills
+        run: |
+          rm -rf .claude/agents .claude/skills
+          mkdir -p .claude
+          cp -r agents .claude/agents
+          cp -r skills .claude/skills
+      - name: Install claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Git identity
+        run: |
+          git config user.name "cloud-path"
+          git config user.email "actions@github.com"
+      - name: architect-cloud BUILD
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          claude -p --agent architect-cloud --permission-mode bypassPermissions \
+            "Hop: BUILD. Issue #${ISSUE_NUMBER}. Comment: ${COMMENT_BODY}"
+
+  revise:
+    # Comment on a PR containing NONE of the gate tokens (gate tokens win first).
+    if: |
+      (github.event_name == 'issue_comment' &&
+       github.event.comment.user.login == 'serialseb' &&
+       github.event.issue.pull_request &&
+       !contains(github.event.comment.body, 'ENGAGE') &&
+       !contains(github.event.comment.body, '⚙') &&
+       !contains(github.event.comment.body, 'MAKE IT SO') &&
+       !contains(github.event.comment.body, '🖖') &&
+       !contains(github.event.comment.body, 'THAT IS ALL') &&
+       !contains(github.event.comment.body, '🚪')) ||
+      (github.event_name == 'workflow_dispatch' && inputs.hop == 'revise')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # .claude/agents + .claude/skills are committed as absolute symlinks into the
+      # kauk-managed .ai/ clone, which does not exist on a runner — overlay the
+      # in-repo sources so `claude --agent <role>` and skills resolve in CI.
+      - name: Wire repo agents and skills
+        run: |
+          rm -rf .claude/agents .claude/skills
+          mkdir -p .claude
+          cp -r agents .claude/agents
+          cp -r skills .claude/skills
+      - name: Install claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Git identity
+        run: |
+          git config user.name "cloud-path"
+          git config user.email "actions@github.com"
+      - name: architect-cloud REVISE
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          claude -p --agent architect-cloud --permission-mode bypassPermissions \
+            "Hop: REVISE. Issue #${ISSUE_NUMBER}. Comment: ${COMMENT_BODY}"
+
+  close:
+    # Comment on a PR with THAT IS ALL/🚪, or a matching manual dispatch.
+    if: |
+      (github.event_name == 'issue_comment' &&
+       github.event.comment.user.login == 'serialseb' &&
+       github.event.issue.pull_request &&
+       (contains(github.event.comment.body, 'THAT IS ALL') || contains(github.event.comment.body, '🚪'))) ||
+      (github.event_name == 'workflow_dispatch' && inputs.hop == 'close')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # .claude/agents + .claude/skills are committed as absolute symlinks into the
+      # kauk-managed .ai/ clone, which does not exist on a runner — overlay the
+      # in-repo sources so `claude --agent <role>` and skills resolve in CI.
+      - name: Wire repo agents and skills
+        run: |
+          rm -rf .claude/agents .claude/skills
+          mkdir -p .claude
+          cp -r agents .claude/agents
+          cp -r skills .claude/skills
+      - name: Install claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Git identity
+        run: |
+          git config user.name "cloud-path"
+          git config user.email "actions@github.com"
+      - name: housekeeper-cloud CLOSE
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          claude -p --agent housekeeper-cloud --permission-mode bypassPermissions \
+            "Hop: CLOSE. Issue #${ISSUE_NUMBER}. Comment: ${COMMENT_BODY}"
