@@ -1,6 +1,16 @@
 - created: 2026-07-19
 - created_by: fable-5
 - created_during: f/status-channel
+- completed: 2026-07-20
+
+### Why cancelled
+
+Moved to serialseb/kauk (operator, 2026-07-20): this was never an orchids
+problem — the manifest concept itself was a model invention, inferred from
+other parts of the code, not an operator design. The fix (derive distribution
+from the tree, fail loudly meanwhile) belongs in kauk's reader. Continued at
+kauk `docs/TODO.md.d/manifest-by-convention.md`, same title, full content
+carried over.
 
 ## Blockers
 
