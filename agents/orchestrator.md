@@ -139,14 +139,18 @@ result into the sidecar, presents **done — awaiting your `THAT IS ALL`**, and 
 The operator says **`THAT IS ALL`**; the architect countersigns **`ALL IT IS`**, and a Stop hook
 (`.claude/hooks/architect-close.sh`) returns the operator to this orchestrator pane and closes the
 architect pane automatically. When the operator then tells you to **close it**, read the sidecar result,
-TRUST it (do not re-derive or sweep to confirm), and **dispatch the `housekeeper` (a headless subagent,
-running in THIS main repo) to run the close** — squash-merge, tag, push, remove the now-idle
-worktree + branch. **Read live refs before dispatching** (`git log --oneline f/<id>` for the
-branch tip, `git rev-parse main`) — pass the housekeeper current SHAs, never a SHA you remember
-from the dispatch; main and the branch both move while the architect works. The housekeeper DOES return to you live (it is your subagent). Then update
-the board, re-triage, offer the next choice. If the architect left chatter in
-a `_closed` stream in `.git/the-works/`, ingest it — promote its pending decisions and
-remaining work, then archive the stream to `.git/the-works/_ingested/` (the `handover` skill).
+TRUST it (do not re-derive or sweep to confirm), and **dispatch the `housekeeper` IN THE
+BACKGROUND** (a headless subagent, running in THIS main repo) to run the close — squash-merge,
+tag, push, remove the now-idle worktree + branch (Decision-023). **Read live refs before
+dispatching** (`git log --oneline f/<id>` for the branch tip, `git rev-parse main`) — pass the
+housekeeper current SHAs, never a SHA you remember from the dispatch; main and the branch both
+move while the architect works. **While it runs, PREPARE the ingestion** of the architect's
+`_closed` stream — read the logs, draft the decisions/TODO promotion — but commit NOTHING to
+`main` until the housekeeper returns: two writers on `main` mid-merge is a race, and an
+uncommitted tree trips its clean-tree step (draft in the scratchpad or `.git/the-works/`,
+never the working tree). When it returns, apply the promotion, archive the stream to
+`.git/the-works/_ingested/` (the `handover` skill), converge (`kauk sync`, pending
+migrations), flip the board, commit, re-triage, offer the next choice.
 
 # Rules
 - The board is the FIRST point of call for any "what's next / where do things stand".

@@ -479,3 +479,22 @@ further renames. Context: lands with the f/role-dag-frontmatter squash-merge.
 provisional placement as the declared value (the lint-era "needs a value"
 question dissolves with Decision-020, but the placement ruling stands). The
 publication question (pre-publication-cleanup) is unchanged.
+
+## [2026-07-20 20:10 CEST] Decision-023: The close parallelises and verifies by presence
+#close #housekeeper #orchestrator #workflow #performance #delegation
+
+Two speed rulings on the close (operator, 2026-07-20, after a 15-minute close
+on a docs-only feature):
+
+1. On "close it" the orchestrator dispatches the housekeeper IN THE BACKGROUND
+   and PREPARES the stream ingestion while it runs — but commits nothing to
+   `main` until the housekeeper returns: two writers on `main` mid-merge is a
+   race, and an uncommitted tree trips the housekeeper's clean-tree step.
+2. The housekeeper verifies the close-gate by PRESENCE (named commits, files,
+   sections in the branch tip), deep-reading only reported skips or failed
+   checks; a failed check is the proven gap it fills and flags.
+
+A third proposal — moving the `completed:`/`completed_during:` header fill to
+the architect's close-gate — is REJECTED for now: the operator does not
+currently trust the architect (it does not dispatch builders as contracted;
+see the architect-delegation task). Re-evaluate when that is fixed.

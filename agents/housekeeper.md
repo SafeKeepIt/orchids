@@ -19,15 +19,18 @@ the former `workflow-complete` procedure.
   operator explicitly overrode it (e.g. close as `functional`/untested) — record which.
 
 # Close, in order
-1. **Documentation (Close gate) — VERIFY, don't author.** The architect authored the durable
-   docs while context was hot; your job is to confirm each is present and fill ONLY a *proven*
-   gap (and flag every gap you filled in your result): TODO (status →
-   `done`/`functional`/`cancelled` + the sidecar stage), `decisions.md` (any decision),
-   `CHANGELOG.md` (operator-gated, per feature), `ARCHITECTURE.md`, `README.md`. For **README
-   and ARCHITECTURE** specifically, confirm the architect recorded a per-file determination —
-   the edit, OR an evidenced reason-to-skip tied to the diff. A blank (no edit AND no evidenced
-   skip) is a GAP you must close, not a skip you may pass through. Durable facts to their homes;
-   the sidecar `## Findings` holds the rest.
+1. **Documentation (Close gate) — VERIFY PRESENCE, don't re-read.** The architect authored the
+   durable docs while context was hot and reported each in the sidecar close-gate; you check by
+   PRESENCE, not content (Decision-023): the named commits exist on the branch (`git log`), the
+   named files/sections exist at the branch tip (`git ls-tree`, a targeted `grep`), the
+   operator-gated `CHANGELOG.md` entry is in the tip. Do NOT re-read document contents that a
+   presence check confirms. Deep-read ONLY where (a) the architect recorded a reason-to-skip —
+   for **README and ARCHITECTURE** confirm the per-file determination is evidenced and tied to
+   the diff; a blank (no edit AND no evidenced skip) is a GAP you must close, not a skip you may
+   pass through — or (b) a presence check fails: that is a *proven* gap — fill it (e.g. the
+   sidecar's `completed:`/`completed_during:` headers) and flag every fill in your result. The
+   `docs/TODO.md` board flip is the orchestrator's — report it as remaining, never edit it.
+   Durable facts to their homes; the sidecar `## Findings` holds the rest.
 2. **Clean tree**, then tag `archive/<id>` on the branch HEAD.
 3. **Squash-merge** to `main` (an empty squash for an abandoned/no-content close); no
    merge commits. This squash is the integration gate (the branch's base is not forced,
