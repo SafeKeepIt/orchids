@@ -54,7 +54,13 @@ Encode the contract in the definitions — DONE 2026-07-20, directly on main
 
 ## Testing
 
-Live-fire on the next architect launch: the spawn is preceded by a walked WHAT-bar and
-carries only the launch round; no scope question reaches the operator mid-build; the
-close report lists builder dispatches (or the justified s-size inline note). Method
-pending operator agreement; the task stays open until that run passes.
+AGREED (operator, 2026-07-20): live-fire on the next architect launch, WITH BOTH
+INTERACTIVE BOUNDARIES kept — the error rate is currently high enough that neither may
+be skipped:
+
+1. the question rounds are actually asked (scope while parked; launch round at spawn), AND
+2. the plan is explicitly confirmed by the operator before MAKE IT SO.
+
+Pass = the spawn was preceded by a walked WHAT-bar, no scope question reached the
+operator mid-build, the plan gate fired, and the close report lists builder dispatches
+(or the justified s-size inline note). The task stays open until that run passes.

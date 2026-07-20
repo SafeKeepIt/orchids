@@ -7,8 +7,9 @@
 
 ## Questions
 
-- Replacement word for the family (skill `groom`, agent `groomer`, the verb across
-  defs/skills/sidecars): prep/prepper, refine/refiner, tend/tender, ripen — operator picks.
+- ~~Replacement word for the family?~~ RULED (operator, 2026-07-20, Decision-026):
+  **ripen/ripener** — tasks ripen until pickable; the agent is the ripener, the skill
+  is `ripen`.
 
 ## Findings
 

@@ -5,6 +5,10 @@
 
 - ⊘[[handover-contract]] — operator: without a better-defined orchestrator→architect
   handover, "cloud agents will not work". To be delivered together, with strong gating.
+- Operator (2026-07-20): BOTH interactive boundaries (question rounds + explicit plan
+  confirmation) are required for now — the error rate is too high to relax either. The
+  autonomous self-authorize path stays parked until that improves; this task's first
+  slice must respect it.
 
 ## Questions
 

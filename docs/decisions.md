@@ -544,3 +544,15 @@ Operator rulings (2026-07-20), the contract behind [[handover-contract]]:
 The cloud consequence: an autonomous/cloud architect has no mid-flight
 operator contact, so rounds one and two are its hard precondition —
 [[cloud-architect]] builds on this contract.
+
+## [2026-07-20 21:50 CEST] Decision-026: The groom word family is banned; the role vocabulary is ripen/ripener
+#vocabulary #naming #ripen #skills #agents #readiness
+
+Operator rulings (2026-07-20): the word family "groom"/"grooming"/"groomer" is
+FORBIDDEN in all output and all artifacts — it relates to bad people in other
+contexts. The replacement vocabulary is **ripen/ripener**, matching the orchard
+metaphor: tasks RIPEN through the readiness pipeline until pickable; the
+prep-only agent is the RIPENER; the skill is `ripen`. The rename of the skill,
+the agent, and the verb across the corpus executes under
+[[retire-groom-vocabulary]] with its §Migrations entry; until it lands, the old
+artifact names are quoted only when technically necessary.
