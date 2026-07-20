@@ -1,5 +1,13 @@
 - created: 2026-07-20
 - created_by: Sebastien Lambla
+- completed: 2026-07-20
+
+### Why cancelled
+
+Folded into [[handover-contract]] (operator, 2026-07-20): the same blurred
+orchestrator/architect line, attacked once — the contract rewrite defines both
+what the architect receives and what it must delegate. Findings and the open
+trust questions moved there; Decision-023's re-evaluation trigger rides along.
 
 ## Blockers
 - None.

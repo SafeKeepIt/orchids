@@ -7,15 +7,25 @@
 
 ## Questions
 
-- Does [[architect-delegation]] fold into this contract rewrite or stay its own task?
-  (Same blurred line, approached from the trust side.)
+- ~~Does [[architect-delegation]] fold into this contract rewrite or stay its own task?~~
+  FOLDED IN (operator, 2026-07-20) — that entry is cancelled-as-absorbed; its content
+  lives here now.
 - What is the completeness BAR for a build-ready sidecar — a checklist the orchestrator
   must satisfy (design settled, questions closed, test method agreed, size), enforced how?
 - "Ask me all the questions before launching": collected from where — the sidecar's open
   Questions only, or also the ones grooming would surface? And batched in one round?
+- (absorbed) What restores delegation trust: mandatory builder dispatch above a size
+  threshold, evidence of delegation in the close-gate report, or a different contract
+  shape? Does the contract stop permitting single-handed builds outright?
 
 ## Findings
 
+- Absorbed from [[architect-delegation]] (2026-07-20): the operator does not currently
+  trust the architect — the 2026-07-20 role-dag build dispatched 4 Haiku explorers in
+  discovery but built every step single-handed. The architect definition PERMITS that
+  ("directly or via parallel builders"), so the contract, not just the behaviour, is
+  what needs tightening. Decision-023's deferred header-fill move re-evaluates when
+  delegation trust is restored — the trigger now lives here.
 - Operator (2026-07-20): the lines between orchestrator and architect are VERY BLURRED.
   Intended split — the ORCHESTRATOR owns task relationships (priorities, relative
   importance, functional relevance — e.g. warning that a feature has no consuming
