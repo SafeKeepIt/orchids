@@ -11,7 +11,7 @@
   **ripen/ripener** — tasks ripen until pickable; the agent is the ripener.
 - Skill name: bare `ripen` breaks the corpus's verb-object convention (`read-agents`,
   `write-to-s3`, `authoring-skills`) — operator flagged the convention. Proposal:
-  `ripen-tasks`; confirm at execution. Agents are role nouns, so `ripener` stands.
+  `ripen-tasks` — CONFIRMED (operator, 2026-07-20). Agents are role nouns, so `ripener` stands.
 
 ## Findings
 
@@ -26,7 +26,7 @@
 
 ## Proposal
 
-Pick the replacement word, rename the skill directory and agent definition, sweep the
+Rename `skills/groom/` → `skills/ripen-tasks/` and `agents/groomer.md` → `agents/ripener.md`, sweep the
 verb across the corpus, update manifest/README references, ship the migration. One
 sweep, one branch.
 

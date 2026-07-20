@@ -11,9 +11,8 @@
 
 ## Questions
 
-- First slice: the intake + ripening lanes on issues only (orchestrator + ripener
-  rounds as issue comments, architect kicked off manually), or the full path through
-  MAKE IT SO → pull request in one go?
+- ~~First slice?~~ RULED (operator, 2026-07-20): the FULL PATH to PR in one slice —
+  the whole spine surfaces its deviance at once.
 
 ## Findings
 
@@ -38,8 +37,13 @@
 
 ## Proposal
 
-- (scope round in progress; first slice per the open Question, then the architect's
-  tech plan under Decision-025/027)
+First slice = the FULL PATH (operator, 2026-07-20): a GitHub issue carries the feature;
+the orchestrator's intake and the ripening rounds run as issue comments (driven manually
+until the ripener charter lands); the architect is kicked off; tech plan with few or no
+questions; the summary question → MAKE IT SO → pull request; THAT IS ALL → the
+housekeeper amends and merges the PR. The local worktree spine is untouched. HOW —
+Actions wiring, kick-off mechanics, the PR close path — is the architect's tech plan,
+not pre-decided here (Decision-025/027).
 
 ## Testing
 
