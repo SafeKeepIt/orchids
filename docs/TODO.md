@@ -44,6 +44,7 @@ Badge: `type · status · urgency · readiness · component · gh#`.
   - `feature · todo · urgent · queued · process ·` [Cloud architect: automate the analyzable share of the architect's job](TODO.md.d/cloud-architect.md) ⊘handover-contract
   - `feature · todo · · queued · process ·` [Cross-repo bus: live messaging across repository boundaries](TODO.md.d/cross-repo-bus.md) ~status-channel ~cross-repo-inbox
   - `feature · todo · · queued · process ·` [Diagnostic channel for agents, cloud and local — cross-cutting](TODO.md.d/diagnostic-channel.md) ~bus-liveness ~agent-metadata ~fleet-sidebar ~cloud-architect
+  - `feature · todo · · queued · process ·` [Psychometric measurement logic for fuzzy-feature discovery](TODO.md.d/psychometric-discovery.md) ~handover-contract
 - `housekeeping · todo · low · queued · process ·` [Rename the TODO vocabulary to task list](TODO.md.d/todo-to-task-list.md)
 - `housekeeping · todo · urgent · queued · process ·` [Retire the groom word family: rename the skill, the agent, and the verb](TODO.md.d/retire-groom-vocabulary.md) ~todo-to-task-list
 - `feature · todo · critical · queued · process ·` [Injection integrity: make instructions arrive intact, not summarised](TODO.md.d/injection-integrity.md) ⊘readme-changelog-ownership ~session-start-hook
