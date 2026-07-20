@@ -1,1 +1,1 @@
-/home/sudoku/src/serialseb/orchids/.claude/worktrees/message-bus/tools/bus.py
+/home/sudoku/src/serialseb/orchids/.ai/repositories/serialseb/orchids/tools/bus.py

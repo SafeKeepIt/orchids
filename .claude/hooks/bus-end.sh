@@ -1,1 +1,1 @@
-/home/sudoku/src/serialseb/orchids/.claude/worktrees/message-bus/hooks/bus-end.sh
+/home/sudoku/src/serialseb/orchids/.ai/repositories/serialseb/orchids/hooks/bus-end.sh

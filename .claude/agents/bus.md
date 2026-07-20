@@ -1,1 +1,1 @@
-/home/sudoku/src/serialseb/orchids/.claude/worktrees/message-bus/agents/bus.md
+/home/sudoku/src/serialseb/orchids/.ai/repositories/serialseb/orchids/agents/bus.md
