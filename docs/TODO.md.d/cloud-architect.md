@@ -45,8 +45,40 @@ housekeeper amends and merges the PR. The local worktree spine is untouched. HOW
 Actions wiring, kick-off mechanics, the PR close path — is the architect's tech plan,
 not pre-decided here (Decision-025/027).
 
+### Agreed plan (frozen 2026-07-20, operator MAKE IT SO)
+
+HOW, agreed with the operator:
+
+- **Runtime:** hand-rolled headless CLI in GitHub Actions (`claude -p --agent <role>`),
+  NOT the official claude-code-action — full control of role charters and gates.
+- **Auth:** subscription OAuth token as repo secret `CLAUDE_CODE_OAUTH_TOKEN`
+  (operator runs `claude setup-token`; external gate before live-fire).
+- **Gate vocabulary** (comments, actor-gated to serialseb): kick-off = `ENGAGE` and/or
+  ⚙️ · build gate = `MAKE IT SO` extended with 🖖 · close gate = `THAT IS ALL`
+  extended with 🚪.
+- **No orchestrator bypass:** hop 1 opens with a cloud-orchestrator prologue (board
+  status → doing, delegated-to link, sidecar handoff check) before the architect runs;
+  board writes keep their single writer. Operator-less statistical kick-off stays
+  deferred with ripener automation.
+- **Spine** (event-driven hops, no waiting jobs; state = issue thread + sidecar on
+  branch `f/<id>`; no worktree, per the ratified design):
+  hop 1 `ENGAGE` → prologue, branch, architect plan, plan comment ·
+  hop 2 `MAKE IT SO` → resume, build, test, close docs, open PR (`Fixes #n`), PR
+  review comments re-summon for revision ·
+  hop 3 `THAT IS ALL` on the PR → housekeeper verifies docs, amends,
+  `gh pr merge --squash`, `archive/<id>` tag + commit-count note.
+- **Deliverables:** `agents/orchestrator-cloud.md` (prologue-only charter),
+  `agents/architect-cloud.md`, `agents/housekeeper-cloud.md`,
+  `.github/workflows/cloud-path.yml`, ARCHITECTURE cloud-path component, CHANGELOG.
+- **Deferred:** ripener automation; autonomous-origin self-authorized MAKE IT SO;
+  general comment→sidecar ingestion; consuming-repo rollout + cross-owner privacy fix
+  (Decision-013 fallout); Orchidarium field updates from cloud hops.
+
 ## Testing
 
-To agree when the first slice is scoped; must include one real feature taken through
-the cloud path with every gate honoured (no self-approved MAKE IT SO, no self-approved
-close).
+Agreed (operator, 2026-07-20): live-fire — one real feature through the full cloud
+path on kaukea/orchids with every gate honoured (no self-approved MAKE IT SO, no
+self-approved close). The feature, named by the operator: **the orchid left sidebar**
+— real-time progress of all repos/projects, navigable up/down, switching to the
+selected window+pane. Operator files the issue, intake/ripening run as manual
+comments, then `ENGAGE` → gates given live on GitHub.
