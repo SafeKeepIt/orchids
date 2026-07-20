@@ -73,7 +73,11 @@ imply otherwise.
   no component, boundary, wiring, or cross-cutting style change, and the vocabulary
   lives in Decision-003, not ARCHITECTURE. The rename touches no ARCHITECTURE
   reference (grep clean). No edit.
-- CHANGELOG: operator-gated — pending.
+- CHANGELOG: appended (operator-gated) — WIP New-features bullet + the
+  `archive/role-dag-frontmatter` detail block.
+- MIGRATION: `migrations/2026-07-20-authoring-skills-rename.md` ships the rename
+  (managed-artifact name change; state-guarded, never-clobber; link-mode already
+  pruned by `kauk sync`).
 - decisions.md: mid-feature rulings staged in the session log for orchestrator
   promotion (decisions.md is the orchestrator's to write, not the architect's).
 
