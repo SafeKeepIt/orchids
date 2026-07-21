@@ -164,7 +164,8 @@ Context, not ruling: the vocabulary stays declared in exactly one place
 (Decision-002/003). The sidecar's "one round with kauk before committing" was waived
 by ruling directly; kauk's reader implements this contract as written.
 
-## [2026-07-17 15:08 CEST] Decision-006: Architect sessions live in panes; the close returns to a pane
+## ~~[2026-07-17 15:08 CEST] Decision-006: Architect sessions live in panes; the close returns to a pane~~
+> Superseded by Decision-036 (window per architect; subagents hidden by default, peekable into right-column panes).
 #tmux #workflow #architect #handoff #orchestrator #panes
 
 Three rulings on the dispatch machinery, after the first live dispatch landed on a
@@ -732,3 +733,23 @@ Operator rulings (2026-07-21), settling [[tags-and-labels]]:
   ✅ done (done|functional); ⛔ blocked derived from unresolved ⊘ edges.
 - Multi-part features are a PARENT with sub-todos, one area per leaf; parent
   issues link their children ([[rules-tuning]] is the worked example).
+
+## [2026-07-21 06:33 CEST] Decision-036: The tmux topology — window per architect; subagents hidden, peekable
+#tmux #workflow #architect #orchestrator #panes #windows #topology #peek #subagents #handoff
+
+Operator rulings settling [[tmux-topology]] (2026-07-21); supersedes Decision-006
+(pane-beside) and carries its tags:
+
+- SESSION per repository → WINDOW per architect (one per active feature). The
+  architect is something the operator interacts with — never a side-by-side or
+  horizontal split. Spawn uses `tmux new-window`; the pane keeps its `arch:<id>`
+  title, so the title-based teardown (Decision-028) works unchanged — killing the
+  window's last pane closes the window and focus returns to the orchestrator.
+- SUBAGENTS (builders, prep, sidecars) are hidden by default — never named
+  sessions, surfaced in the sidebar via the bus — but hidden does NOT mean
+  unpeekable: a PEEK opens a disposable pane tailing the subagent's live
+  transcript, on demand, and closes when done.
+- Peeks (and any deliberately visible subagent) live in a dedicated RIGHT COLUMN
+  of the architect's window, stacked vertically, capped — never appended below
+  the architect (the unusable default `split-window -v`). The cap is a
+  build-time knob.

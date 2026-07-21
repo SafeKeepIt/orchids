@@ -47,3 +47,9 @@ Design together with [[fleet-sidebar]]; absorb or close [[hook-choreography]] wi
 One repo session with two architect windows, one dispatching two coders: panes stack and
 are readable; completing one task closes only its window and lands focus on the
 orchestrator; the other architect is undisturbed.
+
+Mechanics verified 2026-07-21 on a private tmux server (Decision-036 build):
+window-per-architect spawn, title-based pane kill closes the window and returns focus,
+peek panes open in the right column, stack, persist, and render transcript text
+(tools/peek.sh). Marked functional pending the live confirmation: the next real
+architect spawn runs the new-window path.
