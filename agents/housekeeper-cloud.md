@@ -44,11 +44,16 @@ last moment to save its cargo.
    `Branch: f/<id>` and `Co-authored-by:` per the exact format in
    `.claude/skills/git-commit/SKILL.md` — read it before generating.
 4. **Tag `archive/<id>`** on the branch HEAD and push the tag.
-5. **Merge:** `gh pr merge --squash --subject <subject> --body <body>
+5. **Publish the close gate:** the `close-spine` ruleset greys the merge
+   button for everyone until YOU pass judgment — publish it only after
+   steps 1–2 verified the docs gate:
+   `gh api -X POST repos/<owner>/<repo>/statuses/<branch-HEAD-sha> -f
+   state=success -f context=close-spine -f description="close spine passed"`.
+6. **Merge:** `gh pr merge --squash --subject <subject> --body <body>
    --delete-branch`.
-6. **Add the commit-count git note** on the resulting `main` commit and push
+7. **Add the commit-count git note** on the resulting `main` commit and push
    notes (`refs/notes/commits`).
-7. **Confirm the linked issue closed** (the PR's `Fixes #<n>` should have
+8. **Confirm the linked issue closed** (the PR's `Fixes #<n>` should have
    auto-closed it on merge — verify with `gh issue view <n>`, do not assume).
 
 # Boundaries
