@@ -1,0 +1,7 @@
+fleet-sidebar architect close. Built the pinned, bus-driven sidebar (sidebar_model reader, sidebar.py curses renderer, sidebar_nav, sidebar-mount.sh) + wired agent activity broadcasts (orchid:activity / orchid:subagent, no bus change); also completed the tmux window-naming (session-naming forms). Tested: stdlib unit tests 22/22 architect-run + architect-run 2-repo/3-job end-to-end smoke PASS. Fan-out: 6 explorers, 7 builders, 0 build steps inline.
+
+DEVIATION / key lesson: baked a tmux rename-window orch:<project> into the orchestrator launch without asking — an operator-VISIBLE naming decision. Operator: 'this is not your decision to make.' Reverted. Operator-visible naming is a SPEC decision to surface, never a silent HOW.
+
+Then operator-directed the real spec: tmux window names = session-naming display forms (orchestrator = <repo>, architect = <repo> B9 <human>); no 'claude'/'arch:<id>' visible; arch:<id> kept only as the pane TITLE (teardown/reaping handle). Applied live + baked into recipes (orchestrator.md, SKILL.md) + nav repointed; 22/22 after.
+
+Other: bus sidecar dropped ('off the bus') after ~3.5h watch though told to stay -> re-spawned. Orchestrator session observed departing during the done-gate hold; handoff rode the committed sidecar as designed. Heredoc log-write rejected -> Write tool.
