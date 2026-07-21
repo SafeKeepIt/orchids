@@ -34,6 +34,7 @@ Commit one logical change at a time. The user may override any rule.
 - **`main` is immutable:** no amend, no rebase, no rewrite. Tags and notes are SHA-anchored and would be lost.
 - **Feature branches are mutable** for trivial fixups only (typo, prose, a missing semicolon). Larger changes get a new commit.
 - **No destructive operations without explicit user consent:** `reset --hard`, `--force` / `--force-with-lease`, `--no-verify`, `branch -D <unmerged>`, `checkout -- <dirty>`, `push`, `rebase`, `cherry-pick`.
+- **Batch pushes (MUST).** origin is wired to workflows: never push per-change during a discussing/refining round — commit locally and push ONCE when the round settles, or when the push is itself the intended signal a watcher waits on. Issue/PR comments are the same trigger class — one consolidated comment per round (Decision-033).
 
 ## Style
 
