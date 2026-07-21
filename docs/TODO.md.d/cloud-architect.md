@@ -78,7 +78,11 @@ HOW, agreed with the operator:
 
 Agreed (operator, 2026-07-20): live-fire — one real feature through the full cloud
 path on kaukea/orchids with every gate honoured (no self-approved MAKE IT SO, no
-self-approved close). The feature, named by the operator: **the orchid left sidebar**
-— real-time progress of all repos/projects, navigable up/down, switching to the
-selected window+pane. Operator files the issue, intake/ripening run as manual
-comments, then `ENGAGE` → gates given live on GitHub.
+self-approved close). Target re-ruled (operator, 2026-07-21) after the first live hops: the
+sidebar task (`fleet-sidebar`, gh#23) proved genuinely blocked on
+`session-naming` — so **`session-naming` itself rides the live-fire**: its open
+questions ARE the intake round on its issue, and shipping it unblocks the
+sidebar for a follow-up cloud run. Flow: orchestrator projects it to an issue,
+operator answers the intake questions as comments, sidecar ripens, `ENGAGE` →
+gates given live. (Original target and the three refusal runs — auth 401 ×2,
+not-ripe guard — are recorded in `## Findings`.)
