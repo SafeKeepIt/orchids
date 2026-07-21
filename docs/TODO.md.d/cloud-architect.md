@@ -53,6 +53,9 @@
 - **README:** edited (cloud-path paragraph in the off-terminal story) — commit
   1e2eb94. **ARCHITECTURE:** edited (new "The cloud path" section — trigger
   fired: new substrate, new roles, new connection) — commit f9506f4.
+  **CHANGELOG:** promotion DEFERRED by the operator (2026-07-21) — the entry
+  was authored, then withdrawn per the operator gate; it promotes in a later
+  release round. Not a gap.
 - **Follow-ups for the board** (orchestrator promotes): intake dedup on
   gh-ingest (duplicate stub for an existing task) · readiness ORIGIN stamping
   after a cloud MAKE IT SO (no role writes the board post-handoff) · hop
