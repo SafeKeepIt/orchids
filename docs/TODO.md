@@ -33,6 +33,7 @@ Badge: `type · status · urgency · readiness · area · gh#`.
 - `feature · todo · · queued · process · gh#24` [kauk validates role declarations: validate stub now, taxonomy check later (upstream kauk)](TODO.md.d/kauk-validate-roles.md) ~role-dag-frontmatter
 - `feature · functional · · complete/interactive · process · gh#13` [Cross-repo board view: GitHub issues + user-level Project, orchestrator-synced](TODO.md.d/github-board-sync.md) ~cross-repo-inbox ~external-blockers
   - `completion · todo · · queued · process ·` [Field projecting: GitHub priority, type, relations and labels match the badge](TODO.md.d/field-projecting.md) ~nested-tasks-projecting ~tags-and-labels
+  - `feature · todo · · queued · process ·` [Decision projecting: decisions mirror as their own type, closing on supersession](TODO.md.d/decision-projecting.md) ~field-projecting
 - `housekeeping · todo · nice-to-have · blocked-on-answers · process · gh#14` [Install-id migration to the kaukea org — parked until the org name is final](TODO.md.d/install-id-kaukea.md)
 - `feature · todo · · queued · · gh#25` [Orchard: the fleet workbench — global view, selection, dispatch](TODO.md.d/orchard.md) ~github-board-sync ~cross-repo-inbox
   - `feature · todo · · queued · process · gh#39` [Orchestrator emits the orchard summary file, parseable from outside](TODO.md.d/orchard-summary.md)
