@@ -7,9 +7,13 @@
 
 ## Questions
 
-- Is revival universal, or scoped to roles worth reviving (operator's example: a dead
-  orchestrator)? A finished builder should presumably stay dead — though only top-level
-  sessions hold inboxes (Decision-015), which may settle it by construction.
+- ~~Is revival universal, or scoped to roles worth reviving?~~ Answered (operator,
+  2026-07-21): WHITELISTED child→parent scenarios only — architect → orchestrator for
+  now. Subagents are irrelevant by construction (same session id as their parent).
+- How does the SessionStart guard distinguish the OPERATOR's manual resume of a dead
+  session (always allowed) from an agent's CLI bypass? Candidate discriminator: agent
+  launches carry the parent-session environment marker; the operator's terminal does
+  not.
 
 ## Findings
 
@@ -33,9 +37,27 @@
 ## Proposal
 
 The bus delivery path gains a script-side liveness gate: under `flock` on the
-recipient's session-id folder — is the session id's pid alive? If not,
-`claude --resume <session-id>`; then unlock and deliver. Scripts decide everything;
-models decide nothing.
+recipient's session-id folder — is the session id's pid alive? If not, and ONLY if
+the revival is authorised, `claude --resume <session-id>`; then unlock and deliver.
+Scripts decide everything; models decide nothing.
+
+Authorisation (operator, 2026-07-21 — revival must not be model-decidable, or agents
+bypass the gate and burn tokens):
+
+- A message may carry `{resurrect: true}`. The SENDER requests; the delivery SCRIPT
+  decides: the flag is honoured only when the (sender role → target role) edge is on
+  a whitelist compiled into the script — `{architect → orchestrator}` for now.
+  Orphaned agents are the Unix orphan mess replayed in agentic form: nothing adopts
+  them automatically. Mail to a dead session without an authorised resurrect just
+  queues in the inbox.
+- Direct-CLI bypass dies at birth: when the script legitimately revives, it writes a
+  ONE-SHOT resurrection token (nonce + edge + timestamp) into the dead session's bus
+  folder before `claude --resume`, consumed at start. The SessionStart hook — which
+  already runs everywhere — adds one stat(): session registered dead + no valid token
+  → refuse the boot before any model turn runs. A model resuming by hand gets a
+  session that dies pre-inference, at zero token cost.
+- Performance: one tuple lookup in an already-running delivery + one stat() in an
+  already-firing hook. No permission classifier, no CLI wrapping, no scheduler.
 
 ## Testing
 
