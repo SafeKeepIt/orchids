@@ -71,8 +71,13 @@
   bypass list carries Repository admin + the GitHub Actions app (operator
   applying). close-spine semantics made canon in the workflow header: the
   check IS a closing role's published judgment; setting it without a passed
-  close gate is forgery · nested-line projection gap (already filed by the
-  orchestrator).
+  close gate is forgery · named app identity for the hops (operator-ruled
+  follow-up, 2026-07-21): a kaukea-owned GitHub App — operator's name + orchid
+  logo, `[bot]` suffix is GitHub-mandatory — minted per hop via
+  actions/create-github-app-token behind an optional secret (fallback:
+  github-actions); replaces anonymous bot comments AND exempts PR creation
+  from the Actions policy AND becomes the clean ruleset bypass actor ·
+  nested-line projection gap (already filed by the orchestrator).
 
 ## Proposal
 
