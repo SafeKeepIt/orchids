@@ -83,6 +83,11 @@ and, when it warrants it, override for THIS launch:
 - **Effort** matches the same read (`--effort low|medium|high|xhigh|max`): a live protocol
   probe or an undocumented-format dig is not a `medium` task; a mechanical edit is not a `max`
   one.
+- **Size on DIFFICULTY, never on stakes** (operator, 2026-07-21). How load-bearing or
+  auth-sensitive the touched thing is does not raise the tier: risk is covered by the gates
+  (plan approval, the agreed test, `THAT IS ALL`), while model and effort buy reasoning depth
+  that only difficulty consumes. A mechanical change to a critical file is still a mechanical
+  change — downsize it. Stakes-based sizing is the named failure mode, not caution.
 If EITHER the agent, the model, or the effort differs from the role's frontmatter default,
 state your choice and your reason and get the operator's agreement BEFORE starting the work.
 Defaults may be launched without asking.
