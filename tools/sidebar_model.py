@@ -208,6 +208,12 @@ def _apply_message(state: _SessionState, msg: dict) -> None:
         if body.startswith("orchid:activity:"):
             # text after the 2nd colon; may itself contain colons/spaces
             state.activity = body.split(":", 2)[2]
+            # only an activity broadcast may set or clear the waiting flash —
+            # identity/announce/lifecycle messages must leave it untouched, or
+            # a later re-announce/lifecycle signal would silently clear a
+            # still-open "waiting on operator" flash (last-write-wins per
+            # field, applied in ts order).
+            state.last_notify_user = msg.get("notify_user") is True
         elif body.startswith("orchid:subagent:start:"):
             label = body[len("orchid:subagent:start:"):]
             if not (state.agent_type == BUS_AGENT_TYPE or label == BUS_LABEL):
@@ -215,10 +221,6 @@ def _apply_message(state: _SessionState, msg: dict) -> None:
         elif body.startswith("orchid:subagent:done:"):
             label = body[len("orchid:subagent:done:"):]
             state.active_subagents.discard(label)
-
-    # latest message's notify_user flag (overwritten on every message, so only
-    # the final one applied — chronologically last — survives)
-    state.last_notify_user = msg.get("notify_user") is True
 
 
 def _waiting_of(state: _SessionState) -> bool:
@@ -260,6 +262,7 @@ class _BusAggregator:
             return
 
         new_messages = []
+        current_ids: set[str] = set()
         for session_dir in bus_root.iterdir():
             if not session_dir.is_dir():
                 continue
@@ -272,7 +275,10 @@ class _BusAggregator:
                     continue  # tolerate malformed JSON — skip, never crash
                 msg_id = msg.get("id")
                 sender = msg.get("from")
-                if not msg_id or not sender or msg_id in self._seen_ids:
+                if not msg_id or not sender:
+                    continue
+                current_ids.add(msg_id)
+                if msg_id in self._seen_ids:
                     continue
                 new_messages.append(msg)
 
@@ -280,10 +286,14 @@ class _BusAggregator:
         # in the right order regardless of which folder/scan surfaced them
         new_messages.sort(key=lambda m: m.get("ts") or "")
         for msg in new_messages:
-            self._seen_ids.add(msg["id"])
             sender = msg["from"]
             state = self.states.setdefault(sender, _SessionState(session_id=sender))
             _apply_message(state, msg)
+
+        # bound to messages still on disk this scan — the underlying files
+        # are ephemeral (deleted by their recipient's receive), so anything
+        # not seen this scan can never recur and its id is safe to drop
+        self._seen_ids = current_ids
 
     def repo(self, repo_path: str) -> Repo:
         return _assemble_repo(repo_path, self.states)
@@ -295,7 +305,7 @@ class _BusAggregator:
 
 def _assemble_repo(repo_path: str, sessions: dict[str, _SessionState]) -> Repo:
     name = Path(repo_path).name
-    repo = Repo(path=repo_path, name=name, activity="", status="running", waiting=False)
+    repo = Repo(path=repo_path, name=name, activity="", status="idle", waiting=False)
 
     orchestrator = next(
         (s for s in sessions.values() if s.agent_type == "orchestrator"), None,
@@ -308,7 +318,7 @@ def _assemble_repo(repo_path: str, sessions: dict[str, _SessionState]) -> Repo:
     architects = [s for s in sessions.values() if s.agent_type == "architect"]
     for arch in architects:
         feature_id = arch.feature_id or arch.session_id
-        feature_name = feature_id.replace("-", " ") if feature_id else feature_id
+        feature_name = arch.name or (feature_id.replace("-", " ") if feature_id else feature_id)
         feature = Feature(
             feature_id=feature_id,
             name=feature_name,

@@ -34,6 +34,7 @@ STATUS_EMOJI = {
     "completed": "✅",
     "failed": "❌",
     "waiting": "⏳",
+    "idle": "⚪",
 }
 SPINNER_FRAMES = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
 NO_ACTIVITY_TEXT = "· no activity ·"
@@ -173,12 +174,14 @@ def _init_colours() -> dict[str, int]:
     curses.init_pair(3, curses.COLOR_GREEN, bg)
     curses.init_pair(4, curses.COLOR_RED, bg)
     curses.init_pair(5, curses.COLOR_MAGENTA, bg)
+    curses.init_pair(6, curses.COLOR_WHITE, bg)
     return {
         "running": curses.color_pair(1),
         "standby": curses.color_pair(2),
         "completed": curses.color_pair(3) | curses.A_BOLD,
         "failed": curses.color_pair(4),
         "waiting": curses.color_pair(5),
+        "idle": curses.color_pair(6) | curses.A_DIM,
     }
 
 

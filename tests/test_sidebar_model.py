@@ -9,6 +9,7 @@ import os
 import sys
 import tempfile
 import unittest
+from pathlib import Path
 
 _TOOLS_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools",
@@ -38,14 +39,14 @@ class _BusFixtureTestCase(unittest.TestCase):
             envelope(msg_id, sender, body=body, ts=ts, notify_user=notify_user),
         )
 
-    def _architect(self, session_id, feature_id, folder=None):
+    def _architect(self, session_id, feature_id, folder=None, name=None):
         """Write the identity announce that makes session_id a renderable
         architect feature."""
         folder = folder or session_id
         self._put(
             folder, f"{session_id}-id", session_id,
             identity_body(session_id, agent_type="architect", feature_id=feature_id,
-                          name=feature_id.replace("-", " ")),
+                          name=name or feature_id.replace("-", " ")),
             ts="2026-01-01T00:00:00.000000+00:00",
         )
         return folder
@@ -99,6 +100,39 @@ class WaitingTests(_BusFixtureTestCase):
         self._put("arch-blocked", "arch-blocked-lc", "arch-blocked",
                   lifecycle_body("blocked", feature_id="feat-blocked"),
                   ts="2026-01-01T00:00:01.000000+00:00")
+
+        fleet = sidebar_model.build_model([self.repo])
+        feature = fleet.repos[0].features[0]
+        self.assertTrue(feature.waiting)
+        self.assertEqual(feature.status, "waiting")
+
+    def test_reannounce_after_notify_does_not_clear_waiting(self):
+        self._architect("arch-sticky1", "feat-sticky1")
+        self._put("arch-sticky1", "arch-sticky1-act", "arch-sticky1",
+                  "orchid:activity:need input",
+                  ts="2026-01-01T00:00:01.000000+00:00", notify_user=True)
+        # a later re-announce (identity push) from the SAME sender, without
+        # notify_user, must not clear the still-open waiting flash
+        self._put("arch-sticky1", "arch-sticky1-id2", "arch-sticky1",
+                  identity_body("arch-sticky1", agent_type="architect",
+                                feature_id="feat-sticky1", name="feat sticky1"),
+                  ts="2026-01-01T00:00:02.000000+00:00")
+
+        fleet = sidebar_model.build_model([self.repo])
+        feature = fleet.repos[0].features[0]
+        self.assertTrue(feature.waiting)
+        self.assertEqual(feature.status, "waiting")
+
+    def test_plain_lifecycle_after_notify_does_not_clear_waiting(self):
+        self._architect("arch-sticky2", "feat-sticky2")
+        self._put("arch-sticky2", "arch-sticky2-act", "arch-sticky2",
+                  "orchid:activity:need input",
+                  ts="2026-01-01T00:00:01.000000+00:00", notify_user=True)
+        # a later plain lifecycle signal (no notify_user) from the SAME
+        # sender must not clear the still-open waiting flash
+        self._put("arch-sticky2", "arch-sticky2-lc", "arch-sticky2",
+                  lifecycle_body("building", feature_id="feat-sticky2"),
+                  ts="2026-01-01T00:00:02.000000+00:00")
 
         fleet = sidebar_model.build_model([self.repo])
         feature = fleet.repos[0].features[0]
@@ -236,6 +270,45 @@ class DedupTests(_BusFixtureTestCase):
         second_pass = agg.repo(self.repo)
         self.assertEqual(second_pass.features[0].activity, "first",
                          "message with an already-seen id must not be re-applied")
+
+    def test_seen_ids_pruned_when_message_removed(self):
+        # the underlying message file is ephemeral (deleted by its
+        # recipient's receive), so once it's gone from disk its id must be
+        # pruned from _seen_ids rather than retained forever.
+        write_message(
+            self.bus_root, "arch-prune",
+            envelope("arch-prune-id", "arch-prune",
+                    body=identity_body("arch-prune", agent_type="architect",
+                                        feature_id="feat-prune"),
+                    ts="2026-01-01T00:00:00.000000+00:00"),
+        )
+
+        agg = sidebar_model._BusAggregator()
+        agg.scan(self.bus_root)
+        self.assertIn("arch-prune-id", agg._seen_ids)
+
+        (Path(self.bus_root) / "arch-prune" / "arch-prune-id.json").unlink()
+
+        agg.scan(self.bus_root)
+        self.assertNotIn("arch-prune-id", agg._seen_ids)
+
+
+class RepoStatusTests(_BusFixtureTestCase):
+    def test_repo_without_orchestrator_is_idle(self):
+        self._architect("arch-idle", "feat-idle")
+
+        fleet = sidebar_model.build_model([self.repo])
+        self.assertEqual(fleet.repos[0].status, "idle")
+
+
+class FeatureNameTests(_BusFixtureTestCase):
+    def test_announced_name_is_used_over_derived_form(self):
+        self._architect("arch-namedfeat", "custom-feature", name="Custom Label")
+
+        fleet = sidebar_model.build_model([self.repo])
+        feature = fleet.repos[0].features[0]
+        self.assertEqual(feature.name, "Custom Label")
+        self.assertNotEqual(feature.name, "custom feature")
 
 
 if __name__ == "__main__":
