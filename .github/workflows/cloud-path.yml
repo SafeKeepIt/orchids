@@ -83,6 +83,11 @@ jobs:
           mkdir -p .claude
           cp -r agents .claude/agents
           cp -r skills .claude/skills
+      - name: Cache npm tarballs
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-claude-cli-v1
       - name: Install claude CLI
         run: npm install -g @anthropic-ai/claude-code
       - name: Git identity
@@ -152,6 +157,11 @@ jobs:
           mkdir -p .claude
           cp -r agents .claude/agents
           cp -r skills .claude/skills
+      - name: Cache npm tarballs
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-claude-cli-v1
       - name: Install claude CLI
         run: npm install -g @anthropic-ai/claude-code
       - name: Git identity
@@ -210,6 +220,11 @@ jobs:
           mkdir -p .claude
           cp -r agents .claude/agents
           cp -r skills .claude/skills
+      - name: Cache npm tarballs
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-claude-cli-v1
       - name: Install claude CLI
         run: npm install -g @anthropic-ai/claude-code
       - name: Git identity
@@ -249,6 +264,11 @@ jobs:
           mkdir -p .claude
           cp -r agents .claude/agents
           cp -r skills .claude/skills
+      - name: Cache npm tarballs
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-claude-cli-v1
       - name: Install claude CLI
         run: npm install -g @anthropic-ai/claude-code
       - name: Git identity
