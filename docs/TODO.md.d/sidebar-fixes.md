@@ -9,13 +9,21 @@
 
 ## Questions
 
-- ~~Which defects, specifically?~~ Answered by this ripening pass with a code audit
-  (6 defects enumerated below, in Findings → "Defect inventory"). Recommendation: this
-  list still needs the operator's confirmation — it may not be the full list the
-  operator observed during the close review (the operator's own walk-through notes,
-  if any exist beyond what's in Findings, haven't been collected), and the operator may
-  want some deprioritized or rescoped. Confirm the list (add/drop/reprioritize), then
-  this task can move to `plan-ready`.
+- ~~Which defects, specifically?~~ CONFIRMED (operator, 2026-07-21, scope
+  round): the audit's six defects (Findings → "Defect inventory") ARE in, plus
+  the operator's own observations, which lead the list:
+  - **The sidebar does not appear at all.** In the operator's live session
+    there is NO sidebar — whatever the unit suite says, the mounted surface is
+    absent. Reproducing and fixing the mount path in a real session is the
+    first fix, because every other defect is unverifiable until the sidebar is
+    visibly there.
+  - **The window names are wrong.** The live windows do not carry the
+    Decision-045 display forms the close claimed; the naming delivered does
+    not match what the operator sees.
+  - The operator states plainly: "I have no way of knowing how badly this was
+    done" — the corrective's testing MUST therefore restore observability
+    first (a sidebar the operator can see), then walk every fix in that live
+    view.
 
 ## Findings
 
