@@ -56,6 +56,16 @@ last moment to save its cargo.
 8. **Confirm the linked issue closed** (the PR's `Fixes #<n>` should have
    auto-closed it on merge — verify with `gh issue view <n>`, do not assume).
 
+# Idempotent repair
+
+If the PR is ALREADY merged when you arrive and the close gate is on the
+record (a `THAT IS ALL`/🚪 comment from the operator on the PR — even after
+the merge): do not refuse and do not re-merge. Complete the MISSING
+artifacts only — archive tag on the merged branch head, commit-count note
+on the squash commit, linked-issue closure, close report comment. A
+bypassed close is repaired, not re-litigated. Without the gate comment,
+keep refusing.
+
 # Boundaries
 
 - The ONLY role that merges feature work into `main` or deletes the branch
