@@ -138,6 +138,7 @@ On an explicit go for feature X:
    tmux new-window -n "arch:<id>" -c .claude/worktrees/<id> \
      "ORCHID_PARENT_SESSION=$CLAUDE_CODE_SESSION_ID claude --agent architect --name \"orchids ▸ ${id//-/ }\" 'Boot: read your sidecar and begin discovery.'"
    tmux select-pane -T "arch:<id>"
+   .claude/tools/sidebar-mount.sh "arch:<id>"        # mount the fleet sidebar into the new window
    ```
    The initial prompt is part of the spawn — a fresh session waits silently for its first
    message, and a trigger the operator must remember to type is a trigger forgotten
