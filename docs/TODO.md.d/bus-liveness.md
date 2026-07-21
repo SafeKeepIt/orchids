@@ -1,6 +1,8 @@
 - created: 2026-07-19
 - created_by: fable-5
 - created_during: f/status-channel
+- completed: 2026-07-21
+- completed_during: orchestrator session
 
 ## Blockers
 
@@ -36,3 +38,12 @@ become a heartbeat cron by the back door.
 
 To agree when ripened — expected shape: a sidecar is killed mid-session and the condition is
 detected without polling infrastructure.
+
+### Why cancelled (2026-07-21)
+
+Superseded by parts: close-time liveness shipped with [[hook-choreography]]
+(direct `arch:<id>` pane check, Decision-028) and delivery-time liveness belongs
+to [[zombie-revival]] (script-side pid check under flock before every delivery —
+which also gives the sender its dead-recipient signal). The deliberately-unscoped
+general framework never earned a build; the design's own ban on schedulers left
+no third mechanism to want.

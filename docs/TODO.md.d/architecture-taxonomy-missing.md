@@ -1,4 +1,6 @@
 - created: 2026-07-17
+- completed: 2026-07-21
+- completed_during: orchestrator session
 - created_by: opus-4.8
 
 ## Blockers
@@ -41,3 +43,13 @@
 `python3 .claude/tools/board_lint.py` exits 0 with 0 errors over the real board.
 Deliberately introducing a bogus component still fails — the lint must not be made to
 pass by weakening it.
+
+### Resolution (2026-07-21)
+
+Taxonomy table added to ARCHITECTURE.md with the de-facto vocabulary
+(Publication/Process/Role/Skills/Future x publication/process/sync/skills).
+board_lint.py fixed along the way: root resolution now walks up to docs/TODO.md
+(works from tools/ and .claude/tools/ alike) and the glossary regex accepts the
+capitalized heading keys. Four latent board errors surfaced and swept (freelanced
+'high' urgency, retired 'paused' status, dangling ~status-channel edge,
+component-less writing-emails). Lint: 13 errors to 0.

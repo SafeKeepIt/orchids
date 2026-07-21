@@ -113,3 +113,18 @@ manifest.conf      what this package exposes, one typed line per entry
 Agent-installation.md  the agent-facing install procedure
 docs/              orchids' own board (TODO.md + sidecars)
 ```
+
+## Taxonomy
+
+The controlled vocabulary the board draws from (`AGENTS.files.md` §TODO): the
+functionality is the board heading's first word; each leaf task carries exactly
+one of its components. `board_lint.py` enforces membership from this table —
+the single source; agents do not invent values.
+
+| Functionality | Components |
+|---|---|
+| **Publication** | publication |
+| **Process** | process |
+| **Role** | sync · process |
+| **Skills** | skills |
+| **Future** | sync |

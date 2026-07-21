@@ -41,7 +41,9 @@
 The bus delivery path gains a script-side liveness gate: under `flock` on the
 recipient's session-id folder — is the session id's pid alive? If not, and ONLY if
 the revival is authorised, `claude --resume <session-id>`; then unlock and deliver.
-Scripts decide everything; models decide nothing.
+Scripts decide everything; models decide nothing. The delivery gate also inherits [[bus-liveness]]'s residue:
+when the recipient is dead and revival is not authorised, the SENDER is told so —
+dead is distinguishable from chose-not-to-reply.
 
 Authorisation (operator, 2026-07-21 — revival must not be model-decidable, or agents
 bypass the gate and burn tokens):

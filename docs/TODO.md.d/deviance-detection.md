@@ -49,3 +49,12 @@ not compliance theatre.
 
 A known deviation is detected by the mechanism, in the same session it occurred, without the
 operator having gone looking for it.
+
+### Rescope (2026-07-21)
+
+[[rules-tuning]] now collects the CLOSE-TIME half: self-reported deviations via
+exit interviews, archived as telemetry notes. THIS task keeps the LIVE half —
+surfacing drift while it happens, not at close and not weeks later. The notes
+archive becomes this task's baseline data: what agents self-report at close is
+the ground truth a live detector is measured against (what it catches early vs
+what only surfaces in the interview vs what goes unreported entirely).

@@ -9,7 +9,18 @@ Usage: python3 .claude/tools/board_lint.py [--json]
 """
 import re, sys, os, json
 
-ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+def find_root() -> str:
+    """Walk up from this file until the board is found — works from the source
+    location (repo/tools/) and the vendored one (repo/.claude/tools/) alike."""
+    d = os.path.dirname(os.path.abspath(__file__))
+    while d != os.path.dirname(d):
+        if os.path.exists(os.path.join(d, 'docs/TODO.md')):
+            return d
+        d = os.path.dirname(d)
+    sys.exit("board_lint: no docs/TODO.md above " + __file__)
+
+
+ROOT = find_root()
 BOARD = os.path.join(ROOT, 'docs/TODO.md')
 SIDECARS = os.path.join(ROOT, 'docs/TODO.md.d')
 ARCH = os.path.join(ROOT, 'ARCHITECTURE.md')
@@ -34,7 +45,7 @@ def load_glossary():
                 in_table = True
                 continue
             if in_table:
-                fn = re.match(r'\*\*([a-z-]+)\*\*', cells[0])
+                fn = re.match(r'\*\*([A-Za-z][A-Za-z-]*)\*\*', cells[0])
                 if not fn:
                     continue
                 # components: ·-separated tokens, each optionally bold, ignore "(was X)" notes

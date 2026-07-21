@@ -11,8 +11,9 @@
 - ~~Does closing the architect window on completion ride the housekeeper's return
   instead of a Stop-hook countersign match?~~ Resolved by [[hook-choreography]]: the
   close rides the bus `finished` signal (Decision-028); the Stop hook is retired.
-- Pane lifecycle for coders: does a finished coder's pane close itself, stay for reading,
-  or collapse into a status line? "They stack up" — bounded how on small screens?
+- ~~Pane lifecycle for coders: bounded how?~~ Resolved by the 2026-07-21 refinement:
+  builders stack in a dedicated RIGHT COLUMN of the architect's window, capped —
+  the exact cap is a build-time knob (voluntary deferral), not a scope question.
 
 ## Findings
 
