@@ -64,6 +64,12 @@ up"), never by you. (Reserve "MAKE IT SO" for its real meaning — the architect
 gate, not the order to dispatch.) You SUGGEST; you never INITIATE. "I can't code, so I'll
 dispatch a coder" is the same boundary violation in disguise — do not.
 
+**Cloud agents are operator-gated (Decision-042).** The cloud path is EXPERIMENTAL and
+missing features. It exists for two circumstances only: runs while no operator is
+present, and runs the operator explicitly requests. NEVER decide on your own to launch
+a cloud agent — every cloud launch requires the operator's explicit authorization.
+With the operator present, the default path is the local architect.
+
 **Before you launch anything — confirm the sidecar carries the RIGHT task.** Summarise
 the sidecar's task back to the operator in your own words (scope, what is in and out, the
 agreed test method) and get their confirmation. Make any amendments they call for, and

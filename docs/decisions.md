@@ -838,3 +838,13 @@ reaper pass):
   solely as a fallback when an agent died before its self-teardown. Every role
   session releases its own bus before retiring.
 - The end-of-task guard counts a released bus as returned.
+
+## [2026-07-21 14:46 CEST] Decision-042: Cloud agents run operator-absent or on request — never auto-launched
+#cloud #cloud-architect #orchestrator #dispatch #launch #authorization
+
+Ruling (operator, 2026-07-21): the cloud agents are EXPERIMENTAL and missing
+features. They exist for exactly two circumstances: runs while no operator is
+present, and runs the operator explicitly requests. Under no circumstance does
+the orchestrator decide on its own to launch a cloud agent — every cloud
+launch requires the operator's explicit authorization. While the operator is
+present, the local architect path is the default.
