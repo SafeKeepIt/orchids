@@ -58,6 +58,13 @@ on:
   session name is the repository name alone (`orchids`); summoning or reviving it
   resumes THE one (never a second), and typing the repo name reaches its orchestrator
   (Decision-032).
+- **one session per feature — the name never carries the agent**: the feature has ONE
+  top-level session, shared context for all its work; everything else in it (builders,
+  prep, sidecars) is a SUBAGENT — hidden away, never a named session, visible only in
+  the sidebar thanks to the bus (activity broadcasts show them by name as they come
+  and go). Which agent is doing what is live state, never name material. Two name
+  shapes exist, total: `<repo>` (the orchestrator) and `<repo> / <human name>` (a
+  feature workstream). Nothing else.
 - **sidebar row**: the human name alone ([[fleet-sidebar]]).
 - **tmux**: existing machine titles (`arch:<id>`) stay — tooling matches on them
   (teardown); titles refresh only where bus lifecycle signals already fire; no new
