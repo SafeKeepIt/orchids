@@ -1,0 +1,9 @@
+session: e2cb4f6c-4040-4a95-93e5-d6c5fe5b7e46 · agent: orchestrator · date: 2026-07-21 · feature: none
+deviations:
+  - rule: ask instead of asserting a guess · what: guessed the meaning of "the model for agent telemetry" four rounds running · why: each guess was cheap to produce and yielding the floor felt like stalling
+    change: after a second missed guess, stop offering option menus and hand over the microphone — an open floor beats a wrong menu
+  - rule: verify the end state by observing the repository · what: post-squash verification grepped only the file that had conflicted; banned vocabulary entered main in three unexamined files · why: conflict review anchored attention, clean-merge files were presumed clean
+    change: the close verifies the whole squash diff (banned-vocabulary grep + board lint), never just the conflicted paths
+  - rule: batch pushes (Decision-033) · what: pushed on nearly every change for the first half of the night, firing cloud workloads · why: the rule did not exist yet; push-as-save habit
+    change: already made — Decision-033 and the git-commit skill now carry it; the loop closed in-session
+token_saver: yield the floor at the first sign of a misread — the four telemetry guesses each re-materialized a ~650k-token context; one open question would have cut several full-context turns
