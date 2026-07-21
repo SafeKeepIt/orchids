@@ -100,7 +100,9 @@ a feature closed — it MUST clear this guard:
 
 - [ ] **No sub-agent left in flight.** Every entry in the `## Dispatched sub-agents`
   ledger has returned, was re-dispatched, or is explicitly recorded as abandoned with
-  its work reassigned. A session NEVER ends with an unreturned sub-agent.
+  its work reassigned. A session NEVER ends with an unreturned sub-agent. A BUS
+  sidecar is a sub-agent too: it is RELEASED at close, and its release IS its
+  return (Decision-041).
 - [ ] **End state verified by observation, not by report.** Where the work has an
   observable end state, check the state itself rather than trusting an agent's
   summary — for a close: the tag exists, the branch is gone, the squash is on `main`,
@@ -151,6 +153,9 @@ As part of the close housework (`workflow-complete`):
    nothing, so silence stays distinguishable from a missed interview.
 3. Flush sanitized durable findings into the stream's committed sidecar.
 4. `touch <stream-dir>/_closed` — the marker the hook announces to the parent.
+5. **Tear yourself down (Decision-041):** release your bus (its release is its
+   return) and run your role's self-teardown — a closed session leaves no
+   listener, pane, or session behind.
 
 ## Ingest (parent — or the top-level session itself)
 

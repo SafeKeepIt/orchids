@@ -819,3 +819,22 @@ Rulings (operator, 2026-07-21, live in the app-identifying session):
 - Deterministic merge ordering is a THIRD concern ("Mr. Rabbit": a merge queue
   or optimistic-retry), a peer of the housekeeper and the orchestrator — merge
   order == changelog order. Spun out to its own task.
+
+## [2026-07-21 13:52 CEST] Decision-041: Agents clean up after themselves — self-teardown at close
+#close #teardown #bus #sub-agents #lifecycle #panes
+
+Ruling (operator, 2026-07-21): closes were getting stuck on lingering children —
+buses that never return, panes and sessions nobody kills — leaving flows
+unfinishable. Enforcement is CHARTER TEXT ONLY (no verification apparatus, no
+reaper pass):
+
+- A bus ends in exactly two ways: RELEASED by its parent at close (`bus.py
+  depart`, then it returns — its release IS its return), or ORPHANED (its inbox
+  watch shows the parent's inbox gone → parent dead → it ends silently).
+  "Never return" holds only while the parent lives.
+- The CLOSING AGENT kills itself: the architect's last act after `ALL IT IS` +
+  `finished` is releasing its bus and running `architect-teardown.sh` on its own
+  pane. The orchestrator only dispatches the housekeeper; it runs the teardown
+  solely as a fallback when an agent died before its self-teardown. Every role
+  session releases its own bus before retiring.
+- The end-of-task guard counts a released bus as returned.

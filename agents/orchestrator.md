@@ -131,12 +131,12 @@ On an explicit go for feature X:
    The initial prompt is part of the spawn — a fresh session waits silently for its first
    message, and a trigger the operator must remember to type is a trigger forgotten
    (operator, 2026-07-17). `.return-window` (gitignored) records the orchestrator's PANE id
-   (line 1) and the tmux socket (line 2); on the architect's `finished` signal you run
-   `.claude/tools/architect-teardown.sh <id>`, which uses them (via `tmux -S`) to land the
-   operator back on this pane and closes the architect's pane (found by its `arch:<id>`
-   title) — deterministic however many panes or windows they switched through; legacy
-   `@window` ids in line 1 still honoured. No Stop hook, no transcript parsing, nothing
-   written to `/tmp`.
+   (line 1) and the tmux socket (line 2); at close the ARCHITECT ITSELF runs
+   `.claude/tools/architect-teardown.sh <id>` as its last act (self-teardown, Decision-041),
+   which uses them (via `tmux -S`) to land the operator back on this pane and close its own
+   `arch:<id>` pane — deterministic however many panes or windows they switched through;
+   legacy `@window` ids in line 1 still honoured. No Stop hook, no transcript parsing,
+   nothing written to `/tmp`.
    The worktree branches from **local `main`**, so the sidecar you committed in step 1 is
    already in it — the architect reads its real sidecar, never an empty one. Do NOT use native
    `claude --worktree <id>`: it branches from `origin/main`, which is stale unless pushed, and
@@ -167,8 +167,8 @@ result into the sidecar, presents **done** (and signals `done` on the bus) — a
 **`ALL IT IS`** and signals **`finished`** on the bus; your bus sidecar relays that `finished`
 up to you.
 
-Act on it: run `.claude/tools/architect-teardown.sh <id>` (returns the operator to this
-orchestrator pane and closes the architect's pane), THEN read the sidecar result, TRUST it
+Act on it: the architect has already torn itself down — bus released, pane closed, focus
+landed back here (self-teardown, Decision-041). Read the sidecar result, TRUST it
 (do not re-derive or sweep to confirm), and **dispatch the `housekeeper` IN THE
 BACKGROUND** (a headless subagent, running in THIS main repo) to run the close — squash-merge,
 tag, push, remove the now-idle worktree + branch (Decision-023). There is NO "close it" step —
@@ -186,7 +186,11 @@ migrations), flip the board, commit, re-triage, offer the next choice.
 **Liveness.** If you are awaiting a `finished` and the architect looks absent — no signal,
 and a direct check shows its `arch:<id>` pane gone or dead (`tmux -S "$sock" list-panes -a -F
 '#{pane_title} #{pane_dead}'`) — do not hang: read the sidecar (it may already say
-blocked/abandoned), surface it, and close as abandoned or ask the operator. Check only when a
+blocked/abandoned), surface it, and close as abandoned or ask the operator. An agent that
+died BEFORE its self-teardown is the one case you reap: run
+`.claude/tools/architect-teardown.sh <id>` yourself as the fallback (Decision-041). Your own
+retirement follows the same ruling — release your bus before ending; leave no listener
+behind. Check only when a
 close is expected and the architect is silent — no polling loop, no scheduler.
 
 # Rules

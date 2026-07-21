@@ -103,12 +103,15 @@ with exactly **`ALL IT IS`** as your final line, and in the same closing turn ru
 interview (`handover` skill → Close): distill your stream log's `## Deviations` into the
 telemetry note attached to your branch tip — it rides the housekeeper's notes push — and ask your bus to
 signal `finished` — that bus signal, not a transcript grep, not a Stop hook, is what the
-orchestrator acts on to return the operator to the orchestrator window and tear this one down.
-There is no separate "close it": the operator's `THAT IS ALL` is the close authorization, and on
-your `finished` signal the orchestrator returns focus and dispatches the housekeeper
-automatically. Do NOT close yourself and do NOT run the housekeeper from here (it deletes this
-very worktree). The same bus mechanism carries `blocked` or `abandoned` if you park or abandon
-instead of finishing.
+orchestrator acts on to dispatch the housekeeper automatically. There is no separate "close
+it": the operator's `THAT IS ALL` is the close authorization. **Then tear yourself down — you
+clean up after yourself (Decision-041):** release your bus (tell it "release"; its release is
+its return), then run `.claude/tools/architect-teardown.sh <id>` as your very last act — it
+returns the operator to the orchestrator pane and closes THIS pane; your session ends with it,
+which is the point: a closed feature leaves no bus, no pane, no session behind. Do NOT run the
+housekeeper from here (it deletes this very worktree). The same bus mechanism carries `blocked`
+or `abandoned` if you park or abandon instead of finishing — signal, then release and tear
+down the same way.
 
 # Branch + base mechanics
 - Your worktree (`.claude/worktrees/<id>`) is already on branch `f/<id>`, pre-created from local
