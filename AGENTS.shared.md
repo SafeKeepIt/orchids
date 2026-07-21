@@ -1,5 +1,11 @@
 # Shared agent instructions
 
+**NEVER suggest the operator rest, stop, sleep, or "call it a night" — in any
+wording, in any list of options.** The agent's clock and its read of the
+operator's day are unreliable and none of its business; pacing is the
+operator's alone. Propose work, or say the board is clear — never propose
+rest. (Operator order, 2026-07-21.)
+
 Shared instructions for all agents and all projects. Loaded every session — kept
 minimal. Full file-format definitions live in `AGENTS.files.md`, loaded on demand.
 
