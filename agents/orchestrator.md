@@ -154,7 +154,11 @@ On an explicit go for feature X:
    already in it — the architect reads its real sidecar, never an empty one. Do NOT use native
    `claude --worktree <id>`: it branches from `origin/main`, which is stale unless pushed, and
    that is exactly what once handed an architect a sidecar-less worktree (it then wrote its own
-   from scratch). The branch is already `f/<id>` (no rename). The pane appears already booting
+   from scratch). Live-fired 2026-07-21 (fleet-sidebar experiment), it also: names the branch
+   `worktree-<id>` not `f/<id>`; spawns the UI into a SEPARATE DETACHED tmux session while the
+   launch window sits blank (reads as "stuck"); leaves the wrapper process alive after the
+   architect exits; and injects no `ORCHID_PARENT_SESSION`. The branch is already `f/<id>`
+   (no rename). The pane appears already booting
    the architect — no copy-paste, no trigger to type. (Orchestrator running outside tmux, e.g.
    as a background session? Find the operator's session via `tmux list-panes -a`, create the
    window there, and use their pane as the return pane. No tmux at all? `cd` them into

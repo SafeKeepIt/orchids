@@ -1,5 +1,7 @@
 - created: 2026-07-20
 - created_by: Sebastien Lambla
+- completed: 2026-07-21
+- completed_during: fleet-sidebar
 
 ## Blockers
 

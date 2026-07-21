@@ -848,3 +848,47 @@ present, and runs the operator explicitly requests. Under no circumstance does
 the orchestrator decide on its own to launch a cloud agent — every cloud
 launch requires the operator's explicit authorization. While the operator is
 present, the local architect path is the default.
+
+## [2026-07-21 19:42 CEST] Decision-043: Fleet sidebar aggregates via an explicit repolist — Orchard's discovery deferred
+#fleet-sidebar #sidebar #cross-repo #repolist #orchard #discovery
+
+Ruling (operator, 2026-07-21): the fleet sidebar aggregates cross-repo via an
+EXPLICIT repolist config (`~/.config/orchids/sidebar-repos`, one path per line,
+or `ORCHIDS_SIDEBAR_REPOS`) — not scan-root, not fleet auto-discovery. This
+deliberately defers the fleet-wide repo-discovery decision to Orchard
+(`orchard-view` / `cross-repo-bus` carry it).
+
+## [2026-07-21 19:42 CEST] Decision-044: Activity label is the only new bus surface; waiting/flash is derived
+#fleet-sidebar #bus #activity #broadcast #flash #subagents
+
+Ruling (operator, 2026-07-21): the sidebar's live state rides the EXISTING bus
+as ordinary dynamic messages — `orchid:activity:<text>` and
+`orchid:subagent:start|done:<label>`; no bus mechanism change. The activity
+LABEL is the only new surface. Waiting/flash is DERIVED (notify_user OR
+lifecycle blocked) — no new bus field for it. Activity is emitted as WORDING
+by full agents (orchestrator/architect/ripener); subagents are shown by
+name+spinner surfaced by their parent; the bus sidecar is omitted from rows.
+
+## [2026-07-21 19:42 CEST] Decision-045: Tmux window names carry the session-naming display forms
+#session-naming #tmux #window-naming #spawn #teardown
+
+Ruling (operator, 2026-07-21): tmux WINDOW NAMES are the session-naming
+display forms — orchestrator window = bare repo (`orchids`), architect window
+= `<repo> ▸ <human>` (`orchids ▸ fleet sidebar`). NO `claude`, NO visible
+`arch:<id>`. `arch:<id>` survives ONLY as the pane TITLE (teardown/reaping
+handle). Nav matches the friendly window names. Baked into the spawn recipes
+on the fleet-sidebar branch; completes the window-name half of session-naming
+(gh#34, which had done only `claude --name`). Context: an earlier silent
+`orch:<project>` rename was reverted — operator-visible naming is a SPEC
+decision, never a silent HOW.
+
+## [2026-07-21 19:42 CEST] Decision-046: A bus exits only when woken by an inbound message
+#bus #monitor #teardown #agent-closing #wake
+
+Ruling (operator, 2026-07-21): a bus sidecar blocked on its monitor exits
+ONLY by being WOKEN — an inbound message arrives, the bus tears down its own
+monitor and exits. Never kill a bus's monitor externally: the bus never wakes
+and hangs forever. Closes therefore wake actively rather than wait passively;
+long passive watch timeouts (15m) are unacceptable for exits. Refines
+Decision-041 (release is the bus's return): release must reach the bus AS a
+wake.

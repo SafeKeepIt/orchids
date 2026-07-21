@@ -32,6 +32,26 @@
   teardown act, keeps it only as dead-agent fallback, and releases its own bus
   at retirement; handover guard counts a released bus as returned and the
   stream close gains a teardown step.
+- Live-fire evidence from the fleet-sidebar close (2026-07-21), all verified:
+  - `architect-teardown.sh` matches the architect pane by pane TITLE `arch:<id>`,
+    which claude clobbers live with the session name — teardown finds no pane and
+    neither returns focus nor closes it. Fix: match a reliable handle (window
+    name, or a tmux window user-option), not the clobbered pane title. The same
+    clobbering breaks reaping's pane-title check.
+  - A bus blocked on its monitor never exits on its own: it must be WOKEN by an
+    inbound message and tear its monitor down itself; killing the monitor
+    externally leaves the bus asleep forever (Decision-046). Passive
+    watch-and-wait makes closes take tens of minutes; closes must wake actively.
+  - The native `--worktree` launcher (wrapper claude process) outlives its child
+    architect and holds a blank window until reaped.
+  - The architect never touched its stream's `_closed` marker before teardown
+    (protocol orders it first); ingestion proceeded without it.
+  - An operator approval given in the ORCHESTRATOR pane has no sanctioned
+    delivery path to the architect: the bus relay is (correctly) rejected as
+    peer traffic, and the flow silently stalls at the done gate until the
+    operator types in the architect's own window (or keystrokes are injected).
+  - One session's bus released itself after completing a relay errand, mid-parent-
+    session — release belongs to the parent's close, not an errand's end.
 
 ## Proposal
 

@@ -4,7 +4,8 @@
 
 ## Blockers
 
-- fleet-sidebar's squash-merge not yet on `main` — fixes branch from the merged code.
+- ~~fleet-sidebar's squash-merge not yet on `main` — fixes branch from the merged
+  code.~~ RESOLVED: squash-merged as 430597a, archive/fleet-sidebar, 2026-07-21.
 
 ## Questions
 
@@ -23,6 +24,10 @@
 - Known limitations already recorded by the build (candidates, not the full list):
   reader dedup is cross-scan by message id; a repolist entry with no bus activity
   renders an empty repo row.
+- Defect candidate from the close itself: the window-naming amend renamed windows to
+  the session-naming display forms without accounting for a coexisting launcher window
+  of the same feature — two windows named `orchids ▸ fleet sidebar`, one blank; the
+  operator landed on the blank one. Naming must be collision-safe.
 
 ## Proposal
 
