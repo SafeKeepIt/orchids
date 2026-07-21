@@ -52,8 +52,11 @@ PR comment revises.
 | housekeeper-cloud | haiku | `THAT IS ALL` → close | Verifies the close-docs gate, amends, tags `archive/<id>`, `gh pr merge --squash`, commit-count note. The only role merging feature work into `main`; engages once, post-approval. |
 
 Runners have no kauk: each job overlays `agents/` and `skills/` into `.claude/`
-(the committed symlinks point into the untracked `.ai/` clone). Auth is the
-operator's subscription OAuth token (`CLAUDE_CODE_OAUTH_TOKEN` secret).
+(the committed symlinks point into the untracked `.ai/` clone). Auth has two layers: the Claude CLI runs on the
+operator's subscription OAuth token (`CLAUDE_CODE_OAUTH_TOKEN` secret), while every
+GitHub action (comment, commit, PR, push, merge) is signed by **`callabloom[bot]`** —
+a kaukea GitHub App token minted per hop from org secrets (`CALLABLOOM_APP_ID` /
+`CALLABLOOM_PRIVATE_KEY`), falling back to the built-in `github.token` when absent.
 `issue_comment` fires only from the default branch — pre-merge, hops are
 exercised via `workflow_dispatch` (inputs: hop, issue). Intake and ripening run
 as manual issue comments until the ripener charter lands; operator-less
