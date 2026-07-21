@@ -627,3 +627,42 @@ Operator ruling (2026-07-21): the two relations get different merge models.
   convention of striking the older heading with a "Superseded by" marker.
 
 First execution: GitHub issue #23 folded into [[fleet-sidebar]] (da7cd2d).
+
+## [2026-07-21 02:47 CEST] Decision-030: The gate vocabulary — operator words, and nothing else, trigger
+#gates #vocabulary #signals #engage #makeitso #thatisall #cloud #close
+
+Operator ruling (2026-07-21): the ritual words are THE signals — them, and their emoji
+equivalents when in prose; nothing else triggers, and agents never self-emit a gate.
+Actor-gated to the operator; unlimited amend rounds precede every gate.
+
+- `ENGAGE` / ⚙ — kick-off: fires the prologue → plan hop (cloud: an issue comment;
+  local: the operator's go to the orchestrator).
+- `MAKE IT SO` / 🖖 — build gate: the architect may edit files from here, not before.
+- `THAT IS ALL` — close approval (PR-merge semantics; a comment instead means
+  amend/abandon — Decision-028).
+- `ALL IT IS` — the architect's countersign; carried to the orchestrator as the bus
+  `finished` signal (machinery, not an operator word).
+
+Canonical prose documentation rides the unlanded f/cloud-architect branch (README,
+ARCHITECTURE, the [[cloud-architect]] sidecar); this entry anchors the ruling in the
+ledger meanwhile, per the operator's "documented outside of code".
+
+## [2026-07-21 02:47 CEST] Decision-031: Automode by default; #madmax unrestricts a task's launches
+#permissions #automode #classifier #madmax #launch #spawn #settings #housekeeper
+
+Operator rulings (2026-07-21), after a close was repeatedly stalled by permission-
+classifier denials (housekeeper dispatch, pushes, even a read-only grep):
+
+- Sessions in these repos default to AUTO permission mode: `permissions.defaultMode`
+  = "auto" in the shared settings.json — spawned agents (architects, housekeepers,
+  headless sub-jobs) included. Friction is the exception, not the baseline.
+- `#madmax` is a BOARD TAG (trailing the task line, like an edge): a tagged task runs
+  unrestricted — every `claude` launch for that feature appends
+  `--dangerously-skip-permissions`. Operator-set ONLY — and because anything published
+  where an agent can read it will eventually be used (operator, same night), the
+  prohibition is STRUCTURAL, not prose: before honouring the tag, the launcher
+  verifies it reached the board in an operator-authored commit (git provenance), not
+  merely that it is present. Definition: AGENTS.files.md §TODO; spawn wiring:
+  agents/orchestrator.md.
+- The housekeeper's effort rises low → high and its charter gains a concurrent-streams
+  briefing (main moves mid-close; stale branch context ≠ reverts) after a live misread.
