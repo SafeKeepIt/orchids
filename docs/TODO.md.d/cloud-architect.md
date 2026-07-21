@@ -76,7 +76,11 @@
   logo, `[bot]` suffix is GitHub-mandatory — minted per hop via
   actions/create-github-app-token behind an optional secret (fallback:
   github-actions); replaces anonymous bot comments AND exempts PR creation
-  from the Actions policy AND becomes the clean ruleset bypass actor ·
+  from the Actions policy AND becomes the clean ruleset bypass actor — now
+  LOAD-BEARING: verified (operator, 2026-07-21) that the built-in GitHub
+  Actions identity CANNOT be bypass-listed on a repo ruleset, so close-spine
+  is switched to Disabled until the app exists; re-enabling it with the app
+  on the bypass list is part of this follow-up ·
   nested-line projection gap (already filed by the orchestrator).
 
 ## Proposal
