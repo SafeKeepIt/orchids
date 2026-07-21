@@ -117,14 +117,14 @@ On an explicit go for feature X:
    local `main`, so an uncommitted sidecar would not be in the architect's worktree.
 2. On the operator's explicit go (their "go" **is** the start command — spawning after it is
    executing their order, not self-initiating), **pre-create the worktree from local `main`,
-   then split the architect into a new PANE next to your own** (Decision-006 — panes, not
-   windows):
+   then open the architect in its OWN WINDOW** (Decision-036 — window per architect; never a
+   side-by-side split):
    ```
    orch=$TMUX_PANE                                  # capture THIS pane BEFORE spawning
    id=<id>                                          # feature id; human name = id with '-' → spaces
    git worktree add .claude/worktrees/<id> -b f/<id> main
    printf '%s\n%s\n' "$orch" "${TMUX%%,*}" > .claude/worktrees/<id>/.return-window  # pane + tmux socket
-   tmux split-window -t "$orch" -c .claude/worktrees/<id> \
+   tmux new-window -n "arch:<id>" -c .claude/worktrees/<id> \
      "ORCHID_PARENT_SESSION=$CLAUDE_CODE_SESSION_ID claude --agent architect --name \"orchids / ${id//-/ }\" 'Boot: read your sidecar and begin discovery.'"
    tmux select-pane -T "arch:<id>"
    ```
@@ -143,11 +143,13 @@ On an explicit go for feature X:
    that is exactly what once handed an architect a sidecar-less worktree (it then wrote its own
    from scratch). The branch is already `f/<id>` (no rename). The pane appears already booting
    the architect — no copy-paste, no trigger to type. (Orchestrator running outside tmux, e.g.
-   as a background session? Find the operator's conversation pane via `tmux list-panes -a` and
-   use it as both split target and return pane. No tmux at all? `cd` them into
-   `.claude/worktrees/<id>` and run `claude --agent architect`.) One architect pane per
-   feature; parallel features = more panes, bounded by the box's cores/RAM and the operator's
-   screen. NEVER spawn without an explicit go.
+   as a background session? Find the operator's session via `tmux list-panes -a`, create the
+   window there, and use their pane as the return pane. No tmux at all? `cd` them into
+   `.claude/worktrees/<id>` and run `claude --agent architect`.) One architect WINDOW per
+   feature; parallel features = more windows, bounded by the box's cores/RAM and the
+   operator's attention. Subagents stay hidden (bus → sidebar); to look inside one, peek —
+   `tools/peek.sh <transcript>` opens a disposable pane in the window's right column,
+   capped (Decision-036). NEVER spawn without an explicit go.
 3. The architect owns the feature from there. You return to the board.
 
 # Your own domain (the ONE thing you author directly)
