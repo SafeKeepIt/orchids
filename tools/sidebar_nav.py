@@ -25,8 +25,10 @@ from __future__ import annotations
 import subprocess
 import sys
 
-LIST_WINDOWS_FORMAT = "#{session_name}\t#{window_id}\t#{window_name}"
+LIST_WINDOWS_FORMAT = "#{session_name}\t#{window_id}\t#{window_name}\t#{pane_current_command}"
 LIST_PANES_FORMAT = "#{pane_id} #{pane_title}"
+
+_SHELL_COMMANDS = {"bash", "sh", "zsh", "fish", "dash", "-bash", "-sh", "-zsh", "login", "tmux"}
 
 
 def _tmux(*args: str) -> str | None:
@@ -46,28 +48,40 @@ def _tmux(*args: str) -> str | None:
     return result.stdout.strip()
 
 
-def _list_windows() -> list[tuple[str, str, str]]:
-    """Return (session_name, window_id, window_name) for every window."""
+def _list_windows() -> list[tuple[str, str, str, str]]:
+    """Return (session_name, window_id, window_name, active_cmd) for every window."""
     out = _tmux("list-windows", "-a", "-F", LIST_WINDOWS_FORMAT)
     if not out:
         return []
     windows = []
     for line in out.splitlines():
-        # window names contain no tabs, so a plain split is exact.
-        parts = line.split("\t")
-        if len(parts) != 3:
+        # window names contain no tabs, so a maxsplit-3 split keeps them exact.
+        parts = line.split("\t", 3)
+        if len(parts) != 4:
             continue
-        session_name, window_id, window_name = parts
-        windows.append((session_name, window_id, window_name))
+        session_name, window_id, window_name, active_cmd = parts
+        windows.append((session_name, window_id, window_name, active_cmd))
     return windows
 
 
-def resolve_window(name: str) -> tuple[str, str] | None:
-    """Return (session_name, window_id) for the first exact window_name match."""
-    for session_name, window_id, window_name in _list_windows():
-        if window_name == name:
+def _prefer_live(matches: list[tuple[str, str, str, str]]) -> tuple[str, str]:
+    """Among same-named window matches, prefer one whose active pane command
+    is not a bare login shell (the live window rather than a blank launcher
+    leftover). Falls back to the first match if all are shells."""
+    for session_name, window_id, _window_name, active_cmd in matches:
+        if active_cmd not in _SHELL_COMMANDS:
             return (session_name, window_id)
-    return None
+    session_name, window_id, _window_name, _active_cmd = matches[0]
+    return (session_name, window_id)
+
+
+def resolve_window(name: str) -> tuple[str, str] | None:
+    """Return (session_name, window_id) for the window_name match. When more
+    than one window shares the name, prefers the live one (see _prefer_live)."""
+    matches = [w for w in _list_windows() if w[2] == name]
+    if not matches:
+        return None
+    return _prefer_live(matches)
 
 
 def resolve_pane(title: str) -> str | None:
