@@ -48,9 +48,37 @@ _base: `f65ad36`_
   frontmatter-contract skill is renamed `doing-skills` → `authoring-skills` and
   documents the contract; kauk validates the declarations when it reads them.
 
+- ☁️ Cloud path: the pipeline rides GitHub — a feature is an issue, the gates
+  are operator comments (`ENGAGE`/⚙ · `MAKE IT SO`/🖖 · `THAT IS ALL`/🚪,
+  exact-form only, actor-gated), the close is a squash-merged PR. Three
+  headless roles (prologue orchestrator-cloud, three-mode architect-cloud,
+  PR-closing housekeeper-cloud) cold-start each hop from the issue thread and
+  the canonical sidecar; a `close-spine` ruleset greys the merge button for
+  everyone until the close hop passes judgment; the transient work log rides
+  Actions caches. Live-fired end to end on a real feature (session-naming,
+  gh#34) — refusal guards, both approval gates, build, revise, and the close
+  vocabulary all held under fire.
+
 ### 🐛 Bug fixes
 
 ---
+
+#### ☁️ `f/cloud-architect` → `archive/cloud-architect`
+
+The full cloud path in one slice (Decision-027): `cloud-path.yml` detects,
+gates, and invokes — hop 1 `ENGAGE` runs the orchestrator-cloud prologue
+(board handoff, its sole `main` write) then architect-cloud PLAN; hop 2
+`MAKE IT SO` builds, tests, authors close docs, opens the PR; non-gate PR
+comments summon REVISE; hop 3 `THAT IS ALL` runs housekeeper-cloud — docs
+gate, archive tag, `close-spine` check, squash-merge, commit-count note,
+with an idempotent repair mode for bypassed closes. Charters enforce
+exact-form gates, context economy (sidecar canonical after fold), and the
+Actions-cache work log (issue-keyed, save-on-failure). Prerequisites: the
+`CLAUDE_CODE_OAUTH_TOKEN` org secret and the Actions PR-creation setting,
+both documented in the workflow header.
+
+_Board: `cloud-architect` sidecar (design, live-fire record, follow-ups) ·
+`docs/decisions.md` #cloud rulings pending promotion from the workstream log._
 
 #### 🏷️ `f/role-dag-frontmatter` → `archive/role-dag-frontmatter`
 

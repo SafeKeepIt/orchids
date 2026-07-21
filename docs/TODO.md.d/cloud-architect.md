@@ -35,6 +35,34 @@
 - The [[github-board-sync]] lane (issues mirror, Orchidarium Project, board-sync
   workflow) already gives the issue substrate and a cloud-triage precedent.
 
+- **Live-fire record (2026-07-21, session-naming / gh#34):** hop 0 ingest ✓ ·
+  plan hop refused an unripe stub then fully passed post-ripening (prologue
+  handoff, branch, tech plan comment) ✓ · build hop passed and correctly PARKED
+  at PR creation on the org policy (now a documented prerequisite) ✓ · revise
+  hop reconciled the branch to the mid-build-frozen naming contract, catching
+  sites the build missed ✓ · close hop refused 3× on missing/wrong-vocabulary
+  gate (charter integrity; never merged, never guessed) — mechanical close
+  artifacts proven on the demo PR (grey button → `close-spine` → squash) and via
+  operator-approved repair. Defects found live and fixed in-branch: checkout
+  skew (board reads pinned to origin/main), refusal not halting the job,
+  substring gates (exact-form now), handoff badge drift (retired vocabulary),
+  work-log stream split (PR vs issue number) and lost-on-failure saves.
+- **Enforcement:** `close-spine` repository ruleset (id 19333120) greys the
+  merge button until the close hop publishes the check — gates as mechanism,
+  not vocabulary (operator: "operators will click the green button").
+- **README:** edited (cloud-path paragraph in the off-terminal story) — commit
+  1e2eb94. **ARCHITECTURE:** edited (new "The cloud path" section — trigger
+  fired: new substrate, new roles, new connection) — commit f9506f4.
+- **Follow-ups for the board** (orchestrator promotes): intake dedup on
+  gh-ingest (duplicate stub for an existing task) · readiness ORIGIN stamping
+  after a cloud MAKE IT SO (no role writes the board post-handoff) · hop
+  wall-time measurement + resolved-id/branch hints in dispatch · REVISE
+  dispatch lacks a comment input (role coped by reading the PR thread) ·
+  cloud-path `--name` adoption per the naming contract · WATCH: first main
+  push under the close-spine ruleset (if rulesets gate direct pushes,
+  board-sync/local closes break — fix: bypass_actors serialseb + Actions app)
+  · nested-line projection gap (already filed by the orchestrator).
+
 ## Proposal
 
 First slice = the FULL PATH (operator, 2026-07-20): a GitHub issue carries the feature;
@@ -86,3 +114,12 @@ sidebar for a follow-up cloud run. Flow: orchestrator projects it to an issue,
 operator answers the intake questions as comments, sidecar ripens, `ENGAGE` →
 gates given live. (Original target and the three refusal runs — auth 401 ×2,
 not-ripe guard — are recorded in `## Findings`.)
+
+TESTED (2026-07-21): the live-fire ran to completion — see the live-fire
+record in `## Findings`. Every gate was operator-given; no agent
+self-approved MAKE IT SO or the close; the close hop's three refusals under
+imperfect gate evidence are part of the passing result.
+
+Result: done · branch f/cloud-architect · live-fire passed on session-naming
+(gh#34, PR #38, squash cfc7f283, archive/session-naming) · follow-ups listed
+in Findings for board promotion.
