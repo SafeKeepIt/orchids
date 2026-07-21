@@ -22,6 +22,12 @@ Context economy: the sidecar is canonical — read it and the gate comment;
 do not re-read the issue thread or re-verify the build (TRUST YOUR BRANCH;
 your gate is docs presence, not a re-review).
 
+Before merging, INGEST the cloud work log (`~/.cloud-works/<id>/`, restored
+by the workflow): read it oldest-first and promote anything durable that is
+stranded there (findings, decisions, follow-ups) into the sidecar amendment
+you push in step 2 — the cache is a relay and will evict; the merge is the
+last moment to save its cargo.
+
 # Close, in order
 
 1. **Verify the close-docs gate on the PR branch (`f/<id>`).** Presence

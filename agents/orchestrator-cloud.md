@@ -16,7 +16,9 @@ Architecture: Decision-025/027 (grep `docs/decisions.md` `#cloud`).
 
 Headless means no `AskUserQuestion` — anything you would otherwise ask
 becomes an issue comment, and you stop; you never block waiting for a live
-reply.
+reply. Leave a short session log under `~/.cloud-works/<id>/` (the
+Actions-cache relay the workflow mounts): what you resolved, what you wrote,
+why you refused if you did.
 
 # Duties, in order
 

@@ -88,6 +88,18 @@ jobs:
         with:
           path: ~/.npm
           key: npm-claude-cli-v1
+      # The cloud work log: the runner-side analogue of .git/the-works/ — rolling
+      # session logs a hop leaves for its successors. run_id-suffixed keys +
+      # prefix restore give append semantics (caches are immutable); eviction
+      # makes this a relay, not an archive — the close hop promotes leftovers to
+      # the sidecar before merge. Lives OUTSIDE the workspace: uncommittable.
+      - name: Cloud work log (restore now, save at job end)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cloud-works
+          key: the-works-${{ github.event.issue.number || inputs.issue }}-${{ github.run_id }}
+          restore-keys: |
+            the-works-${{ github.event.issue.number || inputs.issue }}-
       - name: Install claude CLI
         run: npm install -g @anthropic-ai/claude-code
       - name: Git identity
@@ -162,6 +174,18 @@ jobs:
         with:
           path: ~/.npm
           key: npm-claude-cli-v1
+      # The cloud work log: the runner-side analogue of .git/the-works/ — rolling
+      # session logs a hop leaves for its successors. run_id-suffixed keys +
+      # prefix restore give append semantics (caches are immutable); eviction
+      # makes this a relay, not an archive — the close hop promotes leftovers to
+      # the sidecar before merge. Lives OUTSIDE the workspace: uncommittable.
+      - name: Cloud work log (restore now, save at job end)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cloud-works
+          key: the-works-${{ github.event.issue.number || inputs.issue }}-${{ github.run_id }}
+          restore-keys: |
+            the-works-${{ github.event.issue.number || inputs.issue }}-
       - name: Install claude CLI
         run: npm install -g @anthropic-ai/claude-code
       - name: Git identity
@@ -225,6 +249,18 @@ jobs:
         with:
           path: ~/.npm
           key: npm-claude-cli-v1
+      # The cloud work log: the runner-side analogue of .git/the-works/ — rolling
+      # session logs a hop leaves for its successors. run_id-suffixed keys +
+      # prefix restore give append semantics (caches are immutable); eviction
+      # makes this a relay, not an archive — the close hop promotes leftovers to
+      # the sidecar before merge. Lives OUTSIDE the workspace: uncommittable.
+      - name: Cloud work log (restore now, save at job end)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cloud-works
+          key: the-works-${{ github.event.issue.number || inputs.issue }}-${{ github.run_id }}
+          restore-keys: |
+            the-works-${{ github.event.issue.number || inputs.issue }}-
       - name: Install claude CLI
         run: npm install -g @anthropic-ai/claude-code
       - name: Git identity
@@ -269,6 +305,18 @@ jobs:
         with:
           path: ~/.npm
           key: npm-claude-cli-v1
+      # The cloud work log: the runner-side analogue of .git/the-works/ — rolling
+      # session logs a hop leaves for its successors. run_id-suffixed keys +
+      # prefix restore give append semantics (caches are immutable); eviction
+      # makes this a relay, not an archive — the close hop promotes leftovers to
+      # the sidecar before merge. Lives OUTSIDE the workspace: uncommittable.
+      - name: Cloud work log (restore now, save at job end)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cloud-works
+          key: the-works-${{ github.event.issue.number || inputs.issue }}-${{ github.run_id }}
+          restore-keys: |
+            the-works-${{ github.event.issue.number || inputs.issue }}-
       - name: Install claude CLI
         run: npm install -g @anthropic-ai/claude-code
       - name: Git identity

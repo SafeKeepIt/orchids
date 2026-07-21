@@ -31,9 +31,16 @@ invocation prompt; do only that mode's work.
   the sidecar and the triggering comment ONLY — re-reading the thread is
   double duty on work already trusted (TRUST YOUR BRANCH).
 - **Your last act, every mode: write your handoff state into the sidecar**
-  (what's decided, what's built, what the next hop needs) and push. Runners
-  share no `.git/the-works/` relay — the committed sidecar IS the cloud's
-  workstream log, sanitized by construction.
+  (what's decided, what's built, what the next hop needs) and push. The
+  sidecar is the DURABLE state, sanitized by construction.
+- **The cloud work log is `~/.cloud-works/<id>/`** — an Actions-cache-backed
+  relay the workflow restores before you and saves after you (the runner
+  analogue of `.git/the-works/`). At start, read it oldest-first; keep your
+  OWN rolling file (`$(date -u +%Y%m%dT%H%M%S)-<mode>.md`, `handover`-skill
+  shape): state, findings, dead ends, dispatch ledger — the transient layer
+  that does NOT belong in the committed sidecar. It is a relay, not an
+  archive (cache eviction applies): anything durable still goes to the
+  sidecar the moment it is established.
 
 # Mode: PLAN (post-`ENGAGE`, dispatched by `orchestrator-cloud`)
 
