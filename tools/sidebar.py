@@ -40,6 +40,12 @@ NO_ACTIVITY_TEXT = "· no activity ·"
 
 FLASH_TOGGLE_TICKS = 3  # timeout is 150ms; ~3 ticks ≈ 450ms ≈ twice a second
 
+# Separator between repo name and feature human name in a feature/architect
+# window's target name, e.g. "orchids ▸ fleet sidebar". Must match the real
+# tmux window names produced by the session-naming scheme exactly: U+25B8
+# with one space on each side.
+TARGET_SEPARATOR = " ▸ "
+
 
 # --------------------------------------------------------------------------
 # Presentation model (pure, no curses)
@@ -49,7 +55,7 @@ FLASH_TOGGLE_TICKS = 3  # timeout is 150ms; ~3 ticks ≈ 450ms ≈ twice a secon
 class Row:
     depth: int
     kind: str  # "repo" | "feature" | "subagent"
-    nav_key: str
+    target: str  # exact tmux window name to navigate to on Enter
     label: str
     status: str | None
     waiting: bool
@@ -62,18 +68,19 @@ def flatten(fleet: sidebar_model.Fleet) -> list[Row]:
     rows: list[Row] = []
     for repo in fleet.repos:
         rows.append(Row(
-            depth=0, kind="repo", nav_key=repo.name, label=repo.name,
+            depth=0, kind="repo", target=repo.name, label=repo.name,
             status=repo.status, waiting=repo.waiting, is_subagent=False,
         ))
         for feature in repo.features:
+            feature_target = f"{repo.name}{TARGET_SEPARATOR}{feature.name}"
             rows.append(Row(
-                depth=1, kind="feature", nav_key=feature.feature_id, label=feature.name,
+                depth=1, kind="feature", target=feature_target, label=feature.name,
                 status=feature.status, waiting=feature.waiting, is_subagent=False,
                 activity=feature.activity,
             ))
             for sub in feature.subagents:
                 rows.append(Row(
-                    depth=2, kind="subagent", nav_key=feature.feature_id, label=sub.label,
+                    depth=2, kind="subagent", target=feature_target, label=sub.label,
                     status=None, waiting=False, is_subagent=True,
                 ))
     return rows
@@ -209,8 +216,7 @@ def _navigate_selected(rows: list[Row], selected: int) -> None:
     if not rows or not (0 <= selected < len(rows)):
         return
     row = rows[selected]
-    kind = "feature" if row.kind == "subagent" else row.kind
-    sidebar_nav.navigate(kind, row.nav_key)
+    sidebar_nav.navigate_to(row.target)
 
 
 def _clamp_selected(selected: int, count: int) -> int:

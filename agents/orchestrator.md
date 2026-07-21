@@ -135,10 +135,11 @@ On an explicit go for feature X:
    id=<id>                                          # feature id; human name = id with '-' → spaces
    git worktree add .claude/worktrees/<id> -b f/<id> main
    printf '%s\n%s\n' "$orch" "${TMUX%%,*}" > .claude/worktrees/<id>/.return-window  # pane + tmux socket
-   tmux new-window -n "arch:<id>" -c .claude/worktrees/<id> \
-     "ORCHID_PARENT_SESSION=$CLAUDE_CODE_SESSION_ID claude --agent architect --name \"orchids ▸ ${id//-/ }\" 'Boot: read your sidecar and begin discovery.'"
-   tmux select-pane -T "arch:<id>"
-   .claude/tools/sidebar-mount.sh "arch:<id>"        # mount the fleet sidebar into the new window
+   win=$(tmux new-window -P -F '#{window_id}' -n "orchids ▸ ${id//-/ }" -c .claude/worktrees/<id> \
+     "ORCHID_PARENT_SESSION=$CLAUDE_CODE_SESSION_ID claude --agent architect --name \"orchids ▸ ${id//-/ }\" 'Boot: read your sidecar and begin discovery.'")
+   tmux set-window-option -t "$win" automatic-rename off  # window shows the session name, not the program
+   tmux select-pane -t "$win" -T "arch:<id>"              # arch:<id> stays the pane-TITLE handle teardown/reaping match
+   .claude/tools/sidebar-mount.sh "$win"                  # mount the fleet sidebar into the new window
    ```
    The initial prompt is part of the spawn — a fresh session waits silently for its first
    message, and a trigger the operator must remember to type is a trigger forgotten

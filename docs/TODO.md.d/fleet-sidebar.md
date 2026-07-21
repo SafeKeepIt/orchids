@@ -95,10 +95,17 @@ smoke passing. Awaiting the operator's `THAT IS ALL`.
   stdlib reader (`tools/sidebar_model.py`) observes every configured repo's bus,
   attributes by sender, accumulates in memory; a curses renderer (`tools/sidebar.py`)
   draws the repo→feature→activity→sub-agent tree with status emoji, flash, and spinner,
-  with keyboard nav via `tools/sidebar_nav.py` (matches the EXISTING `arch:<id>` tmux
-  window name; sets no names of its own — a repo/orchestrator row navigates only where a
-  window handle already exists); `tools/sidebar-mount.sh` splits the pinned left pane at
-  orchestrator/architect launch (idempotent, strictly best-effort).
+  with keyboard nav via `tools/sidebar_nav.py` (matches the tmux window NAME —
+  `<repo>` for an orchestrator, `<repo> ▸ <human>` for a feature); `tools/sidebar-mount.sh`
+  splits the pinned left pane at orchestrator/architect launch (idempotent, strictly
+  best-effort).
+- Post-done amend (operator-directed): the tmux WINDOW NAMES now carry the session-naming
+  display forms — orchestrator window = bare repo (`orchids`), architect window =
+  `<repo> ▸ <human>` (`orchids ▸ fleet sidebar`); no `claude`, no visible `arch:<id>`. This
+  completes the tmux-window-name side of session-naming (which had done only `claude --name`).
+  `arch:<id>` is kept as the pane TITLE (teardown/reaping handle). Applied live to current
+  windows and baked into the spawn recipes (`agents/orchestrator.md`,
+  `skills/orchestrator/SKILL.md`). Nav repointed to the friendly names; tests updated (22/22).
 - Fan-out: discovery 6 explorers (0 inline); build 6 builders (S1–S6), plus the
   ARCHITECTURE.md edit inline (architect, per Decision-034). Above s-size; builders used
   throughout, none of the six build steps done inline.

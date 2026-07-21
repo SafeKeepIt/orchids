@@ -22,8 +22,8 @@ import sidebar_nav  # noqa: E402
 
 
 LIST_WINDOWS_OUTPUT = "\n".join([
-    "sess-orch\t@1\torch:repo-x",
-    "sess-arch\t@2\tarch:feat-y",
+    "sess-orch\t@1\torchids",
+    "sess-arch\t@2\torchids ▸ fleet sidebar",
 ])
 
 
@@ -43,42 +43,40 @@ def _fake_tmux(canned_list_windows):
 class ResolveWindowTests(unittest.TestCase):
     def test_exact_window_name_match(self):
         with mock.patch.object(sidebar_nav, "_tmux", side_effect=_fake_tmux(LIST_WINDOWS_OUTPUT)):
-            self.assertEqual(sidebar_nav.resolve_window("arch:feat-y"), ("sess-arch", "@2"))
+            self.assertEqual(
+                sidebar_nav.resolve_window("orchids ▸ fleet sidebar"), ("sess-arch", "@2"),
+            )
 
     def test_no_match_returns_none(self):
         with mock.patch.object(sidebar_nav, "_tmux", side_effect=_fake_tmux(LIST_WINDOWS_OUTPUT)):
-            self.assertIsNone(sidebar_nav.resolve_window("arch:missing"))
+            self.assertIsNone(sidebar_nav.resolve_window("orchids ▸ missing"))
 
 
-class NavigateTests(unittest.TestCase):
-    def test_navigate_feature_targets_arch_window(self):
+class NavigateToTests(unittest.TestCase):
+    def test_navigate_to_matching_window(self):
         with mock.patch.object(
             sidebar_nav, "_tmux", side_effect=_fake_tmux(LIST_WINDOWS_OUTPUT),
         ) as tmux:
-            self.assertTrue(sidebar_nav.navigate("feature", "feat-y"))
+            self.assertTrue(sidebar_nav.navigate_to("orchids ▸ fleet sidebar"))
             calls = [c.args for c in tmux.call_args_list]
 
         self.assertIn(("list-windows", "-a", "-F", sidebar_nav.LIST_WINDOWS_FORMAT), calls)
         self.assertIn(("switch-client", "-t", "sess-arch"), calls)
         self.assertIn(("select-window", "-t", "@2"), calls)
 
-    def test_navigate_repo_targets_orch_window(self):
+    def test_navigate_to_repo_window(self):
         with mock.patch.object(
             sidebar_nav, "_tmux", side_effect=_fake_tmux(LIST_WINDOWS_OUTPUT),
         ) as tmux:
-            self.assertTrue(sidebar_nav.navigate("repo", "repo-x"))
+            self.assertTrue(sidebar_nav.navigate_to("orchids"))
             calls = [c.args for c in tmux.call_args_list]
 
         self.assertIn(("switch-client", "-t", "sess-orch"), calls)
         self.assertIn(("select-window", "-t", "@1"), calls)
 
-    def test_navigate_returns_false_when_window_missing(self):
+    def test_navigate_to_returns_false_when_window_missing(self):
         with mock.patch.object(sidebar_nav, "_tmux", side_effect=_fake_tmux(LIST_WINDOWS_OUTPUT)):
-            self.assertFalse(sidebar_nav.navigate("feature", "nope"))
-
-    def test_navigate_returns_false_for_unknown_kind(self):
-        with mock.patch.object(sidebar_nav, "_tmux", side_effect=_fake_tmux(LIST_WINDOWS_OUTPUT)):
-            self.assertFalse(sidebar_nav.navigate("subagent", "feat-y"))
+            self.assertFalse(sidebar_nav.navigate_to("orchids ▸ nope"))
 
 
 if __name__ == "__main__":

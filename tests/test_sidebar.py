@@ -35,19 +35,19 @@ def _fleet():
 
 
 class FlattenTests(unittest.TestCase):
-    def test_depth_kind_and_nav_key_per_row(self):
+    def test_depth_kind_and_target_per_row(self):
         rows = sidebar.flatten(_fleet())
         self.assertEqual(len(rows), 3)
 
         repo_row, feature_row, sub_row = rows
-        self.assertEqual((repo_row.depth, repo_row.kind, repo_row.nav_key),
+        self.assertEqual((repo_row.depth, repo_row.kind, repo_row.target),
                          (0, "repo", "repoA"))
-        self.assertEqual((feature_row.depth, feature_row.kind, feature_row.nav_key),
-                         (1, "feature", "feat-1"))
-        # a subagent row's nav_key is its OWNING feature's id, not its label --
-        # navigation from a subagent row targets the feature window.
-        self.assertEqual((sub_row.depth, sub_row.kind, sub_row.nav_key),
-                         (2, "subagent", "feat-1"))
+        self.assertEqual((feature_row.depth, feature_row.kind, feature_row.target),
+                         (1, "feature", "repoA ▸ feat one"))
+        # a subagent row's target is its OWNING feature's target, not its own
+        # label -- navigation from a subagent row targets the feature window.
+        self.assertEqual((sub_row.depth, sub_row.kind, sub_row.target),
+                         (2, "subagent", "repoA ▸ feat one"))
         self.assertTrue(sub_row.is_subagent)
         self.assertFalse(feature_row.is_subagent)
         self.assertFalse(repo_row.is_subagent)

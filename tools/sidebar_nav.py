@@ -10,9 +10,13 @@ tools/architect-teardown.sh, but runs on the AMBIENT tmux socket (the
 sidebar lives inside the same tmux server it navigates), so plain
 `tmux` is used rather than a `-S <socket>` target.
 
-Window-name handles:
-  - feature row -> "arch:<feature_id>"
-  - repo row    -> "orch:<repo_name>"
+Window names are the session-naming display forms:
+  - orchestrator window -> the bare repo name, e.g. "orchids"
+  - architect window    -> "<repo> ▸ <human name>", e.g. "orchids ▸ fleet sidebar"
+    (separator is "▸" U+25B8, one space each side)
+
+`arch:<id>` still exists as a PANE TITLE (used by teardown), but is no
+longer a window name and is not used for navigation here.
 
 STDLIB ONLY.
 """
@@ -69,7 +73,7 @@ def resolve_window(name: str) -> tuple[str, str] | None:
 def resolve_pane(title: str) -> str | None:
     """Return the tmux pane id whose #{pane_title} equals `title`, or None.
 
-    Kept for convenience/back-compat; NOT used by navigate() — pane titles
+    Kept for convenience/back-compat; NOT used by navigate_to() — pane titles
     are unreliable (clobbered by a status-glyph setter), so navigation
     matches on window name via resolve_window() instead.
     """
@@ -83,24 +87,17 @@ def resolve_pane(title: str) -> str | None:
     return None
 
 
-def navigate(kind: str, key: str) -> bool:
-    """Switch the tmux client to the window matching `kind`/`key`.
+def navigate_to(window_name: str) -> bool:
+    """Switch the tmux client to the window whose #{window_name} is exactly
+    `window_name`.
 
-    kind is "repo" or "feature". Builds the window name ("orch:<key>" for
-    repo, "arch:<key>" for feature), resolves it via resolve_window(), and
-    if found switches the client to its session then selects the window
-    (selecting the window focuses its active pane, which is sufficient).
-    Returns True on success, False if no matching window was found (never
-    raises, so a stale sidebar row can be ignored by the caller).
+    Resolves the window via resolve_window() and, if found, switches the
+    client to its session then selects the window (selecting the window
+    focuses its active pane, which is sufficient). Returns True on success,
+    False if no matching window was found (never raises, so a stale sidebar
+    row can be ignored by the caller).
     """
-    if kind == "repo":
-        name = f"orch:{key}"
-    elif kind == "feature":
-        name = f"arch:{key}"
-    else:
-        return False
-
-    match = resolve_window(name)
+    match = resolve_window(window_name)
     if match is None:
         return False
     session_name, window_id = match
@@ -113,9 +110,9 @@ def navigate(kind: str, key: str) -> bool:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("usage: sidebar_nav.py <kind> <key>", file=sys.stderr)
+    if len(sys.argv) != 2:
+        print("usage: sidebar_nav.py <window-name>", file=sys.stderr)
         sys.exit(1)
-    ok = navigate(sys.argv[1], sys.argv[2])
+    ok = navigate_to(sys.argv[1])
     print(ok)
     sys.exit(0 if ok else 1)
