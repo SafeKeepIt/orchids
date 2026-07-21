@@ -54,8 +54,11 @@ repository → feature/job → activity, each row carrying its phase and a statu
 from {Waiting on user, Running, Standby, Completed, Failed}; rows needing the operator
 flash. Keyboard up/down navigation; selecting an entry switches the client to the
 repo's session, the feature's window, the activity's pane. Live state comes from the
-bus: agents broadcast their activity, subagents show by name while in flight; names
-per [[session-naming]].
+bus: agents broadcast ON EVERY ACTIVITY CHANGE (event-driven — the sidebar never
+polls), subagents show by name while in flight; names per [[session-naming]]. The
+existing lifecycle signals (Decision-028: started/building/testing/…) are COARSER
+than activity (Questioning, Analyzing, Thinking, …) and do not replace this — the
+activity broadcast is a new bus surface this feature requires.
 
 ## Testing
 
