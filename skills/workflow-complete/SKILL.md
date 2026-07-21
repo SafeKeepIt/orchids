@@ -81,7 +81,7 @@ You must merge squash the feature branch onto the `main` branch, following this 
 
 Branch: <branch>
 Head: <branch-head>
-Co-authored-by: <model> <junie@serialseb.com>
+Agent: <model>
 ```
 
 - `<branch-head>` — Short SHA of the feature branch HEAD (the same commit that `archive/<feature-id>` tags).

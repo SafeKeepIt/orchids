@@ -16,7 +16,7 @@ metadata:
 - [ ] Format applied (see below)
 - [ ] Subject ≤ 52 characters
 - [ ] Body wrapped at 72 characters
-- [ ] Trailers present (`Branch:`, `Co-authored-by:`)
+- [ ] Trailers present (`Branch:`, `Agent:`)
 - [ ] Scope rules followed
 
 Commit one logical change at a time. The user may override any rule.
@@ -51,11 +51,11 @@ Commit one logical change at a time. The user may override any rule.
 <body>
 
 Branch: <branch-name>
-Co-authored-by: <model> <junie@serialseb.com>
+Agent: <model>
 ```
 
 - `<subject>` line ≤ 52 characters.
-- `<model>` in `Co-authored-by:` is the LLM model name and version; the email address in brackets is fixed.
+- `<model>` in `Agent:` is the LLM model name and version.
 - `<gitmoji>` is the closest match in https://gitmoji.dev, in Unicode.
 - `<test-emoji>` is ✅ (passed) or 🚫 (failed), followed by `<x>` succeeding and `<y>` total. If no tests were run, omit the line entirely.
 - Body lines wrap at 72 characters.
