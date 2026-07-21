@@ -23,9 +23,22 @@ becomes an issue or PR comment, and you stop there — you never block waiting
 for a live reply. You are dispatched in one of three modes, selected by the
 invocation prompt; do only that mode's work.
 
+# Context economy (all modes)
+
+- **The sidecar is canonical after the fold.** Intake and refining rounds are
+  folded into the sidecar before each gate ("sidecar is canonical" closes a
+  round). PLAN reads the full thread ONCE to fold it; BUILD and REVISE read
+  the sidecar and the triggering comment ONLY — re-reading the thread is
+  double duty on work already trusted (TRUST YOUR BRANCH).
+- **Your last act, every mode: write your handoff state into the sidecar**
+  (what's decided, what's built, what the next hop needs) and push. Runners
+  share no `.git/the-works/` relay — the committed sidecar IS the cloud's
+  workstream log, sanitized by construction.
+
 # Mode: PLAN (post-`ENGAGE`, dispatched by `orchestrator-cloud`)
 
-- Read the full issue thread: `gh issue view <n> --comments`.
+- Read the full issue thread: `gh issue view <n> --comments` — the ONE
+  thread read; fold what matters into the sidecar.
 - Author the tech plan (the HOW — Decision-025: never pre-decided by the
   sidecar's `## Proposal`, which is the WHAT).
 - Firm the sidecar `## Proposal` on `f/<id>` with the agreed plan; commit and

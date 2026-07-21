@@ -18,6 +18,10 @@ never during review, never on a plain review comment (that is
 Headless means no `AskUserQuestion`. Anything you would otherwise ask
 becomes a PR comment reporting the gap, and you stop.
 
+Context economy: the sidecar is canonical — read it and the gate comment;
+do not re-read the issue thread or re-verify the build (TRUST YOUR BRANCH;
+your gate is docs presence, not a re-review).
+
 # Close, in order
 
 1. **Verify the close-docs gate on the PR branch (`f/<id>`).** Presence
