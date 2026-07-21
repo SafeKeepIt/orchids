@@ -40,6 +40,11 @@
     Thinking, …) — that text is the row's activity label; subagents are displayed by
     NAME only, as they get called and come back, to give a sense of what is going on.
   - Emoji and animated / full colours welcome.
+- Operator refinement (2026-07-21, ruled during [[session-naming]]): hierarchy is
+  repo (select → that repo's orchestrator, first window) → each feature underneath →
+  what is HAPPENING underneath that → subagents underneath when active. NO agent/role
+  names anywhere — structure carries the role, activity carries the state, subagent
+  rows carry their work label (e.g. "messaging").
 
 ## Proposal
 

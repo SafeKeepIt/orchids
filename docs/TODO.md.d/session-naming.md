@@ -45,10 +45,11 @@
 The naming contract — strict, fully derivable, enforced at every launch site from now
 on:
 
-- **feature id**: kebab-case, the INVERSE of the git-imperative — git says
-  "Eat carrots", the feature id is `carrots-eating`, object first. Unique on the board;
-  the sidecar filename.
-- **human name**: the feature id with hyphens as spaces ("carrots eating") — derived,
+- **feature id**: kebab-case, all lowercase, the INVERSE of the git-imperative —
+  git says "Eat carrots", the feature id is `eating-carrots` (gerund first; settled
+  2026-07-21 over the earlier object-first example). Unique on the board; the sidecar
+  filename. Forward-only — existing ids stay.
+- **human name**: the feature id with hyphens as spaces ("eating carrots") — derived,
   never authored separately, so it cannot drift.
 - **claude session name**: for WORKSTREAM sessions (architects, ripeners),
   `<repository> / <human name>` (e.g. `orchids / session naming`), passed with
@@ -64,7 +65,12 @@ on:
   the sidebar thanks to the bus (activity broadcasts show them by name as they come
   and go). Which agent is doing what is live state, never name material. Two name
   shapes exist, total: `<repo>` (the orchestrator) and `<repo> / <human name>` (a
-  feature workstream). Nothing else.
+  feature workstream, e.g. `orchids / eating carrots`), all lowercase. Nothing else.
+- **agent names appear NOWHERE** (operator + orchestrator concur, 2026-07-21): the
+  hierarchy carries the role (the repo row IS the orchestrator; a feature session IS
+  its one agent — a session can only have one agent), phase/activity words carry the
+  state, and subagent rows carry their WORK label (the "messaging" pattern), never a
+  role noun.
 - **sidebar row**: the human name alone ([[fleet-sidebar]]).
 - **tmux**: existing machine titles (`arch:<id>`) stay — tooling matches on them
   (teardown); titles refresh only where bus lifecycle signals already fire; no new
