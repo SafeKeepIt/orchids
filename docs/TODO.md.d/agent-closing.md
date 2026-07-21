@@ -42,6 +42,14 @@ amendments — see Findings.
 
 ## Testing
 
+First live release (2026-07-21, this orchestrator's own bus): the agent
+released and departed cleanly, but its armed Monitor — the persistent
+inotify watch on the inbox — OUTLIVED it, visible to the operator as an
+open watcher on a sleeping session; a second zombie watcher from an
+already-dead session was found beside it. Both killed by hand. The bus
+charter now orders: stop the Monitor and VERIFY the watcher process is gone
+before departing, on both the release and the orphan paths.
+
 Agreed shape (pending its live run): the NEXT feature close is the test —
 after `THAT IS ALL` / `ALL IT IS`, observe that no bus, pane, session, or
 sub-agent of the closed feature remains (tmux list-panes, bus roster). Until

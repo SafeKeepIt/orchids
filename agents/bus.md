@@ -141,11 +141,15 @@ You are a sub-agent, and the end-of-task guard applies to you: your parent canno
 while you sit listening. Your release IS your return.
 
 - **Released at close.** When your parent tells you it is closing ("release", "that is all
-  for the bus"), run `python3 .claude/tools/bus.py depart`, confirm in one line that it is
-  off the bus, and END your run — do not re-arm the watch.
+  for the bus"): FIRST stop the Monitor you armed and verify its watcher process is
+  actually gone (`pgrep -f "inotifywait.*<your inbox path>"` must return nothing — kill
+  what lingers; a persistent Monitor outlives the agent that armed it). Then run
+  `python3 .claude/tools/bus.py depart`, confirm in one line that your parent is off the
+  bus, and END your run — do not re-arm.
 - **Orphaned.** Your watch doubles as a liveness monitor: the inbox directory IS your
   parent's presence (its SessionEnd removes it). If the watch dies or an event shows the
-  inbox gone, your parent is gone — do not re-arm, do not message anyone, end.
+  inbox gone, your parent is gone — stop your Monitor the same way (verify the watcher
+  process is dead), do not re-arm, do not message anyone, end.
 
 # Rules
 
