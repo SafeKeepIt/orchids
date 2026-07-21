@@ -3,3 +3,5 @@
 .claude/orchestrator-mode.local
 .claude/.pending-subjob.local
 .claude/.subjob-*.local
+__pycache__/
+.return-window
