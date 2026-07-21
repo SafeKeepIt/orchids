@@ -678,3 +678,13 @@ which belongs to workstream sessions (architects, ripeners). Summoning is resumi
 `claude --resume` by the bare repo name reaches THE orchestrator — a second one is
 never started (the [[zombie-revival]] path revives the same single session). Typing a
 repository's name therefore always lands on its orchestrator.
+
+## [2026-07-21 03:30 CEST] Decision-033: Batch the pushes — a push is a workload trigger, not a save
+#push #github #workflows #tokens #batching #cloud #comments
+
+Operator MUST (2026-07-21): while discussing or refining anything, do NOT push on
+every change. origin is wired to workflows (cloud hops, watchers) — every push
+triggers workloads and spends tokens downstream. Commit locally as work lands; push
+ONCE when the refinement round settles, or when the push itself is the intended
+signal (a watcher waiting on state). Issue/PR comments are the same trigger class:
+consolidate a round into one comment rather than dribbling triggers.
