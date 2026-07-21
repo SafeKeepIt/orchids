@@ -83,6 +83,19 @@ jobs:
         run: |
           git config user.name "cloud-path"
           git config user.email "actions@github.com"
+      # A comment QUOTING a gate word must not fire the hop: the comment must BE
+      # the gate token, alone (whitespace-trimmed). Dispatch runs carry no comment
+      # and skip this check.
+      - name: Exact gate check
+        if: github.event_name == 'issue_comment'
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          b="$(printf %s "$COMMENT_BODY" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+          case "$b" in
+            'ENGAGE'|'⚙'|'⚙️') echo "exact gate: ENGAGE" ;;
+            *) echo "comment mentions but is not the gate — no-op"; touch /tmp/cloud-halt ;;
+          esac
       - name: orchestrator-cloud prologue
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -90,6 +103,10 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue }}
           COMMENT_BODY: ${{ github.event.comment.body }}
         run: |
+          if [ -f /tmp/cloud-halt ]; then
+            echo "gate check halted — skipping prologue"
+            exit 0
+          fi
           claude -p --agent orchestrator-cloud --permission-mode bypassPermissions \
             "Hop: PLAN prologue. Issue #${ISSUE_NUMBER}. Comment: ${COMMENT_BODY}"
       - name: architect-cloud PLAN
@@ -135,6 +152,16 @@ jobs:
         run: |
           git config user.name "cloud-path"
           git config user.email "actions@github.com"
+      - name: Exact gate check
+        if: github.event_name == 'issue_comment'
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          b="$(printf %s "$COMMENT_BODY" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+          case "$b" in
+            'MAKE IT SO'|'🖖'|'MAKE IT SO 🖖') echo "exact gate: MAKE IT SO" ;;
+            *) echo "comment mentions but is not the gate — no-op"; touch /tmp/cloud-halt ;;
+          esac
       - name: architect-cloud BUILD
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -142,6 +169,10 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue }}
           COMMENT_BODY: ${{ github.event.comment.body }}
         run: |
+          if [ -f /tmp/cloud-halt ]; then
+            echo "gate check halted — skipping BUILD"
+            exit 0
+          fi
           claude -p --agent architect-cloud --permission-mode bypassPermissions \
             "Hop: BUILD. Issue #${ISSUE_NUMBER}. Comment: ${COMMENT_BODY}"
 
@@ -218,6 +249,16 @@ jobs:
         run: |
           git config user.name "cloud-path"
           git config user.email "actions@github.com"
+      - name: Exact gate check
+        if: github.event_name == 'issue_comment'
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          b="$(printf %s "$COMMENT_BODY" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+          case "$b" in
+            'THAT IS ALL'|'🚪'|'THAT IS ALL 🚪') echo "exact gate: THAT IS ALL" ;;
+            *) echo "comment mentions but is not the gate — no-op"; touch /tmp/cloud-halt ;;
+          esac
       - name: housekeeper-cloud CLOSE
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -225,5 +266,9 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue }}
           COMMENT_BODY: ${{ github.event.comment.body }}
         run: |
+          if [ -f /tmp/cloud-halt ]; then
+            echo "gate check halted — skipping CLOSE"
+            exit 0
+          fi
           claude -p --agent housekeeper-cloud --permission-mode bypassPermissions \
             "Hop: CLOSE. Issue #${ISSUE_NUMBER}. Comment: ${COMMENT_BODY}"
