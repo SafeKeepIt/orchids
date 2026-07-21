@@ -26,5 +26,5 @@ done
 python3 "$bus" init >/dev/null 2>&1 || exit 0
 
 cat <<'JSON'
-{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"MESSAGING: you can exchange messages with the other agents in this repository. Load your bus sidecar now — spawn a subagent with subagent_type \"bus\" and the prompt \"You are my bus. Announce me and stay listening.\" Do this BEFORE starting work: it announces you to your peers, and until it runs you are invisible to them and will silently miss anything broadcast to you. Ask your bus in plain language to send things; arriving messages appear on their own."}}
+{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"MESSAGING: you can exchange messages with the other agents in this repository. Load your bus sidecar now — spawn a subagent with subagent_type \"bus\", description \"messaging\", and the prompt \"You are my bus. Announce me and stay listening.\" Do this BEFORE starting work: it announces you to your peers, and until it runs you are invisible to them and will silently miss anything broadcast to you. Ask your bus in plain language to send things; arriving messages appear on their own."}}
 JSON
