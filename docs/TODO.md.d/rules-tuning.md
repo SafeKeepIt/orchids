@@ -9,9 +9,18 @@
 
 - Where does the exit interview live — an addition to the Close gate / handover
   protocol, so every agent answers it while context is hot?
-- Archive home: the git folder is problematic for cloud hops (their runners die
-  with the conversation) — artifacts ingested by a local script, or a committed
-  sanitized store?
+- ~~Archive home: the git folder is problematic for cloud hops — artifacts or a
+  committed store?~~ Answered (2026-07-21): GIT NOTES on the close commit, under a
+  dedicated ref (`refs/notes/telemetry`). The remote is the shared filesystem both
+  sides already have; the report anchors to the exact commit it explains (squash
+  locally, merge commit in cloud); the housekeeper already pushes `refs/notes/*` at
+  every close; notes pushes match no branch filters, so no workflows fire
+  (Decision-033 honoured); retrieval is one `git fetch` + notes walk, batch by
+  construction, one schema everywhere. Reports stay sanitized (rule-technical
+  content only — the close gate already polices this).
+- Anchor convention for sessions that do not produce a single commit (an
+  orchestrator session spans many): last commit of the session, or a daily rollup
+  note?
 - Automatic rule changes: gated how? Operator word, statistical threshold, or
   structural provenance rules — an agent-written rule change is the sharpest case
   of "anything published will be used" (see the madmax provenance pattern,
