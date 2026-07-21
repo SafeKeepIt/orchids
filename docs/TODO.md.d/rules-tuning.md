@@ -7,8 +7,17 @@
 
 ## Questions
 
-- Where does the exit interview live — an addition to the Close gate / handover
-  protocol, so every agent answers it while context is hot?
+- ~~Where does the exit interview live?~~ Answered (operator, 2026-07-21): at the
+  END OF THE SESSION — never by extending or resuming sessions to ask later, which
+  re-materializes whole contexts purely for the interview. At session end the
+  context is cache-warm (one short turn at read rates) and memory is freshest.
+  Supporting mechanics: deviations are captured ROLLING in the stream log as they
+  happen (handover discipline), so the interview is distillation, not recall; a
+  session that dies abruptly leaves its rolling lines and the ingesting parent
+  distills the note on its behalf (degraded — no reflection — and the miss itself
+  is measurable telemetry). This also settles the anchor: the note lands on the
+  session's final commit (the close commit for an architect; wherever the
+  orchestrator was put to rest).
 - ~~Archive home: the git folder is problematic for cloud hops — artifacts or a
   committed store?~~ Answered (2026-07-21): GIT NOTES on the close commit, under a
   dedicated ref (`refs/notes/telemetry`). The remote is the shared filesystem both
