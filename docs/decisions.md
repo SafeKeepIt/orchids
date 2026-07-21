@@ -757,6 +757,8 @@ Operator rulings settling [[tmux-topology]] (2026-07-21); supersedes Decision-00
 ## [2026-07-21 08:43 CEST] Decision-037: The cloud path is canon — runtime, gates, handoff, and its work log
 #cloud #gates #vocabulary #oauth #actions #handoff #badge #context #worklog #close-spine #app
 
+> Close-spine ruleset clause superseded by Decision-040 (ruleset deleted; approach dropped).
+
 Promoted from the cloud-architect stream (operator rulings, 2026-07-20/21):
 
 - Runtime: hand-rolled headless CLI workflows (`claude -p --agent <role>` in
@@ -788,3 +790,32 @@ confirmed directly to the orchestrator): actions expected FROM the operator must
 never be buried in long descriptions. Every agent collects them as concise
 bullet points at the END of the interaction, with clear indicators/links
 (paths, URLs, exact commands). Encoded in `AGENTS.shared.md` §Tone.
+
+## [2026-07-21 13:39 CEST] Decision-039: callabloom[bot] — one named identity for every cloud action
+#app #cloud #identity #actions #secrets #callabloom
+
+Ruling (operator, 2026-07-21, app-identifying session): every GitHub action a
+cloud hop takes — comment, commit, push, PR, merge — is performed as
+**callabloom[bot]**, a kaukea-owned GitHub App (App ID 4354752), never as the
+operator and never as the anonymous built-in `github-actions` actor. The token
+is minted per hop via `actions/create-github-app-token@v3` from kaukea ORG
+secrets `CALLABLOOM_APP_ID` / `CALLABLOOM_PRIVATE_KEY` (visibility all), with a
+`github.token` fallback where the secrets are absent. The app is NOT a bypass
+actor. Anthropic Routines cannot own a bot identity (they act as the user's
+account) — at most an NL-trigger layer, never the identity substrate.
+
+## [2026-07-21 13:39 CEST] Decision-040: Branch protection respawns as code; the ruleset contraption is dead
+#close-spine #app #branch-protection #ordering #ruleset
+
+Rulings (operator, 2026-07-21, live in the app-identifying session):
+
+- The close-spine ruleset approach is DROPPED: ruleset 19333120 no longer
+  exists (deleted, not disabled), org-level rulesets need a GitHub Team plan
+  (kaukea is Free), and the status-check/bypass-actor contraption is retired.
+  Supersedes Decision-037's close-spine ruleset clause (marker added there).
+- Branch protection becomes its own task: formalise the workflow's EXISTING
+  close rules as code — operator/code-owner approval required to merge `main`,
+  callabloom excepted.
+- Deterministic merge ordering is a THIRD concern ("Mr. Rabbit": a merge queue
+  or optimistic-retry), a peer of the housekeeper and the orchestrator — merge
+  order == changelog order. Spun out to its own task.
