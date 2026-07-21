@@ -1,0 +1,5 @@
+session: 351cb864-2586-450b-a82e-73abf0e8855e · agent: orchestrator · date: 2026-07-21 · feature: none
+deviations:
+  - rule: size launches on difficulty, not stakes · what: recommended the default opus/xhigh architect for a mechanical two-file workflow change · why: priced the identity's blast radius as if it were task difficulty · change: encoded — the sizing rule now names stakes-based sizing as the failure mode (commit 75f230f)
+  - rule: session-naming contract at spawn · what: spawned the app-identifying architect with no --name, in a split pane · why: this session booted inside the cloud-architect worktree whose vendored charter predates session-naming · change: none needed — main's recipe was already correct; boot the orchestrator in the main checkout
+token_saver: boot the orchestrator in the main checkout so its charter and recipes are current — avoids stale-recipe spawns and the mid-session corrections they cost
