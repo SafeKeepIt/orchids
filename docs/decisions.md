@@ -666,3 +666,15 @@ classifier denials (housekeeper dispatch, pushes, even a read-only grep):
   agents/orchestrator.md.
 - The housekeeper's effort rises low → high and its charter gains a concurrent-streams
   briefing (main moves mid-close; stale branch context ≠ reverts) after a live misread.
+
+## [2026-07-21 03:28 CEST] Decision-032: One orchestrator per repository; its session name is the repository
+#orchestrator #sessions #naming #singleton #resume #zombie
+
+Operator ruling (2026-07-21), amending the session-naming contract mid-plan: session
+names name SESSIONS, and the orchestrator is not a workstream — it orchestrates them.
+Exactly ONE orchestrator session exists per repository; its claude session name is the
+repository name alone (`orchids`), never the `<repo> / <human name>` slash-form,
+which belongs to workstream sessions (architects, ripeners). Summoning is resuming:
+`claude --resume` by the bare repo name reaches THE orchestrator — a second one is
+never started (the [[zombie-revival]] path revives the same single session). Typing a
+repository's name therefore always lands on its orchestrator.

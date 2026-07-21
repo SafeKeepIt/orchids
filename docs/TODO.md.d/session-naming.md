@@ -31,6 +31,9 @@
   hook, the `bin/orch` wrapper, the `.pending-subjob.local` consumer, and
   parent-chain worktree titling are documented intentions with no implementing script.
   Most of the surface isn't buggy — it's unbuilt.
+- Operator amendment (2026-07-21, plan round): the plan's call-out read the root as
+  `orchids / orchestrator` — wrong way round. The slash-form names workstreams; the
+  orchestrator, singular per repository, is named by the repository itself.
 - Operator scope ruling (2026-07-21): no hook build-out, no wrapper, no rewrites of
   what exists — `claude --name` at launch carries the session name; enforcement is
   forward-only at launch sites. Live state for consumers (sidebar included) comes from
@@ -47,9 +50,14 @@ on:
   the sidecar filename.
 - **human name**: the feature id with hyphens as spaces ("carrots eating") — derived,
   never authored separately, so it cannot drift.
-- **claude session name**: `<repository> / <human name>` (e.g.
-  `orchids / session naming`), passed with `--name` at every `claude` launch — this is
-  what makes the claude UI navigable.
+- **claude session name**: for WORKSTREAM sessions (architects, ripeners),
+  `<repository> / <human name>` (e.g. `orchids / session naming`), passed with
+  `--name` at every `claude` launch — this is what makes the claude UI navigable.
+- **the orchestrator is NOT slash-form**: session names name SESSIONS, and there is
+  exactly ONE orchestrator per repository — it orchestrates the workstreams. Its
+  session name is the repository name alone (`orchids`); summoning or reviving it
+  resumes THE one (never a second), and typing the repo name reaches its orchestrator
+  (Decision-032).
 - **sidebar row**: the human name alone ([[fleet-sidebar]]).
 - **tmux**: existing machine titles (`arch:<id>`) stay — tooling matches on them
   (teardown); titles refresh only where bus lifecycle signals already fire; no new
