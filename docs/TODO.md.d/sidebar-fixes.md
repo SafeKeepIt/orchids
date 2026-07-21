@@ -24,6 +24,13 @@
     done" — the corrective's testing MUST therefore restore observability
     first (a sidebar the operator can see), then walk every fix in that live
     view.
+- Boundary with the parallel agent-closing corrective: the STABLE WINDOW
+  HANDLE mechanism (replacing the live-clobbered `arch:<id>` pane title) is
+  OWNED by agent-closing, running in parallel. For the mount-idempotency
+  defect (inventory #5), consume that handle contract — do not invent a
+  second one. If it has not landed when you reach #5, adopt the same contract
+  shape (a tmux window user-option) and surface the coordination to the
+  operator rather than diverging.
 
 ## Findings
 

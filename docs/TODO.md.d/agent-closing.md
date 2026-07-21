@@ -19,7 +19,10 @@
 - ~~Which live-fire defects are in this corrective's scope?~~ RULED (operator,
   2026-07-21, scope round): IN — (1) teardown pane handle: re-key
   `architect-teardown.sh` and reaping off the clobbered `arch:<id>` pane title
-  onto a stable handle (e.g. a tmux window user-option); (2) bus wake/monitor
+  onto a stable handle (e.g. a tmux window user-option) — this task OWNS the
+  stable-handle mechanism; the parallel sidebar-fixes corrective consumes it
+  for its mount-idempotency defect, so define the handle as a small stable
+  contract (name it in your plan); (2) bus wake/monitor
   teardown: the bus never wakes, never tears its monitor down, the monitor
   stays up and the architect never closes — deliver the active-wake mechanics
   (Decision-046) so closes wake the bus and the bus verifiably kills its
