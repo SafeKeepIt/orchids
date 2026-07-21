@@ -59,6 +59,57 @@ TOKEN_CLASSES = (
     "cache_creation_input_tokens",
 )
 
+# Model card — context window (tokens) and USD-per-million-token rates, cached from
+# the Claude API reference of 2026-06-24 (MODEL_CARD_DATE below travels on status so
+# a consumer can judge staleness). The schema principle: report what is AVAILABLE
+# (raw counts, model id) and what we can ESTIMATE (occupancy, cost) — an unknown
+# model yields nulls, never guesses. Cache reads bill ~0.1x base input; cache
+# writes ~1.25x (the 5-minute default TTL — 1-hour writes bill 2x, which this
+# estimate cannot see, so cost is a floor, marked estimate).
+MODEL_CARD_DATE = "2026-06-24"
+MODEL_CARD = {
+    "claude-fable-5": {"window": 1_000_000, "in": 10.0, "out": 50.0},
+    "claude-mythos-5": {"window": 1_000_000, "in": 10.0, "out": 50.0},
+    "claude-opus-4-8": {"window": 1_000_000, "in": 5.0, "out": 25.0},
+    "claude-opus-4-7": {"window": 1_000_000, "in": 5.0, "out": 25.0},
+    "claude-opus-4-6": {"window": 1_000_000, "in": 5.0, "out": 25.0},
+    "claude-sonnet-5": {"window": 1_000_000, "in": 3.0, "out": 15.0},
+    "claude-sonnet-4-6": {"window": 1_000_000, "in": 3.0, "out": 15.0},
+    "claude-haiku-4-5": {"window": 200_000, "in": 1.0, "out": 5.0},
+}
+
+
+def card_for(model: str | None) -> dict | None:
+    """Longest-prefix match so dated variants (claude-haiku-4-5-20251001) resolve."""
+    if not model:
+        return None
+    hits = [k for k in MODEL_CARD if model.startswith(k)]
+    return MODEL_CARD[max(hits, key=len)] if hits else None
+
+
+def estimates_for(model: str | None, spend: dict, occupancy: int) -> dict:
+    """Derived figures, clearly second-class to the raw counts they come from.
+
+    Empty rather than null (operator, 2026-07-21): an unknown model yields an
+    EMPTY dict — absence means "cannot estimate"; no field ever carries null.
+    """
+    card = card_for(model)
+    if card is None:
+        return {}
+    per_m = 1_000_000
+    cost = (
+        spend["input_tokens"] * card["in"]
+        + spend["output_tokens"] * card["out"]
+        + spend["cache_read_input_tokens"] * card["in"] * 0.1
+        + spend["cache_creation_input_tokens"] * card["in"] * 1.25
+    ) / per_m
+    return {
+        "window": card["window"],
+        "occupancy": round(occupancy / card["window"], 3),
+        "cost_usd": round(cost, 4),
+        "rates_cached": MODEL_CARD_DATE,
+    }
+
 LIFECYCLE_STATES = ("started", "building", "testing", "done", "finished", "blocked", "abandoned")
 
 
@@ -168,8 +219,7 @@ def status_of() -> dict:
     """
     path = transcript()
     if path is None:
-        return {"session_id": whoami(), "state": "unknown", "reason": "no transcript",
-                "model": None, "effort": None}
+        return {"session_id": whoami(), "state": "unknown", "reason": "no transcript"}
 
     spend = dict.fromkeys(TOKEN_CLASSES, 0)
     latest = None
@@ -185,14 +235,20 @@ def status_of() -> dict:
                     if f != "output_tokens")
     # no reliable reasoning-effort env var is exposed to the CLI today
     effort = os.environ.get("CLAUDE_CODE_REASONING_EFFORT") or None
-    return {
+    status = {
         "session_id": whoami(),
         "state": "live",
         "context_tokens": occupancy,
         "spend": spend,
         "model": model,
         "effort": effort,
+        # AVAILABLE above; ESTIMATED below — empty when the model is unknown,
+        # never guesses and never null (operator schema ruling, 2026-07-21).
+        "estimates": estimates_for(model, spend, occupancy),
     }
+    # Empty rather than null, matching the envelope convention: a field with
+    # nothing to say is absent.
+    return {k: v for k, v in status.items() if v is not None and v != {}}
 
 
 def make_envelope(sender: str, to: str, *, body=None, notify_user=False,
