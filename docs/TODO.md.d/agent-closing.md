@@ -16,6 +16,21 @@
   charter step; the orchestrator reaps only an agent that died first.
 - ~~Charter text or mechanical enforcement?~~ RULED (operator, 2026-07-21,
   Decision-041): charters only — no verification apparatus, no reaper pass.
+- ~~Which live-fire defects are in this corrective's scope?~~ RULED (operator,
+  2026-07-21, scope round): IN — (1) teardown pane handle: re-key
+  `architect-teardown.sh` and reaping off the clobbered `arch:<id>` pane title
+  onto a stable handle (e.g. a tmux window user-option); (2) bus wake/monitor
+  teardown: the bus never wakes, never tears its monitor down, the monitor
+  stays up and the architect never closes — deliver the active-wake mechanics
+  (Decision-046) so closes wake the bus and the bus verifiably kills its
+  watcher before departing; (3) premature bus release: charter pins release to
+  the parent's close only, never an errand's end. OUT (explicit voluntary
+  deferral): the `_closed`-marker-ordering tightening.
+- ~~How does an operator approval reach the architect at the done gate?~~
+  RULED (operator, 2026-07-21, Decision-047): a sanctioned operator relay — an
+  operator-origin message class on the bus that gate-waiting agents accept;
+  relayed verbatim, flagged operator-origin, never peer traffic. Mechanics are
+  in scope for this corrective.
 
 ## Findings
 

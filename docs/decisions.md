@@ -892,3 +892,18 @@ and hangs forever. Closes therefore wake actively rather than wait passively;
 long passive watch timeouts (15m) are unacceptable for exits. Refines
 Decision-041 (release is the bus's return): release must reach the bus AS a
 wake.
+
+## [2026-07-21 20:48 CEST] Decision-047: Operator approvals relay over the bus as a sanctioned operator-origin class
+#bus #approval #gates #operator-relay #architect #done-gate #agent-closing
+
+Ruling (operator, 2026-07-21): an operator approval given outside the
+architect's own window (typically in the orchestrator pane) reaches the
+architect via a SANCTIONED OPERATOR RELAY — a distinct operator-origin
+message class on the bus that gate-waiting agents accept as the operator's
+word. The relaying agent forwards the approval verbatim and flagged as
+operator-origin, never as its own peer traffic; ordinary peer messages remain
+rejected at gates. This closes the silent stall found at the fleet-sidebar
+close, where an approval typed in the orchestrator pane had no path to the
+architect's done gate. Chosen over the alternatives of charter-only
+redirection ("type it in the architect's window") and tmux keystroke
+injection. Mechanics land with the agent-closing corrective.
