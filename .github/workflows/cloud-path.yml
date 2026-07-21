@@ -93,13 +93,29 @@ jobs:
       # prefix restore give append semantics (caches are immutable); eviction
       # makes this a relay, not an archive — the close hop promotes leftovers to
       # the sidecar before merge. Lives OUTSIDE the workspace: uncommittable.
-      - name: Cloud work log (restore now, save at job end)
-        uses: actions/cache@v4
+      # The stream id is the ISSUE number always: a PR comment's issue.number is
+      # the PR's — resolve it to the linked issue or the stream splits mid-feature.
+      - name: Resolve stream id
+        id: stream
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUM: ${{ github.event.issue.number || inputs.issue }}
+          IS_PR: ${{ github.event.issue.pull_request && 'yes' || '' }}
+        run: |
+          n="$NUM"
+          if [ -n "$IS_PR" ]; then
+            fixed=$(gh pr view "$NUM" -R "$GITHUB_REPOSITORY" --json body --jq '.body' \
+              | grep -oiE '(fixes|closes) #[0-9]+' | head -1 | grep -oE '[0-9]+' || true)
+            [ -n "$fixed" ] && n="$fixed"
+          fi
+          echo "id=$n" >> "$GITHUB_OUTPUT"
+      - name: Restore cloud work log
+        uses: actions/cache/restore@v4
         with:
           path: ~/.cloud-works
-          key: the-works-${{ github.event.issue.number || inputs.issue }}-${{ github.run_id }}
+          key: the-works-${{ steps.stream.outputs.id }}-${{ github.run_id }}
           restore-keys: |
-            the-works-${{ github.event.issue.number || inputs.issue }}-
+            the-works-${{ steps.stream.outputs.id }}-
       - name: Install claude CLI
         run: npm install -g @anthropic-ai/claude-code
       - name: Git identity
@@ -145,6 +161,12 @@ jobs:
           fi
           claude -p --agent architect-cloud --permission-mode bypassPermissions \
             "Hop: PLAN. Issue #${ISSUE_NUMBER}. Comment: ${COMMENT_BODY}"
+      - name: Save cloud work log
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cloud-works
+          key: the-works-${{ steps.stream.outputs.id }}-${{ github.run_id }}
 
   build:
     # Comment on an ISSUE (not PR) with MAKE IT SO/🖖, or a matching manual dispatch.
@@ -179,13 +201,29 @@ jobs:
       # prefix restore give append semantics (caches are immutable); eviction
       # makes this a relay, not an archive — the close hop promotes leftovers to
       # the sidecar before merge. Lives OUTSIDE the workspace: uncommittable.
-      - name: Cloud work log (restore now, save at job end)
-        uses: actions/cache@v4
+      # The stream id is the ISSUE number always: a PR comment's issue.number is
+      # the PR's — resolve it to the linked issue or the stream splits mid-feature.
+      - name: Resolve stream id
+        id: stream
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUM: ${{ github.event.issue.number || inputs.issue }}
+          IS_PR: ${{ github.event.issue.pull_request && 'yes' || '' }}
+        run: |
+          n="$NUM"
+          if [ -n "$IS_PR" ]; then
+            fixed=$(gh pr view "$NUM" -R "$GITHUB_REPOSITORY" --json body --jq '.body' \
+              | grep -oiE '(fixes|closes) #[0-9]+' | head -1 | grep -oE '[0-9]+' || true)
+            [ -n "$fixed" ] && n="$fixed"
+          fi
+          echo "id=$n" >> "$GITHUB_OUTPUT"
+      - name: Restore cloud work log
+        uses: actions/cache/restore@v4
         with:
           path: ~/.cloud-works
-          key: the-works-${{ github.event.issue.number || inputs.issue }}-${{ github.run_id }}
+          key: the-works-${{ steps.stream.outputs.id }}-${{ github.run_id }}
           restore-keys: |
-            the-works-${{ github.event.issue.number || inputs.issue }}-
+            the-works-${{ steps.stream.outputs.id }}-
       - name: Install claude CLI
         run: npm install -g @anthropic-ai/claude-code
       - name: Git identity
@@ -215,6 +253,12 @@ jobs:
           fi
           claude -p --agent architect-cloud --permission-mode bypassPermissions \
             "Hop: BUILD. Issue #${ISSUE_NUMBER}. Comment: ${COMMENT_BODY}"
+      - name: Save cloud work log
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cloud-works
+          key: the-works-${{ steps.stream.outputs.id }}-${{ github.run_id }}
 
   revise:
     # Comment on a PR containing NONE of the gate tokens (gate tokens win first).
@@ -254,13 +298,29 @@ jobs:
       # prefix restore give append semantics (caches are immutable); eviction
       # makes this a relay, not an archive — the close hop promotes leftovers to
       # the sidecar before merge. Lives OUTSIDE the workspace: uncommittable.
-      - name: Cloud work log (restore now, save at job end)
-        uses: actions/cache@v4
+      # The stream id is the ISSUE number always: a PR comment's issue.number is
+      # the PR's — resolve it to the linked issue or the stream splits mid-feature.
+      - name: Resolve stream id
+        id: stream
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUM: ${{ github.event.issue.number || inputs.issue }}
+          IS_PR: ${{ github.event.issue.pull_request && 'yes' || '' }}
+        run: |
+          n="$NUM"
+          if [ -n "$IS_PR" ]; then
+            fixed=$(gh pr view "$NUM" -R "$GITHUB_REPOSITORY" --json body --jq '.body' \
+              | grep -oiE '(fixes|closes) #[0-9]+' | head -1 | grep -oE '[0-9]+' || true)
+            [ -n "$fixed" ] && n="$fixed"
+          fi
+          echo "id=$n" >> "$GITHUB_OUTPUT"
+      - name: Restore cloud work log
+        uses: actions/cache/restore@v4
         with:
           path: ~/.cloud-works
-          key: the-works-${{ github.event.issue.number || inputs.issue }}-${{ github.run_id }}
+          key: the-works-${{ steps.stream.outputs.id }}-${{ github.run_id }}
           restore-keys: |
-            the-works-${{ github.event.issue.number || inputs.issue }}-
+            the-works-${{ steps.stream.outputs.id }}-
       - name: Install claude CLI
         run: npm install -g @anthropic-ai/claude-code
       - name: Git identity
@@ -276,6 +336,12 @@ jobs:
         run: |
           claude -p --agent architect-cloud --permission-mode bypassPermissions \
             "Hop: REVISE. Issue #${ISSUE_NUMBER}. Comment: ${COMMENT_BODY}"
+      - name: Save cloud work log
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cloud-works
+          key: the-works-${{ steps.stream.outputs.id }}-${{ github.run_id }}
 
   close:
     # Comment on a PR with THAT IS ALL/🚪, or a matching manual dispatch.
@@ -310,13 +376,29 @@ jobs:
       # prefix restore give append semantics (caches are immutable); eviction
       # makes this a relay, not an archive — the close hop promotes leftovers to
       # the sidecar before merge. Lives OUTSIDE the workspace: uncommittable.
-      - name: Cloud work log (restore now, save at job end)
-        uses: actions/cache@v4
+      # The stream id is the ISSUE number always: a PR comment's issue.number is
+      # the PR's — resolve it to the linked issue or the stream splits mid-feature.
+      - name: Resolve stream id
+        id: stream
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUM: ${{ github.event.issue.number || inputs.issue }}
+          IS_PR: ${{ github.event.issue.pull_request && 'yes' || '' }}
+        run: |
+          n="$NUM"
+          if [ -n "$IS_PR" ]; then
+            fixed=$(gh pr view "$NUM" -R "$GITHUB_REPOSITORY" --json body --jq '.body' \
+              | grep -oiE '(fixes|closes) #[0-9]+' | head -1 | grep -oE '[0-9]+' || true)
+            [ -n "$fixed" ] && n="$fixed"
+          fi
+          echo "id=$n" >> "$GITHUB_OUTPUT"
+      - name: Restore cloud work log
+        uses: actions/cache/restore@v4
         with:
           path: ~/.cloud-works
-          key: the-works-${{ github.event.issue.number || inputs.issue }}-${{ github.run_id }}
+          key: the-works-${{ steps.stream.outputs.id }}-${{ github.run_id }}
           restore-keys: |
-            the-works-${{ github.event.issue.number || inputs.issue }}-
+            the-works-${{ steps.stream.outputs.id }}-
       - name: Install claude CLI
         run: npm install -g @anthropic-ai/claude-code
       - name: Git identity
@@ -346,3 +428,9 @@ jobs:
           fi
           claude -p --agent housekeeper-cloud --permission-mode bypassPermissions \
             "Hop: CLOSE. Issue #${ISSUE_NUMBER}. Comment: ${COMMENT_BODY}"
+      - name: Save cloud work log
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cloud-works
+          key: the-works-${{ steps.stream.outputs.id }}-${{ github.run_id }}
