@@ -15,6 +15,12 @@
 #
 # Pushes made with the built-in GITHUB_TOKEN do not retrigger other workflows — this
 # is GitHub's own loop-prevention default, not a bug in this file.
+#
+# PREREQUISITES (org kaukea): repo/org secret CLAUDE_CODE_OAUTH_TOKEN (claude
+# setup-token), and Settings → Actions → General → Workflow permissions →
+# "Allow GitHub Actions to create and approve pull requests" ENABLED — without it
+# the BUILD hop parks at PR creation (GitHub Actions is not permitted to create
+# or approve pull requests).
 
 name: cloud-path
 
