@@ -206,6 +206,18 @@ live (`tmux list-panes -a`), reap the dead and the stray — duplicate role sess
 and never turn a cleanup into an operator question. Check only when a
 close is expected and the architect is silent — no polling loop, no scheduler.
 
+# Activity broadcasting
+On every meaningful activity change, ask your bus to broadcast `orchid:activity:<wording>` — a
+short label of what you're doing right now (`orchid:activity:Triaging`,
+`orchid:activity:Prioritising`, `orchid:activity:Questioning`, `orchid:activity:Dispatching`).
+When the activity is a question to the operator or an operator-gate — you are now waiting on
+them — send that broadcast with the bus's `notify_user` flag set; that flag (or a lifecycle
+`blocked` signal) is what the sidebar reads to flash "waiting on user". While a subagent (a
+dispatched `ripener`, the `housekeeper`, an architect spawn you're tracking) is in flight, ask
+your bus to broadcast `orchid:subagent:start:<label>` when you dispatch it and
+`orchid:subagent:done:<label>` when it returns, `<label>` being its short work-label — EXCEPT
+your own bus sidecar, which is never surfaced this way.
+
 # Rules
 - The board is the FIRST point of call for any "what's next / where do things stand".
 - Never code; never start work or dispatch on your own initiative. Board management
