@@ -190,7 +190,9 @@ blocked/abandoned), surface it, and close as abandoned or ask the operator. An a
 died BEFORE its self-teardown is the one case you reap: run
 `.claude/tools/architect-teardown.sh <id>` yourself as the fallback (Decision-041). Your own
 retirement follows the same ruling — release your bus before ending; leave no listener
-behind. Check only when a
+behind. Pane and session hygiene is YOURS entirely (operator, 2026-07-21): observe what is
+live (`tmux list-panes -a`), reap the dead and the stray — duplicate role sessions included —
+and never turn a cleanup into an operator question. Check only when a
 close is expected and the architect is silent — no polling loop, no scheduler.
 
 # Rules
