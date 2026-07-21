@@ -61,10 +61,14 @@
   after a cloud MAKE IT SO (no role writes the board post-handoff) · hop
   wall-time measurement + resolved-id/branch hints in dispatch · REVISE
   dispatch lacks a comment input (role coped by reading the PR thread) ·
-  cloud-path `--name` adoption per the naming contract · WATCH: first main
-  push under the close-spine ruleset (if rulesets gate direct pushes,
-  board-sync/local closes break — fix: bypass_actors serialseb + Actions app)
-  · nested-line projection gap (already filed by the orchestrator).
+  cloud-path `--name` adoption per the naming contract · WATCH (half-fired):
+  close-spine catches ALL PRs into main — the orchestrator's board-round PR
+  #58 stranded BLOCKED; operator unblocking + adding repository-admin bypass
+  (explicit "merge with bypass", no bare green button); orchestrator lane told
+  to publish the check at its own close gate. Direct-push semantics STILL
+  unverified — next board push answers; if rejected, add the Actions app to
+  the bypass list · nested-line projection gap (already filed by the
+  orchestrator).
 
 ## Proposal
 
