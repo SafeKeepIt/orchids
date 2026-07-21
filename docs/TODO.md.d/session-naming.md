@@ -31,6 +31,9 @@
   hook, the `bin/orch` wrapper, the `.pending-subjob.local` consumer, and
   parent-chain worktree titling are documented intentions with no implementing script.
   Most of the surface isn't buggy — it's unbuilt.
+- Operator amendment (2026-07-21, plan round): the plan's call-out read the root as
+  `orchids / orchestrator` — wrong way round. The slash-form names workstreams; the
+  orchestrator, singular per repository, is named by the repository itself.
 - Operator scope ruling (2026-07-21): no hook build-out, no wrapper, no rewrites of
   what exists — `claude --name` at launch carries the session name; enforcement is
   forward-only at launch sites. Live state for consumers (sidebar included) comes from
@@ -42,14 +45,32 @@
 The naming contract — strict, fully derivable, enforced at every launch site from now
 on:
 
-- **feature id**: kebab-case, the INVERSE of the git-imperative — git says
-  "Eat carrots", the feature id is `carrots-eating`, object first. Unique on the board;
-  the sidecar filename.
-- **human name**: the feature id with hyphens as spaces ("carrots eating") — derived,
+- **feature id**: kebab-case, all lowercase, the INVERSE of the git-imperative —
+  git says "Eat carrots", the feature id is `eating-carrots` (gerund first; settled
+  2026-07-21 over the earlier object-first example). Unique on the board; the sidecar
+  filename. Forward-only — existing ids stay.
+- **human name**: the feature id with hyphens as spaces ("eating carrots") — derived,
   never authored separately, so it cannot drift.
-- **claude session name**: `<repository> / <human name>` (e.g.
-  `orchids / session naming`), passed with `--name` at every `claude` launch — this is
-  what makes the claude UI navigable.
+- **claude session name**: for WORKSTREAM sessions (architects, ripeners),
+  `<repository> / <human name>` (e.g. `orchids / session naming`), passed with
+  `--name` at every `claude` launch — this is what makes the claude UI navigable.
+- **the orchestrator is NOT slash-form**: session names name SESSIONS, and there is
+  exactly ONE orchestrator per repository — it orchestrates the workstreams. Its
+  session name is the repository name alone (`orchids`); summoning or reviving it
+  resumes THE one (never a second), and typing the repo name reaches its orchestrator
+  (Decision-032).
+- **one session per feature — the name never carries the agent**: the feature has ONE
+  top-level session, shared context for all its work; everything else in it (builders,
+  prep, sidecars) is a SUBAGENT — hidden away, never a named session, visible only in
+  the sidebar thanks to the bus (activity broadcasts show them by name as they come
+  and go). Which agent is doing what is live state, never name material. Two name
+  shapes exist, total: `<repo>` (the orchestrator) and `<repo> / <human name>` (a
+  feature workstream, e.g. `orchids / eating carrots`), all lowercase. Nothing else.
+- **agent names appear NOWHERE** (operator + orchestrator concur, 2026-07-21): the
+  hierarchy carries the role (the repo row IS the orchestrator; a feature session IS
+  its one agent — a session can only have one agent), phase/activity words carry the
+  state, and subagent rows carry their WORK label (the "messaging" pattern), never a
+  role noun.
 - **sidebar row**: the human name alone ([[fleet-sidebar]]).
 - **tmux**: existing machine titles (`arch:<id>`) stay — tooling matches on them
   (teardown); titles refresh only where bus lifecycle signals already fire; no new
@@ -66,8 +87,9 @@ instructions in the agent/skill docs plus the one bus helper in `tools/`.
 
 **One derivation, quoted everywhere.** id↔human is a pure string swap: human =
 `id` with `-`→` `, id = human with ` `→`-`. It round-trips because board ids are
-kebab (no spaces) and human names are only ever derived, never authored. bash sites
-inline `${id//-/ }`; Python surfaces it once in the bus.
+kebab (no spaces) and human names are only ever derived, never authored. The swap is
+order-agnostic — the gerund-first rule governs how a NEW id is authored, not the code.
+bash sites inline `${id//-/ }`; Python surfaces it once in the bus.
 
 **Launch sites that adopt `--name "<repo> / <human name>"` (forward-only, no retro
 renames):**
@@ -87,9 +109,25 @@ renames):**
   live on the unlanded `f/cloud-architect` branch, not here; the `--name` requirement
   travels with them (forward note, no edit on this branch).
 
-**Not renamed:** tmux machine titles `arch:<id>` stay verbatim (teardown matches on
-them). Subagents (builder, housekeeper via the Agent tool / `--bg`) inherit the
-parent's bus identity and have no navigable pane — out of scope.
+**Role-noun references reconciled (naming round froze after the build; REVISE hop).**
+The contract's "agent names appear NOWHERE / one orchestrator per repo" retires the
+orchestrator's old `<project> Orchestrator` name at every remaining reference, not just
+the summon line:
+
+- `skills/workflow-complete/SKILL.md` close-return reminder — resumed the orchestrator
+  by `"<project> Orchestrator"`; now the bare `"<project>"` (a resume is a launch site;
+  the old string would send the operator to a non-existent second session).
+- `skills/orchestrator/SKILL.md` `/branch` mistitle note — described the `SessionStart`
+  hook titling a fork `<project> Orchestrator`; corrected to the orchestrator's own bare
+  name `<project>` (doc consistency only; the hook itself stays unbuilt per scope).
+
+**Subagents: hidden sessions, bus-visible rows.** Subagents (builder, housekeeper via
+the Agent tool / `--bg`) inherit the parent's bus identity and are never named sessions
+— but they ARE sidebar-visible through the bus's existing on-change activity broadcast
+(`announce` on start, `depart` on end, `signal` on lifecycle change). This is the
+pinned activity-broadcast requirement, satisfied by the existing bus mechanism — no new
+hook (operator scope ruling). tmux machine titles `arch:<id>` stay verbatim (teardown
+matches on them).
 
 **Bus surfaces the name.** `tools/bus.py` `identity_of()` gains a derived `name`
 (human name from `feature_id`), so the sidebar and any bash consumer read one field
@@ -116,29 +154,42 @@ teardown's `arch:<id>` lookup.
 
 ## Result
 
-Result: BUILT & tested (automated gate green) — branch `f/session-naming`, awaiting
-operator review. Four launch sites now enforce the contract, forward-only:
+Result: BUILT (91a2a38) + REVISED against the frozen naming contract — branch
+`f/session-naming`, awaiting operator review. Four launch sites enforce the contract
+forward-only; the REVISE hop reconciled the branch to the naming round that froze
+after the build (gerund-first ids, agent names nowhere, subagents hidden but
+bus-visible, on-change activity broadcast).
+
+Launch sites (build):
 
 - `agents/orchestrator.md` — architect spawn gains `--name "orchids / ${id//-/ }"`
   (an `id=<id>` capture added so the human name derives in-shell); the
   `select-pane -T "arch:<id>"` teardown line is byte-for-byte unchanged.
 - `skills/orchestrator/SKILL.md` — root summon becomes the **bare** repo name
-  `claude --resume "<project>" || claude --name "<project>"` (operator amendment:
-  NOT `<repo> / orchestrator`; one orchestrator per repo, name = repo).
+  `claude --resume "<project>" || claude --name "<project>"` (Decision-032: one
+  orchestrator per repo, name = repo; no slash-form, no `Orchestrator` suffix).
 - `skills/ripen-tasks/SKILL.md` — ripener `--bg` launch gains
   `--name "orchids / ${id//-/ }"` (feature human name, never the role).
 - `tools/bus.py` `identity_of()` — gains a derived `name` (`feature_id` with
-  `-`→space), so the sidebar/any bash consumer reads one field.
+  `-`→space), so the sidebar / any bash consumer reads one field.
 
-Automated test method (refined for the headless runner), all four assertions green:
-(a) 57/57 board ids round-trip id→human→id; (b) `bus.py identity` in a linked
-worktree emits `name: "carrots eating"` for `feature_id: carrots-eating`;
+Reconciled in the REVISE hop (role-noun sites the build missed):
+
+- `skills/workflow-complete/SKILL.md` — the close-return reminder resumed the
+  orchestrator by `"<project> Orchestrator"`; now the bare `"<project>"` (Decision-032).
+- `skills/orchestrator/SKILL.md` — the `/branch` mistitle note said the hook would
+  title a fork `<project> Orchestrator`; corrected to the orchestrator's own bare
+  name `<project>`.
+- Subagent visibility clarified: subagents stay unnamed sessions but ARE sidebar-
+  visible via the bus's existing on-change activity broadcast (`announce`/`depart`/
+  `signal`) — the pinned requirement is satisfied by the existing bus mechanism, no
+  new hook (operator scope ruling).
+
+Automated test gate (headless-runner method), all assertions green:
+(a) board ids round-trip id→human→id; (b) `bus.py identity` emits the derived `name`;
 (c) each edited launch line carries `--name`; (d) the `arch:<id>` line is unchanged.
-`bus.py` compiles; the non-worktree case yields `name: None` (no crash).
 
 Deferred / not self-approved: the operator-manual visual check (the claude UI actually
 lists `<repo> / <human name>`) needs a live interactive spawn the headless runner
-cannot inspect — left for the operator or a local run. Out of scope per operator
-ruling: SessionStart hook/`.pending-subjob` titling, epics/parent chains, retro
-renames. The `<project> Orchestrator` string in the SKILL's mainline-`/branch`
-section is that untouched hook mechanism — a forward item, not this branch's edit.
+cannot inspect. Out of scope per operator ruling: SessionStart hook / `.pending-subjob`
+titling build-out, epics / parent chains, retro renames.

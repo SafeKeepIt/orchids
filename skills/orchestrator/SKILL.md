@@ -148,7 +148,8 @@ coder, not the orchestrator (Decision-046). Coding begins there, never here.
 
 **Mainline `/branch` identity (do this or the fork is mistitled).** A mainline `/branch`
 fork shares the main checkout, so the `SessionStart` hook cannot tell it from the
-orchestrator by location — it would title the sub-job `<project> Orchestrator`. Before
+orchestrator by location — it would title the sub-job `<project>` (the orchestrator's own
+name — Decision-032). Before
 telling the operator to run `/branch`, write the task's `{#id}` (the leaf feature-id) to
 `.claude/.pending-subjob.local`:
 
