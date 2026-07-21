@@ -1,6 +1,9 @@
 - created: 2026-07-20
 - created_by: Sebastien Lambla
 
+- completed: 2026-07-21
+- completed_during: f/cloud-architect
+
 ## Blockers
 
 - ~~⊘handover-contract; both interactive boundaries parked the autonomous path~~ —
