@@ -116,3 +116,91 @@ Re-run the original agreed method with the operator's live visual pass front and
 centre — flash animation, keyboard navigation landing on the right window, a row
 updating when a job's window closes — since that live pass is where the issues
 surfaced. Unit suite stays green.
+
+## Result
+
+- outcome: **done** (built, tested; awaiting operator `THAT IS ALL`)
+- branch `f/sidebar-fixes` · HEAD `13bf72b` · Base `8203b6f` (🎉 anchor `4253520`)
+- commits: delivery/mount (🎉) · nav collision · four model/render defects ·
+  terminal-flash fix
+
+### What was fixed (all IN-scope items delivered)
+
+- **Root cause of "no sidebar at all"** (new, not in the numbered inventory): both mount
+  callers invoke `.claude/tools/sidebar-mount.sh`, which did not exist — the four sidebar
+  tools were merged only under `tools/`, never delivered into `.claude/tools/` like every
+  other tool, so each mount exited 127. Fixed by delivering the four files as
+  `.claude/tools/` symlinks (kauk `link`, matching the existing 5), resolving the mount
+  script's dir through the symlink (`readlink -f`), and surfacing a startup failure instead
+  of a silently-vanishing pane.
+- **#1 nav collision**: `resolve_window()` now prefers, among duplicate-name windows, one
+  whose active pane is a real process over a bare login shell (the blank `--worktree`
+  launcher leftover); falls back to first-match. Duplicate-name tests added.
+- **#2 sticky waiting flash**: the flash is changed only by an activity broadcast (not
+  cleared by a re-announce or plain lifecycle signal), and is cleared by a terminal
+  lifecycle (finished/abandoned) so a completed row does not keep flashing.
+- **#3 `_seen_ids`**: bounded to messages still on disk each scan (no unbounded growth in a
+  long-lived `watch()`).
+- **#4 idle status**: a repo with no orchestrator session renders a distinct idle glyph
+  (⚪, dim) instead of the same green "running" dot as a busy repo.
+- **#6 announced name**: the sidebar consumes the announced `arch.name` rather than
+  re-deriving `feature_id.replace("-"," ")`; derives only as fallback.
+- **#5 mount idempotency**: keyed on `pane_start_command` (running `sidebar.py`) instead of
+  the clobber-prone pane title. **Operator decision (this session)**: implemented
+  self-contained (a pane-presence concern), NOT consuming agent-closing's window-identity
+  handle, which had not landed (that corrective was still planning its contract).
+
+### Tested (agreed method: unit suite green + live visual pass)
+
+- Unit: `python3 -m unittest discover -s tests` → **31/31 OK** (pre-existing baseline was
+  22, not the sidecar's stale "23/23"; +9 new tests covering every fix).
+- Live pass, self-driven through the REAL reader→model→renderer and REAL tmux:
+  - sidebar mounts and renders in a throwaway tmux session; a second mount is idempotent
+    (one sidebar pane).
+  - `resolve_window` lands on the live window when two windows share a name.
+  - synthetic bus traffic renders ⚪ idle repo, feature labelled by its announced name,
+    waiting flash sticky then cleared by a new activity, finished row showing ✅ (no flash).
+  - Remaining for the operator's own eyes in the live fleet (post-merge + `kauk sync`,
+    since the delivered symlinks track the vendored clone): the flash animation over time
+    and keyboard Enter switching the client to the target window.
+
+### Spawned / deferred
+
+- **Deferred to agent-closing / orchestrator**: the environmental SOURCE of the blank
+  duplicate window (native `claude --worktree` launcher/wrapper leaving a blank same-named
+  window; stale-window reaping). Nav is now collision-SAFE; eliminating the duplicate at
+  source belongs with the stable-window-handle work, not this corrective.
+
+## Changelog entry
+
+### Fixed
+- The fleet sidebar now actually appears: it was never delivered into `.claude/tools/`, so
+  every mount attempt failed silently and no sidebar showed. The four sidebar tools are now
+  delivered like every other tool.
+- Selecting a sidebar row no longer lands on a blank leftover window when two windows share
+  a name — navigation prefers the live one.
+- The "waiting on operator" flash no longer stops early when an unrelated message arrives,
+  and no longer keeps flashing after a job has finished.
+- A repo with no active orchestrator now shows a distinct idle marker instead of a green
+  "running" dot.
+- A feature row is labelled from the name the agent announced, not a second re-derivation
+  that could drift from it.
+- Re-mounting the sidebar no longer risks a second sidebar pane when the pane title has been
+  changed by a status-glyph setter.
+
+## Readme delta
+
+- No change needed (evidenced). README already states the sidebar "mounts automatically as a
+  pinned left pane" (README.md:42) and documents `ORCHIDS_SIDEBAR_REPOS` /
+  `sidebar-repos` (README.md:50); this corrective restores that documented behaviour and
+  introduces no new flags, usage, or config.
+
+## Architecture determination
+
+- No `ARCHITECTURE.md` edit required (evidenced). No trigger fired: no component
+  added/removed/repurposed, no boundary/responsibility change, no data-flow/wiring change,
+  no style change. The `.claude/tools/` delivery was ALREADY documented as intended at
+  ARCHITECTURE.md:172 (`sidebar-mount.sh (→ .claude/tools/)`); this corrective makes the
+  code match that doc. The component diagram (ARCHITECTURE.md:105-107) and responsibilities
+  (126-127) remain accurate. All edits are internal behaviour within the existing sidebar
+  components plus the missing delivery symlinks.

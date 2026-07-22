@@ -67,6 +67,13 @@ class RenderLinesTests(unittest.TestCase):
         self.assertIn("✅", lines[2])
         self.assertIn("❌", lines[3])
 
+    def test_idle_status_shows_white_circle(self):
+        fleet = sm.Fleet(repos=[
+            sm.Repo(path="/r", name="r-idle", activity="", status="idle", waiting=False),
+        ])
+        lines = sidebar.render_lines(fleet, width=64)
+        self.assertIn("⚪", lines[0])
+
     def test_indentation_increases_with_depth(self):
         lines = sidebar.render_lines(_fleet(), width=64)
         # strip the leading selection-marker column (always ' ' or '>')

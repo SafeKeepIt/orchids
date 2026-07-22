@@ -22,8 +22,8 @@ import sidebar_nav  # noqa: E402
 
 
 LIST_WINDOWS_OUTPUT = "\n".join([
-    "sess-orch\t@1\torchids",
-    "sess-arch\t@2\torchids ▸ fleet sidebar",
+    "sess-orch\t@1\torchids\tbash",
+    "sess-arch\t@2\torchids ▸ fleet sidebar\tnode",
 ])
 
 
@@ -50,6 +50,26 @@ class ResolveWindowTests(unittest.TestCase):
     def test_no_match_returns_none(self):
         with mock.patch.object(sidebar_nav, "_tmux", side_effect=_fake_tmux(LIST_WINDOWS_OUTPUT)):
             self.assertIsNone(sidebar_nav.resolve_window("orchids ▸ missing"))
+
+    def test_duplicate_name_prefers_live_window(self):
+        duplicate_name_output = "\n".join([
+            "sess-launcher\t@3\torchids ▸ fleet sidebar\tbash",
+            "sess-arch\t@4\torchids ▸ fleet sidebar\tnode",
+        ])
+        with mock.patch.object(sidebar_nav, "_tmux", side_effect=_fake_tmux(duplicate_name_output)):
+            self.assertEqual(
+                sidebar_nav.resolve_window("orchids ▸ fleet sidebar"), ("sess-arch", "@4"),
+            )
+
+    def test_duplicate_name_all_shell_falls_back_to_first(self):
+        duplicate_name_output = "\n".join([
+            "sess-launcher\t@3\torchids ▸ fleet sidebar\tbash",
+            "sess-other\t@4\torchids ▸ fleet sidebar\tbash",
+        ])
+        with mock.patch.object(sidebar_nav, "_tmux", side_effect=_fake_tmux(duplicate_name_output)):
+            self.assertEqual(
+                sidebar_nav.resolve_window("orchids ▸ fleet sidebar"), ("sess-launcher", "@3"),
+            )
 
 
 class NavigateToTests(unittest.TestCase):
