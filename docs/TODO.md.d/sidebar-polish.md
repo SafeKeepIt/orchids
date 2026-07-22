@@ -250,6 +250,40 @@ The operator's itemized list, verbatim in substance:
     pursuing further disambiguation absent a concrete complaint that this
     window is actually visible/annoying in practice.
 
+12. (g) **Popup UX refinements, live-tested round 2** (operator, 2026-07-22,
+    direct, from actually using the built popup): all apply to
+    `tools/orchard-question-broker.py` specifically (NOT the `AskUserQuestion`
+    harness tool, which this repo cannot change):
+    - **Echo the keypress**: raw mode currently reads with echo off — show the
+      digit as it's read (brief visual confirmation) rather than a silent,
+      invisible commit, so a mistyped key is noticeable.
+    - **Single- vs multi-select must look and behave differently** — today
+      `bus.py ask` only ever returns one option. Add a multi-select mode:
+      digits TOGGLE membership (shown, e.g. `[x]`/`[ ]`), a confirm key
+      commits the current selection; single-select stays instant-on-digit
+      (unchanged). The two modes must be visually distinguishable, not just
+      functionally.
+    - **Escape = "continue the conversation," never a refusal**: pressing
+      Escape sends back a distinct sentinel over the bus (not an option
+      index, not "no answer") meaning the operator wants to keep discussing
+      before deciding. The asking agent must treat this as "pause and keep
+      talking," never as declined/cancelled. (This is the exact failure mode
+      already hit once this session: an `AskUserQuestion` dismissal that was
+      actually the operator needing to relay something else got surfaced as
+      a flat rejection — the popup must not repeat that.)
+    - **Always-available gate keywords**: regardless of the specific
+      question asked, the popup must special-case recognize `MAKE IT SO` and
+      `THAT IS ALL` as always-selectable — typing/selecting one broadcasts
+      the corresponding gate signal directly, rather than forcing the
+      operator through the narrower question first.
+    - **Title + short summary**: the popup is missing a short title (so the
+      operator can recall what they're choosing at a glance) and a short
+      summary of what the decision is about, beyond the raw question text.
+    - **Make it pretty and colored**: currently plain, uncolored text.
+    - **Size to content, not a fixed fraction of the screen**: currently
+      sized as a percentage of the terminal; should size to the actual
+      question/options/title content instead.
+
 ## Testing
 
 Operator visual pass on the live sidebar (the method that produced this list),
