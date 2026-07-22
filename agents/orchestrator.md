@@ -223,11 +223,15 @@ wall-clock than builds; only the squash-merge and the ingest commit truly serial
 - **Prep the ingestion in parallel**, fully: while the housekeeper runs, read the
   sidecar result (TRUST it — no re-derivation), read the stream, and DRAFT the
   complete ingest — decision promotions, board flips, sidecar corrections — as
-  ready-to-apply text in `.git/the-works/`, never the working tree (an uncommitted
-  tree trips the clean-tree step; a second main writer mid-merge is a race). When
-  the housekeeper returns: apply the whole draft as ONE commit, archive the stream
-  to `.git/the-works/_ingested/`, converge (`kauk sync`, pending migrations), push
-  once, re-triage.
+  ready-to-apply files in `.git/the-works/close-<id>.draft/` (the exact path the
+  housekeeper watches), never the working tree (an uncommitted tree trips the
+  clean-tree step; a second main writer mid-merge is a race). The housekeeper FOLDS
+  a present draft into the squash itself — one atomic commit carrying feature +
+  ingest, amended on its staging ref before any note or push anchors the SHA
+  (operator design, 2026-07-22) — so the board is never out of step with the merged
+  code. Draft not ready in time → it lands as your own follow-up commit, as before.
+  Either way: archive the stream to `.git/the-works/_ingested/`, converge
+  (`kauk sync`, pending migrations), push once, re-triage.
 - **Start the NEXT task during the close.** A standing sequence or named next pick
   does not wait for the merge: run its bloom round in parallel with the housekeeper
   (bloom commits WAIT for the merge window — never commit to main while a squash is

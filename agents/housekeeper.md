@@ -50,17 +50,31 @@ the former `workflow-complete` procedure.
    `docs/TODO.md` board flip is the orchestrator's — report it as remaining, never edit it.
    Durable facts to their homes; the sidecar `## Findings` holds the rest.
 2. **Clean tree**, then tag `archive/<id>` on the branch HEAD.
-3. **Squash-merge** to `main` (an empty squash for an abandoned/no-content close); no
-   merge commits. This squash is the integration gate (the branch's base is not forced,
-   Decision-076) — if it conflicts, surface the hunks and resolve with the operator; never
+3. **Compose the squash on a STAGING ref, not on main** (operator design,
+   2026-07-22): `git checkout -b close/<id> main`, squash-merge the feature there
+   (an empty squash for an abandoned/no-content close; no merge commits). This
+   squash is the integration gate (the branch's base is not forced, Decision-076) —
+   if it conflicts, surface the hunks and resolve with the operator; never
    auto-resolve.
-4. **Verify integrity** — squash tree matches; the `archive/<id>` tag reaches the branch
-   tip.
-5. **Push** `origin main` + `refs/tags/archive/<id>` + `refs/notes/*` (this carries
-   the telemetry exit-interview notes alongside the commit notes) — on EVERY
+4. **Fold the orchestrator's ingest into the SAME commit.** The orchestrator drafts
+   its ingest (board flip, decision promotions, sidecar corrections) in
+   `.git/the-works/close-<id>.draft/` while you work; if the draft is present,
+   apply it and `git commit --amend` the squash so feature + ingest land as ONE
+   atomic commit (a staging-branch amend before any push or note is invisible and
+   safe; the board is never out of step with the merged code). Draft absent after a
+   short wait → proceed without it (the orchestrator commits ingest separately, as
+   before). NEVER amend after a note or push has anchored the SHA.
+5. **Land main**: fast-forward main to the staging ref (`git merge --ff-only`);
+   if main moved meanwhile, cherry-pick the composed commit onto main instead
+   (same content, new SHA — equally clean). Delete the staging ref.
+6. **Verify integrity** — the landed tree matches the composition; the
+   `archive/<id>` tag reaches the branch tip.
+7. **Push** `origin main` + `refs/tags/archive/<id>` + `refs/notes/*` (this carries
+   the telemetry exit-interview notes alongside the commit notes — attached ONLY
+   after the final SHA exists) — on EVERY
    close, mandatory (Decision-065). On push failure the local close still stands and is
    authoritative; report the error verbatim and roll nothing back.
-6. **Remove the worktree** (`git worktree remove .claude/worktrees/<id>`) **and delete the
+8. **Remove the worktree** (`git worktree remove .claude/worktrees/<id>`) **and delete the
    branch ref** `f/<id>` (`archive/<id>` tag is the tombstone; an untagged `f/*` is open work
    and is never deleted). You may be dispatched IN PARALLEL with the architect's
    self-teardown (operator, 2026-07-22 — the close overlaps): if the removal fails
@@ -68,7 +82,7 @@ the former `workflow-complete` procedure.
    interval (up to ~3 minutes) rather than failing the close — every earlier step is
    already done and stands. Report a still-held worktree verbatim if the retries
    exhaust; never force-remove a worktree with live uncommitted state.
-7. **Revoke the up-front sudo grant** if one is still active.
+9. **Revoke the up-front sudo grant** if one is still active.
 
 # Return (typed result to the orchestrator)
 outcome (`merged` | `abandoned`) · `archive/<id>` SHA · the squash title · what was pushed
