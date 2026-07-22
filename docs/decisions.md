@@ -1004,3 +1004,19 @@ renumbered here):
   (schema-introspected) and projects as a `### Related` body-link list.
 - Board is canonical; the sync writes GitHub, never the reverse, on these
   surfaces.
+
+## [2026-07-22 16:16 CEST] Decision-054: The close composes on a staging ref; the ingest folds into the squash
+#close #housekeeper #squash #staging #ingest #atomicity #git
+
+Operator design (2026-07-22), replacing the serialized two-writer close:
+the housekeeper composes the squash on a `close/<id>` staging branch —
+where amending is free and leaves no public trace — folds the
+orchestrator's pre-drafted ingest (`.git/the-works/close-<id>.draft/`)
+into the SAME commit, and lands main by fast-forward (cherry-pick when
+main moved; same content, equally clean). One atomic commit carries the
+feature and its board/decision state, so main never shows merged code
+against a stale board. Telemetry notes attach only after the final SHA
+exists. The housekeeper also dispatches AT the gate word, in parallel with
+the architect's self-teardown, retrying only the worktree removal until
+the architect's session dies. The genuinely serialized core of a close is
+now a single ref update.
