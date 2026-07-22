@@ -1,13 +1,15 @@
 ---
 name: digital-signature
-description: Seal a file or a forensic hash-manifest with a legally-recognized digital signature using the operator's government-issued smart-card certificate (via PKCS#11), plus an RFC-3161 qualified timestamp from a Timestamp Authority — the same cert+TSA mechanism used for PAdES PDF signing. Produces provable identity + provable time over exact bytes. Invoke to sign evidence manifests, captured-image hash lists, or any artefact that must be attributable and time-anchored.
+description: Seal a file or a forensic hash-manifest with a legally-recognized digital signature plus an RFC-3161 timestamp — provable identity + provable time over exact bytes. Multiple PEER signer paths, chosen by legal level and availability: a government smart-card cert via PKCS#11 (qualified/QES), a recognized commercial QTSP S/MIME X.509 cert via gpgsm (advanced/AdES, no card needed), and an OpenPGP hardware token as an independent anchor — composed as two-pass sealing (sign now with what is recognized and available, countersign to qualified later over the same bytes). Invoke to sign evidence manifests, captured-image hash lists, git trees, or any artefact that must be attributable and time-anchored.
 roles: [security]
 ---
 
-# Digital signature (smart card + RFC-3161 timestamp)
+# Digital signature (recognized cert + RFC-3161 timestamp)
 
-Goal: bind **who** (gov smart-card cert) and **when** (TSA timestamp) to the **exact bytes**
-(sha256) of the evidence manifest. Run on the clean host; the smart card must be present.
+Goal: bind **who** (a recognized signing cert) and **when** (TSA timestamp) to the **exact bytes**
+(sha256) of the evidence manifest. Run on the clean host. The card is *one* signer path (§card);
+when it is unavailable or you only need an advanced signature, use a peer path (§peers) — the card
+being absent is an alternative, not a failure.
 
 ## The signer — SignMc (Monaco eID), how to use
 The concrete implementation of this skill's card+PIN signing is **SignMc** (`~/src/SafeKeepIt/SignMc`):
@@ -26,6 +28,42 @@ OpenSC** in an isolated prefix (`opensc-local/`, the system OpenSC is untouched)
 - Full install is reversible: `./uninstall-monco.sh`.
 
 For the CMS/manifest route below, substitute `P11=opensc-local/lib/opensc-pkcs11.so` and the 0x82 cert.
+
+## Peer signer paths (§peers) — pick by legal level + availability, and compose them
+The seal binds who + when + exact bytes; several *recognized* signer paths do that. Choose by the
+**legal level** you need and what is available — and compose them: **two independent signatures over
+one hash** is the ETSI crypto-agility posture (one trust-model/algorithm can be retired without
+losing assurance). This is not a card-vs-fallback split; they are peers.
+
+**Path A — gov smart-card (§card above).** Monaco eID via PKCS#11 → **qualified (QES)**, the
+handwritten-equivalent level. Needs the card + PIN.
+
+**Path B — commercial QTSP S/MIME X.509, via gpgsm (no card).** e.g. Certum/Asseco — an **EUTL-listed
+QTSP**, **Individual-Validated** (the CA verified the natural person), key usage
+`digitalSignature nonRepudiation`. A genuine EU-recognized identity binding — but a *software* key
+with no QSCD, so it is **advanced (AdES), not qualified**. It is NOT a self-run CA (§legal): it carries
+real signature identity, just not the qualified *level*.
+```bash
+FPR=0x<full-sha1-fingerprint>      # PIN the FINGERPRINT, never the email (two certs per email → wrong one signs)
+gpgsm -u "$FPR" --detach-sign --armor -o "$MAN.p7s" "$MAN"     # detached CMS / CAdES-BES
+gpgsm --verify "$MAN.p7s" "$MAN"                               # MUST print "Good signature" + a valid chain
+```
+gpgsm reaches this cert directly (stock scdaemon can't drive a patched-OpenSC gov card — that is
+Path A's job). Confirm the chain shows `[certificate is good]` up to a trusted root.
+
+**Path C — OpenPGP hardware anchor (Nitrokey).**
+`gpg -u <keyid> --detach-sign --armor -o "$MAN.asc" "$MAN"`. Hardware-held, independent trust model.
+OpenPGP is **not** an eIDAS AdES format, so it *corroborates* (a second independent who+when anchor) —
+never the legal primary on its own.
+
+**Two-pass sealing (the composition).** Seal NOW with whatever is recognized-and-available (Path B is
+fine when the level is disclosed) + the timestamp; **upgrade to QES later** by countersigning the SAME
+bytes with the qualified cert (Path A) when the card is in hand. The first-pass seal is never replaced —
+the early time anchor is preserved. Qualified is an added layer, not a prerequisite.
+
+**Git trees** use this same cert path applied to commits: `git config gpg.format x509;
+git config user.signingkey <FPR>` (gpgsm is git's x509 backend — pin the fingerprint). Per-commit sigs
+carry **no** timestamp, so anchor time by timestamping a seal over the whole tree bundle, not per commit.
 
 ## 1. Build the manifest to sign
 List every artefact and its hash — never sign the big images directly, sign the manifest of hashes:
@@ -131,6 +169,17 @@ preservation; principles: **auditability, repeatability, reproducibility**):
   *qualified* ONLY when made with a **qualified certificate**; the format alone does NOT confer it. Here
   the **Monaco government cert** supplies the qualified legal capacity and **PAdES** is just the wrapper —
   so write "qualified electronic signature, applied in PAdES format," never "PAdES = qualified/eIDAS."
+
+## Gotchas (each has bitten this work)
+- **Sign the plaintext manifest, never a ciphertext.** Encrypted blobs (gpg output, OpenTofu
+  AES-GCM state) re-nonce on every write, so a signature over ciphertext never re-verifies. Sign the
+  plaintext/canonical form; store the ciphertext separately.
+- **A signature with no timestamp dies at cert expiry.** Per-artefact / per-commit sigs carry no
+  time; the RFC-3161 token (§4) is what keeps them verifiable after the signing cert lapses (LTV).
+  Timestamp every seal — especially short-lived commercial certs (~1 yr).
+- **gpgsm `relax` in the trustlist loosens chain checks** — cross-verify with stock `openssl cms
+  -verify` so the record is "checkable by anyone with ordinary tools" (ETSI Annex G), not dependent
+  on your local trust config.
 
 ## Rules
 - Sign the **manifest of hashes**, not the multi-TB images (the hashes bind the images).
