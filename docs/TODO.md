@@ -88,6 +88,7 @@ Badge: `type · status · urgency · readiness · area · gh#`.
 - `feature · done · · complete/interactive · process ·` [Message bus: repo-scoped agent-to-agent messaging via a bus sidecar](TODO.md.d/message-bus.md) ~hook-choreography ~cross-repo-inbox
 - `bug · todo · critical · plan-ready · process ·` [Bus singleton: exactly one bus sidecar per agent, as designed](TODO.md.d/bus-singleton.md) ~message-bus ~sidebar-polish ~agent-closing
 - `feature · todo · nice-to-have · queued · process ·` [Bus recycling: a deep bus warns its host and hands over to a fresh one](TODO.md.d/bus-recycling.md) ~bus-singleton ~message-bus
+- `housekeeping · todo · idea · queued · process ·` [Fleet documenting: agent wiki pages; channels with JSON Schemas](TODO.md.d/fleet-documenting.md) ~message-bus ~operator-interacting ~digest-identity
 - `bug · todo · critical · plan-ready · process ·` [Window closing owning: agents close themselves; a listener kills at five](TODO.md.d/window-closing-owning.md) ~sidebar-polish ~bus-singleton ~agent-closing
 - `feature · todo · · blocked-on-answers · process ·` [Operator interacting: questions, gates and summaries as one typed exchange](TODO.md.d/operator-interacting.md) ~message-bus ~sidebar-polish ~hook-choreography
 - `feature · todo · · blocked-on-answers · process ·` [Step recording: one authored record, scripted projections](TODO.md.d/step-recording.md) ~handover-contract
