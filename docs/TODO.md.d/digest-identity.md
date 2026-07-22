@@ -9,18 +9,22 @@
 
 ## Questions
 
-- Route: (a) place the callabloom private key in the claude.ai cloud
-  environment as a secret so the scheduled routine mints an installation
-  token and publishes as callabloom[bot] — smallest change to what runs
-  today; or (b) move the digest into a repo-scheduled GitHub Actions
-  workflow that already holds callabloom credentials — but Claude in
-  Actions bills via API key, unlike the claude.ai routine. Which?
-- Destination: the digest currently lands as a PR only because the wiki
-  push was refused (403). Keep PRs as the intended delivery, or pursue the
-  wiki (which needs a non-app credential — see Findings), a committed
-  file, or an issue?
-- Where is the callabloom private key held today, and is the operator
-  comfortable placing it in the claude.ai cloud environment (route a)?
+- ~~Destination?~~ RULED (operator, 2026-07-22): **GitHub Discussions** —
+  callabloom posts each digest as a discussion (reuses the existing app;
+  no machine-user, no PAT). Discussions ENABLED on the repo the same day
+  (default categories present; "Announcements" is the natural reports
+  category — maintainer-posted, non-answerable — unless the operator
+  prefers a renamed/custom category, which is UI-only to create).
+- Route, sharpened by the ruling: the poster must hold a callabloom
+  installation token. (a) app private key as a claude.ai cloud-env secret
+  — the routine mints and posts directly; (b) the routine hands off (push
+  or workflow_dispatch) to a repo Action that already mints callabloom
+  tokens on the cloud path and posts the discussion — no secrets leave
+  GitHub, analysis stays on the routine's subscription billing. (b) looks
+  cleanest; operator to confirm.
+- One-time operator step pending: add the **Discussions: Read and write**
+  repository permission to the callabloom app and approve the updated
+  permissions on the kaukea installation (web-only).
 
 ## Findings
 
