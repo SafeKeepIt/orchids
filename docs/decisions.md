@@ -1083,3 +1083,15 @@ phrase — approval by sarcasm, completing the operator's dictation
 ("complement ENGAGE with…"). Same boundary translation to `MAKE IT SO`.
 Accepted set: the NO-NO phrase (THAT/THIS) · NO NO · ENGAGE · the
 glacial-pace phrase · the internal string itself.
+
+## [2026-07-22, third addendum to Decision-057] The corrected keyword table; ENGAGE is cloud-only
+#gates #keywords #engage #cloud
+
+Operator correction, same day: ENGAGE is a SEPARATE keyword reserved for the
+CLOUD path — the explicit authorization word for dispatching a cloud run
+(Decision-042); it is not a build-gate synonym and never starts local
+coding. The corrected table: coding START = internal MAKE IT SO, operator
+phrases "NO NO THAT WAS NOT A QUESTION" (THIS/THAT; simply "THAT WAS NOT A
+QUESTION"; "NO NO") and "BY ALL MEANS, MOVE AT A GLACIAL PACE" (simply
+"MOVE AT A GLACIAL PACE"). Coding END = THAT IS ALL, unchanged, no
+synonyms. Keywords to become configurable in a future task.
