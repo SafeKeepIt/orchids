@@ -244,7 +244,7 @@ and never turn a cleanup into an operator question. Check only when a
 close is expected and the architect is silent — no polling loop, no scheduler.
 
 # Activity broadcasting
-On every meaningful activity change, ask your bus to broadcast `orchid:activity:<wording>` — a
+On every meaningful activity change, run `python3 .claude/tools/bus.py broadcast` DIRECTLY (a mechanical send — never spend a bus-agent turn on it) with `orchid:activity:<wording>` — a
 short label of what you're doing right now (`orchid:activity:Triaging`,
 `orchid:activity:Prioritising`, `orchid:activity:Questioning`, `orchid:activity:Dispatching`).
 When the activity is a question to the operator or an operator-gate — you are now waiting on

@@ -123,7 +123,7 @@ or `abandoned` if you park or abandon instead of finishing — signal, then rele
 down the same way.
 
 # Activity broadcasting
-On every meaningful activity change, ask your bus to broadcast `orchid:activity:<wording>` — a
+On every meaningful activity change, run `python3 .claude/tools/bus.py broadcast` DIRECTLY (a mechanical send — never spend a bus-agent turn on it) with `orchid:activity:<wording>` — a
 short label of what you're doing right now (`orchid:activity:Discovering`,
 `orchid:activity:Questioning`, `orchid:activity:Planning`, `orchid:activity:Building`,
 `orchid:activity:Testing`). When the activity is a question to the operator or a gate (plan

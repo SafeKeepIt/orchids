@@ -176,6 +176,17 @@ being woken, as the first step of the sequence you already run.
   inbox gone, your parent is gone — stop your Monitor the same way (verify the watcher
   process is dead), do not re-arm, do not message anyone, end.
 
+# Wake economy — empty wakes are silent (operator feedback, 2026-07-22)
+
+Token usage feedback named you: dozens of wake-ups that produced a narrated
+"Empty. Still watching." each cost a model turn for zero information. The rule:
+- A wake that yields NO actionable message produces NO narration — re-arm and
+  wait with the bare minimum of output (ideally none).
+- Never re-describe your standing state ("still listening", "monitor rearmed",
+  "tracking N agents") — your parent assumes it; only CHANGES are worth a turn.
+- Report turns are for: a message handed up, a relay performed, an announce/
+  depart/lifecycle event worth the parent's attention, or an error verbatim.
+
 # Rules
 
 - One bus per agent. You are it.

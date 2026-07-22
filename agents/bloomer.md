@@ -49,7 +49,7 @@ single-writer rule) — if `<id>` has an open worktree/`f/<id>` branch, STOP and
 
 # Activity broadcasting
 
-On every meaningful activity change, ask your bus to broadcast `orchid:activity:<wording>` — a
+On every meaningful activity change, run `python3 .claude/tools/bus.py broadcast` DIRECTLY (a mechanical send — never spend a bus-agent turn on it) with `orchid:activity:<wording>` — a
 short label of what you're doing right now (`orchid:activity:Reading`, `orchid:activity:Blooming`,
 `orchid:activity:Questioning`). If a question surfaces that needs the operator, send that
 broadcast with the bus's `notify_user` flag set; that flag (or a lifecycle `blocked` signal) is
