@@ -1168,3 +1168,17 @@ matching): `Decision Number`/`Decision Title` Projects-v2 text fields, same
 mechanism already used for `Area` — free, future-proofing, no admin action
 (Projects-v2 fields are project-scoped, unlike GitHub Issue Types which are
 org-scoped/admin — both tiers already exercised elsewhere in this codebase).
+
+## [2026-07-22 18:13 CEST] Decision-068: Agents close their own windows; five seconds; the housekeeper never pulls the floor
+#lifecycle #close #teardown #housekeeper #bus #window #ruling
+
+Operator causality finding + ruling (2026-07-22): windows fail to close
+BECAUSE the housekeeper deletes worktree files before the agent finishes
+closing — the teardown loses its floor mid-step. Confirmed design, refining
+Decision-060: an agent closes its OWN window whenever it is ready,
+broadcasting **on-closing** then **on-closed**; it has **FIVE seconds**
+(not 060's ten) from on-closing before ONE designated bus-listening agent
+kills it and broadcasts the death on its behalf. The HOUSEKEEPER never
+removes a worktree before the agent's on-closed (or the kill) has been
+observed — retry-until-free was insufficient; the ordering is now a hard
+precondition.

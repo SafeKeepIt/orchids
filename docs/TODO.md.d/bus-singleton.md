@@ -16,6 +16,14 @@
 
 ## Findings
 
+- ROOT-CAUSE HUNCH CONFIRMED-PLAUSIBLE (operator, 2026-07-22, P1): agents
+  behave as if they need a bus PER PEER they communicate with — which
+  explains the proliferation ("buses all over the place"). The fix is both
+  mechanical (the one-per-agent guard below) and doctrinal: the bus-loading
+  instruction and agents/bus.md must state explicitly that ONE sidecar
+  serves ALL correspondents — a bus is your postbox, not a phone line per
+  contact.
+
 - The per-agent architecture (Decision-041) IS the design. The observed
   defect is multiplicity beyond it: the 2026-07-22 orchestrator session
   ran TWO bus sidecars at once (a second spawned by mistake for a

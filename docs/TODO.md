@@ -86,7 +86,8 @@ Badge: `type · status · urgency · readiness · area · gh#`.
 - `bug · todo · · blocked-on-answers · process · gh#33` [Hooks are an unowned pool in one shared file: no per-repo surface, no provenance](TODO.md.d/hook-composition.md) ~manifest-by-convention
 - `bug · cancelled · · complete · process ·` [~~Architect skips its delegation contract: builds without dispatching builders~~](TODO.md.d/architect-delegation.md) ~handover-contract
 - `feature · done · · complete/interactive · process ·` [Message bus: repo-scoped agent-to-agent messaging via a bus sidecar](TODO.md.d/message-bus.md) ~hook-choreography ~cross-repo-inbox
-- `bug · todo · · queued · process ·` [Bus singleton: exactly one bus sidecar per agent, as designed](TODO.md.d/bus-singleton.md) ~message-bus ~sidebar-polish ~agent-closing
+- `bug · todo · critical · plan-ready · process ·` [Bus singleton: exactly one bus sidecar per agent, as designed](TODO.md.d/bus-singleton.md) ~message-bus ~sidebar-polish ~agent-closing
+- `bug · todo · critical · plan-ready · process ·` [Window closing owning: agents close themselves; a listener kills at five](TODO.md.d/window-closing-owning.md) ~sidebar-polish ~bus-singleton ~agent-closing
 - `feature · todo · · blocked-on-answers · process ·` [Operator interacting: questions, gates and summaries as one typed exchange](TODO.md.d/operator-interacting.md) ~message-bus ~sidebar-polish ~hook-choreography
 - `feature · todo · · blocked-on-answers · process ·` [Step recording: one authored record, scripted projections](TODO.md.d/step-recording.md) ~handover-contract
 - `feature · todo · nice-to-have · queued · process ·` [Keyword configuring: the gate-phrase table becomes configuration](TODO.md.d/keyword-configuring.md) ~operator-interacting

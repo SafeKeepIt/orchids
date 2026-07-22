@@ -85,12 +85,15 @@ the former `workflow-complete` procedure.
    authoritative; report the error verbatim and roll nothing back.
 8. **Remove the worktree** (`git worktree remove .claude/worktrees/<id>`) **and delete the
    branch ref** `f/<id>` (`archive/<id>` tag is the tombstone; an untagged `f/*` is open work
-   and is never deleted). You may be dispatched IN PARALLEL with the architect's
-   self-teardown (operator, 2026-07-22 — the close overlaps): if the removal fails
-   because the architect's session still holds the worktree, RETRY on a short
-   interval (up to ~3 minutes) rather than failing the close — every earlier step is
-   already done and stands. Report a still-held worktree verbatim if the retries
-   exhaust; never force-remove a worktree with live uncommitted state.
+   and is never deleted). **HARD PRECONDITION (Decision-068): never remove the
+   worktree before the architect's `on-closed` lifecycle broadcast (or the
+   supervisor's kill-broadcast on its behalf) has been observed** — deleting files
+   under a still-closing agent is exactly what broke self-teardowns (operator
+   causality finding, 2026-07-22); retry-until-free was insufficient. You are
+   dispatched in parallel with the close, so do every earlier step freely, then WAIT
+   for the on-closed signal before this one (poll the bus state files or the window's
+   absence; up to ~3 minutes), and report verbatim if it never comes — never
+   force-remove a worktree with live uncommitted state.
 9. **Revoke the up-front sudo grant** if one is still active.
 
 # Return (typed result to the orchestrator)
