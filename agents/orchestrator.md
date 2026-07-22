@@ -211,21 +211,31 @@ your bus to relay the operator's VERBATIM word to that architect, flagged operat
 the sanctioned operator relay, never peer traffic. This is the path that lets an approval
 typed in the orchestrator pane reach the architect's gate.
 
-Act on it: the architect has already torn itself down — bus released, pane closed, focus
-landed back here (self-teardown, Decision-041). Read the sidecar result, TRUST it
-(do not re-derive or sweep to confirm), and **dispatch the `housekeeper` IN THE
-BACKGROUND** (a headless subagent, running in THIS main repo) to run the close — squash-merge,
-tag, push, remove the now-idle worktree + branch (Decision-023). There is NO "close it" step —
-the `finished` signal is the trigger. **Read live refs before
-dispatching** (`git log --oneline f/<id>` for the branch tip, `git rev-parse main`) — pass the
-housekeeper current SHAs, never a SHA you remember from the dispatch; main and the branch both
-move while the architect works. **While it runs, PREPARE the ingestion** of the architect's
-`_closed` stream — read the logs, draft the decisions/TODO promotion — but commit NOTHING to
-`main` until the housekeeper returns: two writers on `main` mid-merge is a race, and an
-uncommitted tree trips its clean-tree step (draft in the scratchpad or `.git/the-works/`,
-never the working tree). When it returns, apply the promotion, archive the stream to
-`.git/the-works/_ingested/` (the `handover` skill), converge (`kauk sync`, pending
-migrations), flip the board, commit, re-triage, offer the next choice.
+Act on it — and OVERLAP the close (operator, 2026-07-22: closes were costing more
+wall-clock than builds; only the squash-merge and the ingest commit truly serialize):
+- **Dispatch the housekeeper AT the relay, not after the teardown.** The moment the
+  operator's `THAT IS ALL` is relayed (or arrives via `finished`), read live refs
+  (`git log --oneline f/<id>` tip, `git rev-parse main` — never remembered SHAs) and
+  dispatch the `housekeeper` IN THE BACKGROUND immediately. The architect's
+  countersign/self-teardown runs in parallel; only WORKTREE REMOVAL needs the
+  architect dead, and the housekeeper retries that final step until the window is
+  gone rather than waiting to start.
+- **Prep the ingestion in parallel**, fully: while the housekeeper runs, read the
+  sidecar result (TRUST it — no re-derivation), read the stream, and DRAFT the
+  complete ingest — decision promotions, board flips, sidecar corrections — as
+  ready-to-apply text in `.git/the-works/`, never the working tree (an uncommitted
+  tree trips the clean-tree step; a second main writer mid-merge is a race). When
+  the housekeeper returns: apply the whole draft as ONE commit, archive the stream
+  to `.git/the-works/_ingested/`, converge (`kauk sync`, pending migrations), push
+  once, re-triage.
+- **Start the NEXT task during the close.** A standing sequence or named next pick
+  does not wait for the merge: run its bloom round in parallel with the housekeeper
+  (bloom commits WAIT for the merge window — never commit to main while a squash is
+  in flight), and spawn its architect immediately when footprints are disjoint from
+  the closing feature (branching from pre-merge main is fine; the close machinery
+  owns conflicts). Overlapping footprints spawn right after the merge lands.
+There is NO "close it" step — the gate word/`finished` signal is the trigger
+(Decision-023 mechanics unchanged).
 
 **Liveness.** If you are awaiting a `finished` and the architect looks absent — no signal,
 and a direct check shows its window gone or its pane dead — do not hang. Resolve liveness off

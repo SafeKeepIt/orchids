@@ -62,7 +62,12 @@ the former `workflow-complete` procedure.
    authoritative; report the error verbatim and roll nothing back.
 6. **Remove the worktree** (`git worktree remove .claude/worktrees/<id>`) **and delete the
    branch ref** `f/<id>` (`archive/<id>` tag is the tombstone; an untagged `f/*` is open work
-   and is never deleted).
+   and is never deleted). You may be dispatched IN PARALLEL with the architect's
+   self-teardown (operator, 2026-07-22 — the close overlaps): if the removal fails
+   because the architect's session still holds the worktree, RETRY on a short
+   interval (up to ~3 minutes) rather than failing the close — every earlier step is
+   already done and stands. Report a still-held worktree verbatim if the retries
+   exhaust; never force-remove a worktree with live uncommitted state.
 7. **Revoke the up-front sudo grant** if one is still active.
 
 # Return (typed result to the orchestrator)
