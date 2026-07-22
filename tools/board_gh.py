@@ -62,6 +62,8 @@ TYPE_ISSUE_TYPES = {"bug": "Bug", "feature": "Feature", "refactor": "Refactor",
 URGENCY_LABELS = {"critical": "\U0001f525 critical",
                   "nice-to-have": "\U0001f352 nice-to-have",
                   "idea": "\U0001f4ad idea"}
+URGENCY_PRIORITY = {"": "Medium", "critical": "Urgent", "nice-to-have": "Low",
+                     "idea": "Low"}
 AREA_LABELS = {"process": "\u2699\ufe0f area/process", "sync": "\U0001f504 area/sync",
                "skills": "\U0001f393 area/skills",
                "publication": "\U0001f4e2 area/publication"}
@@ -250,6 +252,7 @@ def push(board: Board, with_project: bool):
                 closed += 1
     board.save()
     sync_issue_types(board)
+    sync_priority(board)
     print(f"push {board.repo}: {created} created, {updated} updated, "
           f"{closed} closed")
     if with_project:
@@ -304,6 +307,39 @@ def sync_issue_types(board: Board):
             continue
         node_id = issue_node_id(board.repo, t.gh)
         set_issue_type(node_id, issue_types[native])
+
+
+# ---------- Priority (org-level native issue field) ----------
+
+def priority_field(org: str) -> dict:
+    data = gql("""query($login:String!){organization(login:$login){
+        issueFields(first:20){nodes{... on IssueFieldSingleSelect{
+        id name options{id name}}}}}}""", login=org)["data"]["organization"]
+    for f in data["issueFields"]["nodes"]:
+        if f and f.get("name") == "Priority":
+            return f
+    raise RuntimeError(f"org '{org}' has no native 'Priority' issue field — "
+                        "expected one to already exist (see Decision-051)")
+
+
+def set_priority(issue_id: str, field_id: str, option_id: str):
+    gql("""mutation($i:ID!,$f:ID!,$o:ID!){setIssueFieldValue(input:{
+        issueId:$i,issueFields:[{fieldId:$f,singleSelectOptionId:$o}]}){
+        clientMutationId}}""", i=issue_id, f=field_id, o=option_id)
+
+
+def sync_priority(board: Board):
+    org = board.repo.split("/")[0]
+    field = priority_field(org)
+    options = {o["name"]: o["id"] for o in field["options"]}
+    for t in board.tasks():
+        if t.gh is None or t.status not in ACTIVE:
+            continue
+        native = URGENCY_PRIORITY.get(t.urgency)
+        if native is None or native not in options:
+            continue
+        node_id = issue_node_id(board.repo, t.gh)
+        set_priority(node_id, field["id"], options[native])
 
 
 FIELDS_QUERY = """query($id:ID!){node(id:$id){... on ProjectV2{
