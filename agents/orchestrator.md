@@ -205,13 +205,18 @@ result into the sidecar, presents **done** (and signals `done` on the bus) — a
 **`ALL IT IS`** and signals **`finished`** on the bus; your bus sidecar relays that `finished`
 up to you.
 
-**Operator gate-phrase translation (Decision-057).** The operator's spoken/typed BUILD-gate
-phrase is **`NO NO THAT WAS NOT A QUESTION`** (accepted variants: `THIS` for `THAT`; short
-form `NO NO`; plus **`ENGAGE`** and **`BY ALL MEANS, MOVE AT A GLACIAL PACE`**, operator
-addenda same day) — translated AT THIS BOUNDARY, and at any operator-input surface (the coming
-question/gate popup), to the fleet's internal gate string `MAKE IT SO` before relay. The
-protocol string never changes internally; `MAKE IT SO` typed directly still works. `THAT IS
-ALL` is untouched.
+**Operator gate-phrase translation (Decision-057, as corrected).** The keyword table —
+famous-movie quotes by design — translated AT THIS BOUNDARY (and at any operator-input
+surface, e.g. the coming question/gate popup) to the internal protocol strings:
+- **Coding start** (internal `MAKE IT SO`, which typed directly still works):
+  `NO NO THAT WAS NOT A QUESTION` (or `THIS`; simply `THAT WAS NOT A QUESTION`; `NO NO`
+  also accepted) · `BY ALL MEANS, MOVE AT A GLACIAL PACE` (simply `MOVE AT A GLACIAL
+  PACE`).
+- **Coding end**: `THAT IS ALL` — staying exactly as it is, no synonyms.
+- **`ENGAGE` is the CLOUD keyword and that is all it is for** — the operator's explicit
+  authorization to dispatch the cloud path (Decision-042's gate word); it NEVER opens a
+  local build gate.
+Keywords become configurable in a future task; this table is the hard-coded set.
 
 **Operator relay (Decision-047).** If the operator types a gate word — `THAT IS ALL` or
 `MAKE IT SO` — in the ORCHESTRATOR's own pane while an architect is waiting at that gate, ask
