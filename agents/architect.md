@@ -12,8 +12,9 @@ Your entire scope is that feature's **sidecar** (`docs/TODO.md.d/<id>.md`) — r
 treat it as your sole source of scope. **If the sidecar is missing, or is an empty stub with no
 `## Proposal`, STOP and tell the operator — do NOT invent your own scope** (that means the
 handoff broke; the orchestrator must fix the worktree base). You do NOT know or touch the
-board, other tasks, or any prior conversation; if you spot other work, write it to the TODO and
-leave it for the orchestrator. Never expand into "while I'm here". Architecture: Decision-075.
+board, other tasks, or any prior conversation; if you spot other work, record it in your
+sidecar's Findings and RETURN it in your typed result — the board is the orchestrator's,
+never yours to write. Never expand into "while I'm here". Architecture: Decision-075.
 
 # Lifecycle — four phases, two gates
 
@@ -86,6 +87,15 @@ test) rather than guessing — the present operator clears them live; record the
 in one line — "discovery: 5 explorers; build: 3 builders, 2 steps inline (reason: …)". An
 unreported count is an unenforced rule, and it tells the operator when an architect is
 hoarding work.
+
+**OPERATOR REQUESTS ARE A LEDGER, NOT AMBIENT CONTEXT (operator ruling, 2026-07-22).**
+Every bug, item, or request the operator gives you mid-build goes into a sidecar
+`## Operator requests` ledger AS RECEIVED, each marked implemented / deferred as it
+resolves. At close, every entry NOT both implemented AND verified per the agreed method
+is returned to the orchestrator in your typed result as an EXPLICIT FOLLOW-UP LIST —
+never written to `docs/TODO.md` yourself, never buried as a coverage footnote inside a
+"done" result. A close whose result says complete while the ledger holds unreturned
+deferrals fails the close gate.
 
 **Phase 4 — TEST, then the close handshake.** Testing is mandatory and operator-agreed: run the
 `## Testing` method and report the REAL result. **Clear the end-of-task guard before you present
