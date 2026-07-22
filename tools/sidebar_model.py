@@ -26,11 +26,18 @@ envelope `from`, deduplicated by envelope `id`, applied in `ts` order
 wrapper around a fresh, throwaway aggregator; `watch()` keeps one aggregator
 alive for the life of the watch so accumulation survives across scans.
 
-Repo list resolution (env ORCHIDS_SIDEBAR_REPOS -> file path, else
-~/.config/orchids/sidebar-repos; one repo path per line, '#' comments and
-blank lines ignored; falls back to the current repo alone).
+Repo list resolution (sidebar-polish item 7a, "dynamic appearance" — see
+resolve_repos()): primary discovery is the orchard registry
+(tools/orchard_registry.py, ~/.config/orchids/sidebar-registry.json) —
+installing orchids in a repo (`.ai.toml` presence) IS registration, no
+hand-kept list required day to day. ORCHIDS_SIDEBAR_REPOS survives as an
+explicit, optional override for manual/debug use: when set, it names a
+repolist file (one repo path per line, '#' comments and blank lines ignored)
+read verbatim, registry and hiding bypassed. Falls back to the current repo
+alone if the registry resolves nothing.
 
-Public API: build_model(), iter_bus_roots(), watch(on_change, ...).
+Public API: build_model(), iter_bus_roots(), watch(on_change, ...),
+resolve_repos().
 """
 from __future__ import annotations
 
@@ -46,8 +53,7 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from feature_name import feature_name as _feature_name  # noqa: E402
-
-DEFAULT_REPOLIST = Path.home() / ".config" / "orchids" / "sidebar-repos"
+import orchard_registry  # noqa: E402
 
 # Sidecar sessions surface as agent_type "bus"; their subagent label is
 # conventionally "messaging" — never shown as a fleet subagent row (they get
@@ -180,17 +186,40 @@ def _read_repolist(path: Path) -> list[str]:
 
 
 def resolve_repos(repolist: list[str] | None = None) -> list[str]:
-    """Resolve the list of repo paths the sidebar aggregates over."""
+    """Resolve the list of repo paths the sidebar aggregates over.
+
+    Primary discovery (sidebar-polish item 7a): the orchard registry —
+    installing orchids in a repo (`.ai.toml` presence) IS registration, no
+    hand-kept list required. The current repo self-registers here if it has
+    `.ai.toml` and isn't registered yet — this checkout has no other
+    kauk-install hook to call `orchard_registry.register_repo()` from, so
+    resolution time doubles as the registration point. Hidden repos
+    (item 7b) are excluded via `visible_repos()`.
+
+    ORCHIDS_SIDEBAR_REPOS survives as an explicit, optional override for
+    manual/debug use (architect HOW decision): when set, it names a
+    repolist file read verbatim — registry and hiding are bypassed entirely,
+    same file format as before (one repo path per line, '#'/blank ignored).
+    """
     if repolist:
         return list(repolist)
 
     env_path = os.environ.get("ORCHIDS_SIDEBAR_REPOS", "").strip()
-    candidate = Path(env_path) if env_path else DEFAULT_REPOLIST
-    repos = _read_repolist(candidate)
-    if repos:
-        return repos
+    if env_path:
+        return _read_repolist(Path(env_path))
 
     current = _current_repo()
+    if current and orchard_registry._has_ai_toml(current):
+        orchard_registry.register_repo(current)
+
+    # checked separately from visible_repos(): a registry with entries, ALL
+    # of them hidden, must resolve to [] (hiding must actually hide) -- the
+    # bare-current-repo fallback below is only for a genuinely EMPTY
+    # registry (fresh install, nothing registered yet), never as a way
+    # around an explicit hide.
+    if orchard_registry.registered_repos():
+        return orchard_registry.visible_repos()
+
     return [current] if current else []
 
 

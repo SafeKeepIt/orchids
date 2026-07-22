@@ -10,6 +10,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 _TOOLS_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools",
@@ -18,6 +19,7 @@ if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
 
 import sidebar_model  # noqa: E402
+import orchard_registry  # noqa: E402
 
 from support import (  # noqa: E402
     make_repo, bus_root_of, identity_body, lifecycle_body, envelope, write_message,
@@ -571,6 +573,121 @@ class FeatureNameTests(_BusFixtureTestCase):
         feature = fleet.repos[0].features[0]
         self.assertEqual(feature.name, "Custom Label")
         self.assertNotEqual(feature.name, "custom feature")
+
+
+class ResolveReposRegistryTests(unittest.TestCase):
+    """resolve_repos()'s new primary discovery (sidebar-polish item 7a):
+    orchard-registry-driven, current repo self-registers via .ai.toml, hidden
+    repos excluded (item 7b). Every test isolates its own registry file so
+    the real ~/.config/orchids/sidebar-registry.json is never touched."""
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.registry_path = Path(self._tmp.name) / "sidebar-registry.json"
+        self._patch = mock.patch.object(orchard_registry, "REGISTRY_PATH", self.registry_path)
+        self._patch.start()
+        self.addCleanup(self._patch.stop)
+        # ORCHIDS_SIDEBAR_REPOS must not leak in from the real environment
+        # and steer resolve_repos() away from the registry path under test.
+        self._env_patch = mock.patch.dict(os.environ, {"ORCHIDS_SIDEBAR_REPOS": ""})
+        self._env_patch.start()
+        self.addCleanup(self._env_patch.stop)
+
+    def _repo_with_ai_toml(self, name: str) -> str:
+        repo_dir = Path(self._tmp.name) / name
+        repo_dir.mkdir(parents=True, exist_ok=True)
+        (repo_dir / ".ai.toml").write_text("# managed by kauk\n", encoding="utf-8")
+        return str(repo_dir)
+
+    def test_current_repo_self_registers_and_is_returned(self):
+        repo = self._repo_with_ai_toml("self-registering")
+        with mock.patch.object(sidebar_model, "_current_repo", return_value=repo):
+            resolved = sidebar_model.resolve_repos()
+        self.assertEqual(resolved, [repo])
+        self.assertIn(repo, orchard_registry.registered_repos())
+
+    def test_previously_registered_repo_appears_without_being_current(self):
+        other = self._repo_with_ai_toml("other-repo")
+        orchard_registry.register_repo(other)
+        with mock.patch.object(sidebar_model, "_current_repo", return_value=None):
+            resolved = sidebar_model.resolve_repos()
+        self.assertEqual(resolved, [other])
+
+    def test_hidden_repo_excluded_from_resolution(self):
+        visible = self._repo_with_ai_toml("visible-repo")
+        hidden = self._repo_with_ai_toml("hidden-repo")
+        orchard_registry.register_repo(visible)
+        orchard_registry.register_repo(hidden)
+        orchard_registry.hide_repo(hidden)
+
+        with mock.patch.object(sidebar_model, "_current_repo", return_value=None):
+            resolved = sidebar_model.resolve_repos()
+
+        self.assertEqual(resolved, [visible])
+        self.assertNotIn(hidden, resolved)
+
+    def test_hiding_the_only_registered_repo_resolves_empty_not_forced_fallback(self):
+        # a registry with entries, all hidden, must resolve to [] -- hiding
+        # the sidebar's only repo must actually hide it, never fall back to
+        # showing the current repo anyway as if the registry were empty.
+        only = self._repo_with_ai_toml("only-repo")
+        orchard_registry.register_repo(only)
+        orchard_registry.hide_repo(only)
+
+        with mock.patch.object(sidebar_model, "_current_repo", return_value=only):
+            resolved = sidebar_model.resolve_repos()
+
+        self.assertEqual(resolved, [])
+
+    def test_empty_registry_and_no_current_repo_resolves_empty(self):
+        with mock.patch.object(sidebar_model, "_current_repo", return_value=None):
+            resolved = sidebar_model.resolve_repos()
+        self.assertEqual(resolved, [])
+
+    def test_explicit_repolist_argument_bypasses_registry_entirely(self):
+        # the pre-existing explicit-argument contract (used by every other
+        # test in this module) must still short-circuit before any registry
+        # or current-repo lookup happens.
+        with mock.patch.object(sidebar_model, "_current_repo", return_value="/should-not-be-used"):
+            resolved = sidebar_model.resolve_repos(["/explicit/repo"])
+        self.assertEqual(resolved, ["/explicit/repo"])
+
+
+class ResolveReposEnvOverrideTests(unittest.TestCase):
+    """ORCHIDS_SIDEBAR_REPOS survives as an explicit, optional override
+    (architect HOW decision) — when set, it is read verbatim and the
+    registry/current-repo path is never consulted."""
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        # point REGISTRY_PATH somewhere private too, so if the override
+        # accidentally fell through to the registry this test would fail
+        # loudly rather than touching the real file.
+        self._registry_patch = mock.patch.object(
+            orchard_registry, "REGISTRY_PATH", Path(self._tmp.name) / "unused-registry.json",
+        )
+        self._registry_patch.start()
+        self.addCleanup(self._registry_patch.stop)
+
+    def test_env_var_repolist_file_read_verbatim(self):
+        repolist_file = Path(self._tmp.name) / "manual-repolist"
+        repolist_file.write_text("/manual/repo-a\n# a comment\n\n/manual/repo-b\n",
+                                  encoding="utf-8")
+
+        with mock.patch.dict(os.environ, {"ORCHIDS_SIDEBAR_REPOS": str(repolist_file)}):
+            with mock.patch.object(sidebar_model, "_current_repo",
+                                    return_value="/should-not-be-used"):
+                resolved = sidebar_model.resolve_repos()
+
+        self.assertEqual(resolved, ["/manual/repo-a", "/manual/repo-b"])
+
+    def test_env_var_set_but_file_missing_resolves_empty(self):
+        missing = Path(self._tmp.name) / "does-not-exist"
+        with mock.patch.dict(os.environ, {"ORCHIDS_SIDEBAR_REPOS": str(missing)}):
+            resolved = sidebar_model.resolve_repos()
+        self.assertEqual(resolved, [])
 
 
 if __name__ == "__main__":
