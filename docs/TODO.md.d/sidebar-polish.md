@@ -70,6 +70,12 @@ The operator's itemized list, verbatim in substance:
     background GRADIENT rendered with half-block cells (▀▄), in the
     traditional orchid colour (the classic orchid #DA70D6 family) — except
     PAUSED projects, which render a very light gray instead of the gradient.
+    Technique (operator, 2026-07-22): a half VERTICAL cell whose foreground
+    and background step darker/lighter along the gradient direction, text
+    drawn on top; a reference implementation exists in the seb.house
+    repository (believed near the tmux/vt tooling, e.g.
+    `~/src/serialseb/seb.house/deb/pi/vt/`) — reuse its approach but NOT
+    animated.
 11. **Title derivation is inconsistent** (bug): observed "claude" as the
     main title followed by the project name, and elsewhere the repo followed
     by the project name and a subtitle — no discernible logic. Define ONE
@@ -77,6 +83,13 @@ The operator's itemized list, verbatim in substance:
     title = the feature/project human name, subtitle = current activity;
     the program name ("claude") NEVER appears; a session with no announced
     name yet shows the repo name dimmed until its announce lands.
+    SCOPE LIMIT (operator, 2026-07-22): the title scheme applies ONLY to
+    orchid-managed tabs/windows — the operator keeps separate personal tabs
+    that this change must never touch.
+    GRAMMAR (operator, 2026-07-22): deriving the human name from a task id
+    is a GRAMMATICAL conversion, not a mechanical dash-to-space: e.g.
+    `field-projecting` renders as "field projection" — gerund ids become
+    natural noun phrases wherever titles are displayed.
 
 ## Testing
 
