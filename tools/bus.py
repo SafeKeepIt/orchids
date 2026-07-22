@@ -478,8 +478,15 @@ def _question_envelope(sender: str, to: str, question_id: str, question: str,
     title/summary/multi follow the envelope's existing convention: present
     only when set, so a plain single-select ask (the unchanged default) adds
     no new fields to the wire format at all.
+
+    The activity text itself is the exact wording pinned by the operator for
+    item 12(e)'s passive deferral notice — "I have a question: <subject>…" —
+    using `title` as the subject when one was given, else the raw question
+    text, always followed by a single literal ellipsis and nothing else.
     """
-    env = make_envelope(sender, to, body=f"orchid:activity:{question}", notify_user=True)
+    subject = title or question
+    body = f"orchid:activity:I have a question: {subject}…"
+    env = make_envelope(sender, to, body=body, notify_user=True)
     env["question_id"] = question_id
     env["question"] = question
     env["options"] = options

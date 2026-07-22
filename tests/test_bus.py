@@ -203,7 +203,17 @@ class QuestionEnvelopeUnitTests(unittest.TestCase):
     def test_carries_notify_user_and_activity_body_for_the_existing_sidebar_signal(self):
         env = bus._question_envelope("askerX", "peerA", "q1", "Proceed?", ["Yes", "No"])
         self.assertTrue(env["notify_user"])
-        self.assertEqual(env["body"], "orchid:activity:Proceed?")
+        self.assertEqual(env["body"], "orchid:activity:I have a question: Proceed?…")
+
+    def test_activity_body_uses_title_as_subject_when_given(self):
+        env = bus._question_envelope(
+            "askerX", "peerA", "q1", "Proceed?", ["Yes", "No"], title="Deploy gate",
+        )
+        self.assertEqual(env["body"], "orchid:activity:I have a question: Deploy gate…")
+
+    def test_activity_body_falls_back_to_question_text_without_a_title(self):
+        env = bus._question_envelope("askerX", "peerA", "q1", "Ship it?", ["Yes", "No"])
+        self.assertEqual(env["body"], "orchid:activity:I have a question: Ship it?…")
 
     def test_carries_question_fields(self):
         env = bus._question_envelope("askerX", "peerA", "q1", "Proceed?", ["Yes", "No"])
@@ -318,7 +328,7 @@ class AskCliRoundTripTests(unittest.TestCase):
             self.assertTrue(received["notify_user"])
             self.assertEqual(received["question"], "Proceed?")
             self.assertEqual(received["options"], ["Yes", "No"])
-            self.assertEqual(received["body"], "orchid:activity:Proceed?")
+            self.assertEqual(received["body"], "orchid:activity:I have a question: Proceed?…")
 
             # the "broker" (standing in for tools/orchard-question-broker.py)
             # answers directly over the bus, exactly like it would after a
