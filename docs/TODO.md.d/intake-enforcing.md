@@ -44,7 +44,10 @@
    agent-restricted deny the native permission syntax cannot express
    (frontmatter has only whole-tool removal; settings denies are
    session-wide). The spawn-time worktree settings.local deny stays as the
-   second wall.
+   second wall — and carries the operator's third
+   (2026-07-22): `"deny": ["Agent(bloomer)","Agent(housekeeper)"]` in the
+   architect worktree, so the hook's agent_type exemptions cannot be
+   laundered by spawning a board-privileged subagent.
 3. Agent defs reference the message type as the ONLY intake path (the
    ledger rule of 2026-07-22 feeds it at close).
 

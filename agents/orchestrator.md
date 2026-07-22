@@ -164,10 +164,12 @@ On an explicit go for feature X:
    git worktree add .claude/worktrees/<id> -b f/<id> main
    printf '%s\n%s\n' "$orch" "${TMUX%%,*}" > .claude/worktrees/<id>/.return-window  # pane + tmux socket
    mkdir -p .claude/worktrees/<id>/.claude && printf '%s\n' \
-     '{"permissions":{"deny":["Edit(docs/TODO.md)","Write(docs/TODO.md)"]}}' \
+     '{"permissions":{"deny":["Edit(docs/TODO.md)","Write(docs/TODO.md)","Agent(bloomer)","Agent(housekeeper)"]}}' \
      > .claude/worktrees/<id>/.claude/settings.local.json   # Decision-069: the board index is
-   # DENIED to the architect by permission, not prose; the sidecar-scoped guard hook ships
-   # with the intake-enforcing build
+   # DENIED to the architect by permission, not prose — and the board-privileged agent
+   # types are UNSUMMONABLE from its worktree (operator's Agent(<type>) deny), so the
+   # guard hook's agent_type exemption cannot be laundered through a spawned subagent;
+   # the sidecar-scoped guard hook ships with the intake-enforcing build
    win=$(tmux new-window -P -F '#{window_id}' -n "orchids ▸ $name" -c .claude/worktrees/<id> \
      "ORCHID_PARENT_SESSION=$CLAUDE_CODE_SESSION_ID claude --agent architect --name \"orchids ▸ $name\" 'Boot: read your sidecar and begin discovery.'")
    tmux set-window-option -t "$win" automatic-rename off  # window shows the session name, not the program
