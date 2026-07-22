@@ -15,9 +15,10 @@
   mean: 'ensure_labels'?` at `tools/board_gh.py` line 432 in `pull()` —
   the issues-event path calls the singular name; the tags-and-labels build
   shipped the plural. Same signature across all six runs.
-- Delivery: fold the one-line fix into the ACTIVE field-projecting build
-  (same file — avoids a later merge conflict), or fix right after its
-  close? Operator to pick.
+- ~~Delivery?~~ RULED (operator, 2026-07-22): option 1 — delegated to the
+  ACTIVE [[field-projecting]] build (it owns board_gh.py; relayed
+  operator-origin with the green issues-run test added). This task closes
+  with that build's merge.
 
 ## Findings
 
