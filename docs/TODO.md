@@ -91,6 +91,7 @@ Badge: `type · status · urgency · readiness · area · gh#`.
 - `feature · todo · nice-to-have · queued · process ·` [Bus recycling: a deep bus warns its host and hands over to a fresh one](TODO.md.d/bus-recycling.md) ~bus-singleton ~message-bus
 - `housekeeping · todo · idea · queued · process ·` [Fleet documenting: agent wiki pages; channels with JSON Schemas](TODO.md.d/fleet-documenting.md) ~message-bus ~operator-interacting ~digest-identity
 - `bug · todo · critical · plan-ready · process ·` [Window closing owning: agents close themselves; a listener kills at five](TODO.md.d/window-closing-owning.md) ~sidebar-polish ~bus-singleton ~agent-closing
+- `feature · todo · critical · plan-ready · process ·` [Intake enforcing: typed requests in, board writes denied](TODO.md.d/intake-enforcing.md) ~message-bus ~bus-singleton ~fleet-documenting
 - `feature · todo · · blocked-on-answers · process ·` [Operator interacting: questions, gates and summaries as one typed exchange](TODO.md.d/operator-interacting.md) ~message-bus ~sidebar-polish ~hook-choreography
 - `feature · todo · · blocked-on-answers · process ·` [Step recording: one authored record, scripted projections](TODO.md.d/step-recording.md) ~handover-contract
 - `feature · todo · nice-to-have · queued · process ·` [Keyword configuring: the gate-phrase table becomes configuration](TODO.md.d/keyword-configuring.md) ~operator-interacting

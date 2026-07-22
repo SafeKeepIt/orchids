@@ -1207,3 +1207,22 @@ orchestrator already holds all the information about every agent
 belongs where the knowledge is. Sibling of the bus-sidecar ownership
 pattern: one supervisor per orchestrator session, not a free-floating
 service.
+
+## [2026-07-22, evening] Decision-069: Board writes are denied to children by permission, and intake is a typed message
+#board #permissions #deny #intake #enforcement #bus #schema
+
+Operator ruling (2026-07-22): prose rules do not hold — "artificial
+intelligence is lazy" and will bypass any convention when writing a file
+looks more efficient. Therefore, mechanically:
+- A STANDARDIZED intake message type (request/response or one-way) carries
+  every bug/item/request from an agent to the orchestrator — structured
+  fields: orchard (repo), todo (task reference), subject text — schema'd
+  like the rest of the envelope (fleet-documenting's JSON-Schema family).
+- `docs/TODO.md` and `docs/TODO.md.d/` carry PERMISSION DENIALS for
+  non-orchestrator agents: the board index is hard-denied in each
+  architect worktree's local settings at spawn; sidecar writes are guarded
+  so an agent can write ONLY its own feature's sidecar (a hook carries the
+  carve-out a glob deny cannot express).
+Enforcement by architecture, never by instruction — the same family as
+Decisions 056 (token-holder aggregation) and the popup broker (script
+decides, agent cannot override).

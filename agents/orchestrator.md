@@ -163,6 +163,11 @@ On an explicit go for feature X:
    name=$(python3 .claude/tools/feature_name.py --id "$id")  # board short-title / sidecar H1 / mechanical fallback (sidebar-polish item 11)
    git worktree add .claude/worktrees/<id> -b f/<id> main
    printf '%s\n%s\n' "$orch" "${TMUX%%,*}" > .claude/worktrees/<id>/.return-window  # pane + tmux socket
+   mkdir -p .claude/worktrees/<id>/.claude && printf '%s\n' \
+     '{"permissions":{"deny":["Edit(docs/TODO.md)","Write(docs/TODO.md)"]}}' \
+     > .claude/worktrees/<id>/.claude/settings.local.json   # Decision-069: the board index is
+   # DENIED to the architect by permission, not prose; the sidecar-scoped guard hook ships
+   # with the intake-enforcing build
    win=$(tmux new-window -P -F '#{window_id}' -n "orchids ▸ $name" -c .claude/worktrees/<id> \
      "ORCHID_PARENT_SESSION=$CLAUDE_CODE_SESSION_ID claude --agent architect --name \"orchids ▸ $name\" 'Boot: read your sidecar and begin discovery.'")
    tmux set-window-option -t "$win" automatic-rename off  # window shows the session name, not the program
