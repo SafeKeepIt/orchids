@@ -119,6 +119,14 @@ The operator's itemized list, verbatim in substance:
         live. **Test requirement**: a LIVE round trip — an agent asks over
         the bus, the popup renders wherever the operator is, the answer
         arrives back at the asker.
+    (d) **Keypress handling REFINED** (operator via orchestrator,
+        2026-07-22, operator-origin relay, req 3fac9e73f53b): the popup
+        responds ONLY to its defined option keys and IGNORES every other
+        keypress — no default selection, no dismiss-on-any-key, no timeout
+        auto-pick. Rationale: questions often arrive while the operator is
+        mid-typing; stray in-flight keystrokes must bounce off harmlessly,
+        never count as an answer. **Test requirement**: feed non-option
+        keys first, then an option key — only the option key registers.
 10. **Project header rendering**: the project title centered over a
     background GRADIENT rendered with half-block cells (▀▄), in the
     traditional orchid colour (the classic orchid #DA70D6 family) — except
