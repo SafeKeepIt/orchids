@@ -65,10 +65,23 @@ The operator's itemized list, verbatim in substance:
    - **done** ✅;
    - **awaiting another agent** — distinct glyph in very light gray to read
      as "not started yet"; proposed 🪷 (a closed bloom, dim) or 💤.
+10. **Project header rendering**: the project title centered over a
+    background GRADIENT rendered with half-block cells (▀▄), in the
+    traditional orchid colour (the classic orchid #DA70D6 family) — except
+    PAUSED projects, which render a very light gray instead of the gradient.
+11. **Title derivation is inconsistent** (bug): observed "claude" as the
+    main title followed by the project name, and elsewhere the repo followed
+    by the project name and a subtitle — no discernible logic. Define ONE
+    deterministic scheme and fix every announcing source. Proposal: main
+    title = the feature/project human name, subtitle = current activity;
+    the program name ("claude") NEVER appears; a session with no announced
+    name yet shows the repo name dimmed until its announce lands.
 
 ## Testing
 
 Operator visual pass on the live sidebar (the method that produced this list),
 plus unit coverage for the model changes: internal-row filtering, per-parent
-subagent aggregation, bus collapsing, truncation with ellipsis, and the
-three-plus-one status vocabulary including the 5s waiting threshold.
+subagent aggregation, bus collapsing, truncation with ellipsis, the
+three-plus-one status vocabulary including the 5s waiting threshold, the
+paused-project gray vs orchid-gradient header path, and the deterministic
+title scheme (never the program name; dimmed repo name pre-announce).
