@@ -18,7 +18,13 @@
   it and see if it works"): the broker is a SCRIPT, not an agent — a
   question message on the bus triggers a token-free tool drawing a native
   tmux popup (numbered options) over the operator's CURRENT window; the
-  keypress returns over the bus to the asker. Subagents have no harness-UI
+  keypress returns over the bus to the asker.
+  INPUT RULE (operator, 2026-07-22, after the live demo landed mid-typing):
+  the popup responds ONLY to its defined option keys and IGNORES every
+  other keypress — no default pick, no dismiss-on-any-key — so a question
+  arriving while the operator is typing can never consume in-flight
+  keystrokes as an answer. This kills the operator's biggest frustration
+  with the harness dialogs (choices demanded mid-typing). Subagents have no harness-UI
   surface, so an agent broker would render via tmux anyway while paying
   tokens for zero judgment. First live trial ships with [[sidebar-polish]]
   item 12; this task generalises the envelope to gates and summaries once
