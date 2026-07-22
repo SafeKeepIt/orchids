@@ -9,7 +9,15 @@
 
 ## Questions
 
-- None yet — first the checker's reproduce (see Findings on log loss).
+- ~~Reproduce needed?~~ RESOLVED — six fresh failures 2026-07-22 (provoked
+  by field-projecting's live sync) were read by the wake-checker while the
+  logs lived: `NameError: name 'ensure_label' is not defined. Did you
+  mean: 'ensure_labels'?` at `tools/board_gh.py` line 432 in `pull()` —
+  the issues-event path calls the singular name; the tags-and-labels build
+  shipped the plural. Same signature across all six runs.
+- Delivery: fold the one-line fix into the ACTIVE field-projecting build
+  (same file — avoids a later merge conflict), or fix right after its
+  close? Operator to pick.
 
 ## Findings
 
@@ -27,10 +35,11 @@
 
 ## Proposal
 
-Make the ingest direction survive issue events again: reproduce with a test
-issue, find why the ingest step exits 1, fix it, and leave the sync
-green-on-both-directions. Fold in the two cheap deprecation cleanups if they
-prove related (or record them as separate follow-ups if not).
+Rename the call at `tools/board_gh.py:432` (`ensure_label` →
+`ensure_labels`, arguments per the plural's signature) so the
+issues-triggered ingest direction survives again. The two run-annotation
+deprecations (Node 20 on checkout@v4; `app-id` → `client-id` on the token
+mint) proved unrelated to the failure — separate cheap follow-ups if ever.
 
 ## Testing
 
