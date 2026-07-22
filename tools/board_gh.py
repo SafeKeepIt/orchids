@@ -551,6 +551,61 @@ def pull(board: Board):
           f"{closed_from_gh} closed-from-GitHub")
 
 
+# ---------- Decisions ----------
+
+DECISION_HEADING_RE = re.compile(
+    r"^## (?P<struck>~~)?\[.+?\] Decision-(?P<number>\d+): "
+    r"(?P<title>.+?)(?(struck)~~)$"
+)
+SUPERSEDED_RE = re.compile(r"^> Superseded by Decision-(\d+)\b")
+HASHTAG_RE = re.compile(r"#([\w-]+)")
+
+
+class DecisionEntry:
+    def __init__(self, number: str, title: str, struck: bool,
+                 superseded_by, hashtags: list, body: str):
+        self.number = number
+        self.title = title
+        self.struck = struck
+        self.superseded_by = superseded_by
+        self.hashtags = hashtags
+        self.body = body
+
+
+def _parse_decision_block(heading: re.Match, block_lines: list) -> DecisionEntry:
+    struck = heading["struck"] is not None
+    superseded_by = None
+    hashtags = []
+    for line in block_lines:
+        m = SUPERSEDED_RE.match(line)
+        if m:
+            superseded_by = m.group(1)
+        if line.startswith("#") and not hashtags:
+            hashtags = HASHTAG_RE.findall(line)
+    body = "\n".join(block_lines).strip("\n")
+    return DecisionEntry(
+        number=heading["number"], title=heading["title"], struck=struck,
+        superseded_by=superseded_by, hashtags=hashtags, body=body,
+    )
+
+
+def parse_decisions(path: Path) -> list:
+    lines = path.read_text().splitlines()
+    entries = []
+    heading, block = None, []
+    for line in lines:
+        m = DECISION_HEADING_RE.match(line)
+        if m:
+            if heading is not None:
+                entries.append(_parse_decision_block(heading, block))
+            heading, block = m, []
+        elif heading is not None:
+            block.append(line)
+    if heading is not None:
+        entries.append(_parse_decision_block(heading, block))
+    return entries
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("verb", choices=["push", "pull"])
