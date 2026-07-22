@@ -7,6 +7,12 @@
 
 ## Questions
 
+- ~~Scope of what becomes a link?~~ RULED (operator, 2026-07-22):
+  EVERYTHING linkable in the repo's markdown gets correct markdown link
+  syntax — document and line links, decisions, tasks, sidecars — bare-name
+  mentions are the defect. ("Anything markdown needs to use the correct
+  markdown syntax for anything that can be linked; it is not right now.")
+
 - Anchor form for decisions.md entries: GitHub heading anchors (stable but unwieldy —
   the timestamp is in the heading) vs `?plain=1#L<n>` line links (precise; stable in
   an append-only file, but GitHub-web-specific and dead in editors)?

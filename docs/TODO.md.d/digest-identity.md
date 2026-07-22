@@ -24,6 +24,18 @@
 
 ## Findings
 
+- Wiki state verified live (2026-07-22, orchestrator, operator-sanctioned):
+  the wiki EXISTS, is initialized (Home + one page, "Initial Home page"
+  commits), and is writable with the operator's local credentials — the
+  routine's 403 is purely a CREDENTIAL limitation of the cloud session's
+  GitHub grant, not initialization or enablement (has_wiki true).
+- Destination hard fact: GitHub wikis accept pushes only from USER
+  credentials — GitHub App installation tokens (callabloom) and Actions'
+  GITHUB_TOKEN cannot push wiki repos. A wiki destination therefore
+  requires a machine-user account + PAT (creation is web-only, operator
+  action), and is INCOMPATIBLE with the callabloom-only identity goal;
+  PR delivery works with every credential.
+
 - The 2026-07-21 digest (PR #60, opened 2026-07-22T00:11:57Z) was
   published under the operator's own GitHub grant: PR author `serialseb`,
   commit 8fc7c2d author "Claude". The scheduled claude.ai routine pushes
