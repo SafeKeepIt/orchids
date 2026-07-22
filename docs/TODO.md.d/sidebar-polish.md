@@ -228,6 +228,17 @@ The operator's itemized list, verbatim in substance:
     mechanical hyphen-to-space derivation ONLY when no sidecar/short-title
     exists yet (pre-intake stub) — no grammar-conversion code is built.
 
+    BUILD NOTE (architect, 2026-07-22): the "repo name dimmed until
+    announce lands" case and item 2's "hide the bare session-UUID row" case
+    are, in the current data model, the same transient state (a session
+    with no `name`/`feature_id` yet, whose id looks like a bare UUID) —
+    they cannot be told apart without adding a grace-timer that isn't
+    otherwise specified. Left as: such rows stay invisible for that
+    (millisecond-scale) pre-announce window rather than rendering a dimmed
+    placeholder, matching item 2's tested, already-shipped behavior. Not
+    pursuing further disambiguation absent a concrete complaint that this
+    window is actually visible/annoying in practice.
+
 ## Testing
 
 Operator visual pass on the live sidebar (the method that produced this list),
