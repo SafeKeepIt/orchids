@@ -42,10 +42,34 @@ Usage:
   bus.py signal --state S --on-behalf-of ID     same, but `from` is ID, not the caller —
                                                 orchestrator-only, for signaling a
                                                 killed agent's own terminal state
-  bus.py ask --question Q --option A --option B [...]
-                                                broadcast a question (sidebar-polish item 12);
-                                                blocks until an answer addressed back to this
-                                                session arrives, then prints it and exits
+  bus.py ask --question Q --option A --option B [...] [--multi]
+             [--title T] [--summary S]
+                                                broadcast a question (sidebar-polish item 12,
+                                                round 2 UX in item 12g); blocks until an answer
+                                                addressed back to this session arrives, then
+                                                prints ONE JSON object to stdout and exits.
+
+                                                This is a THREE-WAY outcome (four-way with
+                                                --multi) — the caller MUST branch on which key
+                                                is present, never assume a single shape:
+                                                  {"index": N, "option": "..."}
+                                                      single-select (default): this option chosen
+                                                  {"indices": [...], "options": [...]}
+                                                      --multi: this set chosen, Enter-confirmed
+                                                  {"continue": true}
+                                                      operator pressed Escape — this means "keep
+                                                      discussing before deciding", NOT declined
+                                                      or cancelled; treat as pause-and-keep-talking
+                                                  {"gate": "MAKE IT SO" | "THAT IS ALL"}
+                                                      operator typed one of the two always-
+                                                      available gate phrases, bypassing the
+                                                      specific question entirely
+
+                                                --multi: digits TOGGLE membership instead of
+                                                committing instantly; Enter confirms. Default
+                                                (no --multi) is unchanged: instant-on-digit.
+                                                --title/--summary: optional short framing shown
+                                                prominently above the question in the popup.
   bus.py root                                  print the bus root
 """
 import argparse
@@ -436,9 +460,10 @@ def cmd_signal(args) -> None:
 
 
 def _question_envelope(sender: str, to: str, question_id: str, question: str,
-                        options: list[str]) -> dict:
+                        options: list[str], *, title: str | None = None,
+                        summary: str | None = None, multi: bool = False) -> dict:
     """The envelope a `bus.py ask` broadcast puts in every peer's inbox
-    (sidebar-polish item 12c).
+    (sidebar-polish item 12c; title/summary/multi added round 2, item 12g).
 
     `body` stays the existing `orchid:activity:<text>` string with
     `notify_user=True` — the SAME signal tools/sidebar_model.py's
@@ -449,11 +474,21 @@ def _question_envelope(sender: str, to: str, question_id: str, question: str,
     them, so this is the SAME message doing double duty, not two messages.
     A reply is matched purely on the existing `in_reply_to` field (see
     _match_answer) — no new field is needed on the answer side.
+
+    title/summary/multi follow the envelope's existing convention: present
+    only when set, so a plain single-select ask (the unchanged default) adds
+    no new fields to the wire format at all.
     """
     env = make_envelope(sender, to, body=f"orchid:activity:{question}", notify_user=True)
     env["question_id"] = question_id
     env["question"] = question
     env["options"] = options
+    if title:
+        env["title"] = title
+    if summary:
+        env["summary"] = summary
+    if multi:
+        env["multi"] = True
     return env
 
 
@@ -500,7 +535,9 @@ def cmd_ask(args) -> None:
         sys.exit("bus: ask requires at least two --option values")
     question_id = uuid.uuid4().hex[:12]
     reached = fan_out(
-        me, lambda to: _question_envelope(me, to, question_id, args.question, args.option),
+        me, lambda to: _question_envelope(me, to, question_id, args.question, args.option,
+                                           title=args.title, summary=args.summary,
+                                           multi=args.multi),
     )
     if reached == 0:
         sys.exit("bus: ask — no peers on the bus to broadcast the question to")
@@ -575,6 +612,17 @@ def main() -> None:
     s.add_argument("--option", dest="option", action="append", required=True,
                    help="an answer choice, numbered by the order given; repeat "
                         "for each option (at least two required)")
+    s.add_argument("--multi", action="store_true",
+                   help="multi-select: digits TOGGLE membership instead of "
+                        "committing instantly, Enter confirms the current "
+                        "selection; answer becomes "
+                        '{"indices": [...], "options": [...]}. Default '
+                        "(unset) is single-select, unchanged: instant-on-digit, "
+                        '{"index": N, "option": "..."}')
+    s.add_argument("--title", help="short title shown prominently above the "
+                                    "question in the popup (optional)")
+    s.add_argument("--summary", help="short summary of what the decision is "
+                                      "about, shown below the title (optional)")
     s.add_argument("--poll-interval", dest="poll_interval", type=float, default=1.0,
                    help="seconds between checks for the answer while blocked "
                         "(default 1.0) — polling cadence only, not a timeout: "

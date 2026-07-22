@@ -216,6 +216,29 @@ class QuestionEnvelopeUnitTests(unittest.TestCase):
         env = bus._question_envelope("askerX", "peerA", "q1", "Proceed?", ["Yes", "No"])
         jsonschema.validate(instance=env, schema=_schema())
 
+    def test_title_summary_multi_carried_when_given(self):
+        env = bus._question_envelope(
+            "askerX", "peerA", "q1", "Proceed?", ["Yes", "No"],
+            title="Deploy gate", summary="Ship now or wait.", multi=True,
+        )
+        self.assertEqual(env["title"], "Deploy gate")
+        self.assertEqual(env["summary"], "Ship now or wait.")
+        self.assertTrue(env["multi"])
+
+    def test_title_summary_multi_absent_by_default(self):
+        env = bus._question_envelope("askerX", "peerA", "q1", "Proceed?", ["Yes", "No"])
+        self.assertNotIn("title", env)
+        self.assertNotIn("summary", env)
+        self.assertNotIn("multi", env)
+
+    @unittest.skipIf(jsonschema is None, "jsonschema not installed")
+    def test_question_envelope_with_title_summary_multi_validates_against_schema(self):
+        env = bus._question_envelope(
+            "askerX", "peerA", "q1", "Proceed?", ["Yes", "No"],
+            title="Deploy gate", summary="Ship now or wait.", multi=True,
+        )
+        jsonschema.validate(instance=env, schema=_schema())
+
 
 class MatchAnswerUnitTests(unittest.TestCase):
     """Unit-level: _match_answer() — consumes only the matching reply,
@@ -321,6 +344,79 @@ class AskCliRoundTripTests(unittest.TestCase):
         )
         self.assertNotEqual(proc.returncode, 0)
         self.assertIn("at least two", proc.stderr)
+
+    def _round_trip(self, extra_ask_args, reply_body, session_id):
+        """Shared CLI round trip: broadcast, a stand-in broker answers
+        directly over the bus (exactly like the real popup would after
+        returning a keypress), `ask` prints whatever body it received."""
+        self._bus("init", "peerA", session_id="peerA")
+        proc = subprocess.Popen(
+            [sys.executable, _BUS_PY, "ask", "--question", "Proceed?",
+             "--option", "Yes", "--option", "No", "--poll-interval", "0.05",
+             *extra_ask_args],
+            cwd=self.repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+            env=dict(os.environ, CLAUDE_CODE_SESSION_ID=session_id),
+        )
+        try:
+            deadline = time.time() + 5
+            question_id = None
+            received = None
+            while time.time() < deadline and question_id is None:
+                out = self._bus("receive", "peerA", session_id="peerA")
+                messages = json.loads(out.stdout)
+                for m in messages:
+                    if m.get("question_id"):
+                        question_id = m["question_id"]
+                        received = m
+                if question_id is None:
+                    time.sleep(0.05)
+            self.assertIsNotNone(question_id, "ask() never broadcast a question")
+
+            self._bus(
+                "send", "--from", "question-broker", "--to", session_id,
+                "--in-reply-to", question_id, "--body", reply_body,
+            )
+            stdout, stderr = proc.communicate(timeout=5)
+        finally:
+            if proc.poll() is None:
+                proc.kill()
+                proc.communicate()
+        self.assertEqual(proc.returncode, 0, stderr)
+        return received, json.loads(stdout)
+
+    def test_ask_multi_flag_broadcasts_multi_true_and_prints_indices_shape(self):
+        received, answer = self._round_trip(
+            ["--multi"], '{"indices": [0, 1], "options": ["Yes", "No"]}', "askerMulti",
+        )
+        self.assertTrue(received["multi"])
+        self.assertEqual(answer, {"indices": [0, 1], "options": ["Yes", "No"]})
+
+    def test_ask_without_multi_omits_multi_field(self):
+        received, answer = self._round_trip(
+            [], '{"index": 1, "option": "No"}', "askerSingle",
+        )
+        self.assertNotIn("multi", received)
+        self.assertEqual(answer, {"index": 1, "option": "No"})
+
+    def test_ask_title_and_summary_broadcast_through(self):
+        received, _answer = self._round_trip(
+            ["--title", "Deploy gate", "--summary", "Ship now or wait."],
+            '{"index": 0, "option": "Yes"}', "askerTitled",
+        )
+        self.assertEqual(received["title"], "Deploy gate")
+        self.assertEqual(received["summary"], "Ship now or wait.")
+
+    def test_ask_continue_outcome_prints_continue_sentinel(self):
+        _received, answer = self._round_trip(
+            [], '{"continue": true}', "askerEscape",
+        )
+        self.assertEqual(answer, {"continue": True})
+
+    def test_ask_gate_outcome_prints_gate_phrase(self):
+        _received, answer = self._round_trip(
+            [], '{"gate": "MAKE IT SO"}', "askerGate",
+        )
+        self.assertEqual(answer, {"gate": "MAKE IT SO"})
 
 
 if __name__ == "__main__":

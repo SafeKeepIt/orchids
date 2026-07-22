@@ -65,6 +65,42 @@ BROKER_SENDER = "question-broker"
 DEFAULT_POLL_SECONDS = 1.0
 DEFAULT_IDLE_SECONDS = 5.0  # reuses item 9's "~5s" waiting threshold convention
 
+# Item 12g: always-available gate keywords — recognised regardless of the
+# specific question asked, closing the popup out with a distinct signal
+# instead of forcing the operator through the narrower question first.
+GATE_PHRASES = ("MAKE IT SO", "THAT IS ALL")
+
+# Item 12g sizing: content-based popup dimensions, clamped to these bounds so
+# a tiny terminal never gets an off-screen popup and a huge one never gets an
+# absurdly stretched one. The upper bounds are further clamped at render time
+# against the real tmux window size (see _window_size/_render_popup).
+DEFAULT_MIN_WIDTH = 24
+DEFAULT_MAX_WIDTH = 120
+DEFAULT_MIN_HEIGHT = 8
+DEFAULT_MAX_HEIGHT = 40
+_POPUP_PADDING_W = 4  # left/right breathing room added to the longest line
+_POPUP_PADDING_H = 4  # top/bottom breathing room added to the line count
+
+# Item 12g colour: plain ANSI SGR (24-bit) — this is a standalone terminal
+# script run inside a tmux popup, not curses, so there are no colour pairs to
+# register. RGB values borrowed from tools/sidebar.py's ORCHID_PALETTE so the
+# popup reads as the same colour family as the rest of the fleet's UI.
+_ANSI_RESET = "\x1b[0m"
+_ANSI_BOLD = "\x1b[1m"
+
+
+def _fg(rgb: tuple[int, int, int]) -> str:
+    r, g, b = rgb
+    return f"\x1b[38;2;{r};{g};{b}m"
+
+
+_COLOR_TITLE = _fg((0xC7, 0x1F, 0xA0))     # magenta  (ORCHID_PALETTE "magenta")
+_COLOR_SUMMARY = _fg((0x9B, 0x59, 0xB6))   # purple   (ORCHID_PALETTE "purple")
+_COLOR_MODE = _fg((0xF5, 0xD6, 0x42))      # yellow   (ORCHID_PALETTE "yellow")
+_COLOR_QUESTION = _fg((0xF5, 0xF0, 0xF6))  # white    (ORCHID_PALETTE "white")
+_COLOR_OPTION = _fg((0x4A, 0x7B, 0xC8))    # blue     (ORCHID_PALETTE "blue")
+_COLOR_SELECTED = _fg((0x6A, 0xB0, 0x4F))  # green    (ORCHID_PALETTE "green")
+
 
 # --------------------------------------------------------------------------
 # Pure decision functions — unit-tested directly, no tty/tmux involved.
@@ -87,6 +123,135 @@ def match_option_key(key: str, num_options: int) -> int | None:
     if 1 <= n <= num_options:
         return n - 1
     return None
+
+
+def is_continue_key(key: str) -> bool:
+    """Item 12g point 3: Escape means "continue the conversation" — never a
+    refusal, never "no answer". The read loop below only ever reads one raw
+    byte at a time, so a bare ESC (0x1b) and the FIRST byte of any arrow-key
+    escape sequence are indistinguishable at this point — and since arrow-key
+    navigation isn't part of this design, that's fine: ANY ESC-prefixed byte
+    is treated identically, as "continue", without needing a peek/timeout
+    read to disambiguate."""
+    return key == "\x1b"
+
+
+def is_confirm_key(key: str) -> bool:
+    """Item 12g point 2: the multi-select confirm key. Enter, since it is
+    otherwise free once digits stop auto-committing in multi-select mode.
+    Raw tty mode can deliver either CR or LF depending on terminal, so both
+    are accepted."""
+    return key in ("\r", "\n")
+
+
+def toggle_selection(selected: set[int], idx: int) -> set[int]:
+    """Item 12g point 2: in multi-select mode, pressing a valid digit again
+    TOGGLES that option's membership rather than committing immediately."""
+    if idx in selected:
+        return selected - {idx}
+    return selected | {idx}
+
+
+def gate_phrase_match(buffer: str) -> str | None:
+    """Item 12g point 4: exact (case-insensitive, whitespace-trimmed) match
+    of a completed typed buffer against the two always-available gate
+    phrases. Returns the canonical phrase string, or None if `buffer` is
+    neither."""
+    normalized = buffer.strip().upper()
+    for phrase in GATE_PHRASES:
+        if normalized == phrase:
+            return phrase
+    return None
+
+
+def gate_phrase_could_complete(buffer: str) -> bool:
+    """True while `buffer` (case-insensitive) is still a viable PREFIX of at
+    least one gate phrase. The typed-buffer capture in _popup_read_main keeps
+    growing the buffer while this holds, and resets the instant it goes
+    False — a keystroke that can no longer lead to either phrase."""
+    normalized = buffer.strip().upper()
+    if not normalized:
+        return True
+    return any(phrase.startswith(normalized) for phrase in GATE_PHRASES)
+
+
+def gate_buffer_step(buffer: str, key: str) -> tuple[str, str | None]:
+    """One step of the typed-buffer gate-keyword state machine (item 12g
+    point 4 — the most novel piece of this step, so its exact mechanics live
+    entirely in this one pure, testable function):
+
+    The popup only reads single characters for normal option keys. To also
+    recognise the two multi-character gate phrases, starting to type a
+    LETTER begins capturing a line buffer (see the ch.isalpha() gate in
+    _popup_read_main — that trigger condition lives in the I/O loop, not
+    here, since it also depends on whether a buffer is already open).
+    Every subsequent keystroke is fed through this function:
+
+      - Enter (CR/LF) completes the buffer: if it exactly matches a gate
+        phrase (case-insensitively), that phrase is returned as the second
+        tuple element and the buffer resets to "". If it does NOT match,
+        the buffer still resets to "" (typed garbage is simply dropped —
+        the operator can start over), with no match.
+      - Any other keystroke is appended (case-folded) and kept ONLY if the
+        result is still a viable prefix of some gate phrase
+        (gate_phrase_could_complete); otherwise the buffer resets to ""
+        with no match.
+
+    Returns (new_buffer, matched_phrase_or_None). When new_buffer is ""
+    and matched is None, the caller (the I/O loop) is expected to
+    REPROCESS the same keystroke as if no buffer had been open — e.g. a
+    digit that broke the buffer still becomes a normal option keypress,
+    and a letter that broke it may start a fresh buffer of its own. This
+    is what keeps the gate-phrase capture from silently swallowing a key
+    meant for something else."""
+    if key in ("\r", "\n"):
+        return "", gate_phrase_match(buffer)
+    if key.isprintable():
+        candidate = (buffer + key).upper()
+        if gate_phrase_could_complete(candidate):
+            return candidate, None
+    return "", None
+
+
+def popup_content_lines(title: str | None, summary: str | None, question: str,
+                         options: list[str], multi: bool = False) -> list[str]:
+    """The exact (uncoloured) lines the popup renders, in order — shared by
+    the real renderer (_popup_read_main) and the sizing calculation
+    (compute_popup_size) so the two can never drift apart: whatever text is
+    actually shown is exactly what was sized for."""
+    lines: list[str] = []
+    if title:
+        lines.append(title)
+    if summary:
+        lines.append(summary)
+    lines.append(
+        "select any, Enter to confirm  (or type MAKE IT SO / THAT IS ALL, Esc to keep talking)"
+        if multi else
+        "press a number to choose  (or type MAKE IT SO / THAT IS ALL, Esc to keep talking)"
+    )
+    lines.append(question)
+    for i, opt in enumerate(options):
+        prefix = "[ ] " if multi else ""
+        lines.append(f"{prefix}{i + 1}. {opt}")
+    return lines
+
+
+def compute_popup_size(title: str | None, summary: str | None, question: str,
+                        options: list[str], multi: bool = False,
+                        min_width: int = DEFAULT_MIN_WIDTH, max_width: int = DEFAULT_MAX_WIDTH,
+                        min_height: int = DEFAULT_MIN_HEIGHT,
+                        max_height: int = DEFAULT_MAX_HEIGHT) -> tuple[int, int]:
+    """Item 12g point 7: size to the actual content, not a fixed fraction of
+    the screen. Width is the longest rendered line plus padding; height is
+    the line count plus padding; both are clamped to [min, max] so the popup
+    can never go off-screen on a tiny terminal nor balloon absurdly on a huge
+    one. `max_width`/`max_height` are expected to already reflect the real
+    terminal size when the caller has one available (see _render_popup)."""
+    lines = popup_content_lines(title, summary, question, options, multi)
+    longest = max((len(line) for line in lines), default=0)
+    width = max(min_width, min(max_width, longest + _POPUP_PADDING_W))
+    height = max(min_height, min(max_height, len(lines) + _POPUP_PADDING_H))
+    return width, height
 
 
 def is_operator_busy(now: float, last_submit_ts: float | None,
@@ -149,6 +314,9 @@ def pending_questions(bus_roots: list[Path], seen_ids: set[str]) -> list[dict]:
                     "options": env.get("options") or [],
                     "asker": env.get("from"),
                     "ts": env.get("ts") or "",
+                    "title": env.get("title"),
+                    "summary": env.get("summary"),
+                    "multi": bool(env.get("multi", False)),
                 }
     return sorted(found.values(), key=lambda q: q["ts"])
 
@@ -210,15 +378,69 @@ def _operator_current_window() -> str | None:
     return _run(["tmux", "display-message", "-p", "-t", best_session, "#{window_id}"]) or None
 
 
-def _popup_read_main(question: str, options: list[str], answer_file: str) -> None:
-    """Runs INSIDE the tmux popup: prints the question + numbered options,
-    then a raw-mode key reader that only exits on a valid option key (item
-    12d) — no default, no dismiss-on-any-key, no timeout."""
+def _popup_read_main(question: str, options: list[str], answer_file: str,
+                      title: str | None = None, summary: str | None = None,
+                      multi: bool = False) -> None:
+    """Runs INSIDE the tmux popup: prints the title/summary/question +
+    numbered options (coloured, item 12g point 6), then a raw-mode key
+    reader that exits on one of FOUR outcomes:
+
+      - a valid option key (single-select: instant, unchanged from before —
+        item 12d/12g point 1 echoes the digit back before returning)
+      - Enter in multi-select mode, confirming the toggled selection
+        (item 12g point 2)
+      - Escape, meaning "continue the conversation" (item 12g point 3)
+      - the typed gate phrase MAKE IT SO / THAT IS ALL, always available
+        regardless of the question's own options (item 12g point 4)
+
+    No default, no dismiss-on-any-other-key, no timeout — every keystroke
+    that is none of the above is ignored (or, for a gate-buffer keystroke
+    that breaks the prefix match, reprocessed fresh per gate_buffer_step's
+    contract) and the loop keeps reading.
+    """
     import termios
     import tty
 
-    numbered = "\r\n".join(f"{i + 1}. {opt}" for i, opt in enumerate(options))
-    sys.stdout.write(f"{question}\r\n\r\n{numbered}\r\n")
+    selected: set[int] = set()
+    gate_buffer = ""
+
+    def header_lines() -> str:
+        parts = []
+        if title:
+            parts.append(f"{_ANSI_BOLD}{_COLOR_TITLE}{title}{_ANSI_RESET}")
+        if summary:
+            parts.append(f"{_COLOR_SUMMARY}{summary}{_ANSI_RESET}")
+        mode_line = ("select any, Enter to confirm" if multi
+                     else "press a number to choose — instant")
+        parts.append(f"{_COLOR_MODE}{mode_line}  "
+                      f"(or type MAKE IT SO / THAT IS ALL, Esc to keep talking){_ANSI_RESET}")
+        parts.append(f"{_COLOR_QUESTION}{question}{_ANSI_RESET}")
+        return "\r\n".join(parts)
+
+    def option_lines() -> list[str]:
+        lines = []
+        for i, opt in enumerate(options):
+            is_sel = multi and i in selected
+            marker = "[x] " if is_sel else ("[ ] " if multi else "")
+            color = _COLOR_SELECTED if is_sel else _COLOR_OPTION
+            lines.append(f"{color}{marker}{i + 1}. {opt}{_ANSI_RESET}")
+        return lines
+
+    def redraw_options() -> None:
+        # Cursor sits just below the last option line (each was written
+        # ending in \r\n); move up over the whole block and rewrite it in
+        # place so a toggle updates its [x]/[ ] marker live (item 12g
+        # point 1) without disturbing the header above it.
+        sys.stdout.write(f"\x1b[{len(options)}A")
+        for line in option_lines():
+            sys.stdout.write("\x1b[2K" + line + "\r\n")
+        sys.stdout.flush()
+
+    def write_answer(payload: dict) -> None:
+        Path(answer_file).write_text(json.dumps(payload), encoding="utf-8")
+
+    sys.stdout.write(header_lines() + "\r\n\r\n")
+    sys.stdout.write("\r\n".join(option_lines()) + "\r\n")
     sys.stdout.flush()
 
     fd = sys.stdin.fileno()
@@ -235,14 +457,54 @@ def _popup_read_main(question: str, options: list[str], answer_file: str) -> Non
             # single option keypress registers immediately (item 12d).
             raw = os.read(fd, 1)
             ch = raw.decode("ascii", errors="ignore")
+
+            if is_continue_key(ch):
+                write_answer({"continue": True})
+                return
+
+            if gate_buffer:
+                new_buffer, matched = gate_buffer_step(gate_buffer, ch)
+                if matched:
+                    write_answer({"gate": matched})
+                    return
+                gate_buffer = new_buffer
+                if gate_buffer:
+                    sys.stdout.write(ch)
+                    sys.stdout.flush()
+                    continue
+                # buffer died without matching (or Enter completed it with no
+                # match) — fall through and reprocess this SAME keystroke as
+                # a fresh one below, per gate_buffer_step's contract: it is
+                # never silently swallowed.
+
+            if multi and is_confirm_key(ch):
+                write_answer({
+                    "indices": sorted(selected),
+                    "options": [options[i] for i in sorted(selected)],
+                })
+                return
+
             idx = match_option_key(ch, len(options))
             if idx is not None:
-                break
+                sys.stdout.write(ch)  # item 12g point 1: echo the keypress
+                sys.stdout.flush()
+                if multi:
+                    selected = toggle_selection(selected, idx)
+                    redraw_options()
+                    continue
+                write_answer({"index": idx, "option": options[idx]})
+                return
+
+            if ch.isalpha():
+                candidate = ch.upper()
+                if gate_phrase_could_complete(candidate):
+                    gate_buffer = candidate
+                    sys.stdout.write(ch)
+                    sys.stdout.flush()
+                # else: a letter that can't lead to either gate phrase —
+                # dead on arrival, ignored, same as any other unknown key.
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old)
-    Path(answer_file).write_text(
-        json.dumps({"index": idx, "option": options[idx]}), encoding="utf-8",
-    )
 
 
 def _shell_quote(s: str) -> str:
@@ -250,19 +512,53 @@ def _shell_quote(s: str) -> str:
     return shlex.quote(s)
 
 
-def _render_popup(window: str, question: str, options: list[str]) -> dict | None:
+def _window_size(window: str | None) -> tuple[int, int] | None:
+    """The tmux window's current cell dimensions (columns, rows) — used to
+    clamp the popup's content-based size (item 12g point 7) so it can never
+    exceed the real terminal, on top of the generic DEFAULT_MAX_* bounds."""
+    cmd = ["tmux", "display-message", "-p"]
+    if window:
+        cmd += ["-t", window]
+    cmd += ["#{window_width} #{window_height}"]
+    out = _run(cmd)
+    parts = out.split()
+    if len(parts) != 2 or not all(p.isdigit() for p in parts):
+        return None
+    return int(parts[0]), int(parts[1])
+
+
+def _render_popup(window: str, question: str, options: list[str],
+                   title: str | None = None, summary: str | None = None,
+                   multi: bool = False) -> dict | None:
     """Pops a native tmux popup over `window` (item 12c) running the inner
-    reader above; blocks until it exits (a valid key was read — the inner
-    reader itself never returns early), then reads the answer file it wrote.
+    reader above; blocks until it exits (a valid outcome was reached — the
+    inner reader itself never returns early), then reads the answer file it
+    wrote. Size is computed from the actual content (item 12g point 7), not
+    a fixed screen percentage, and clamped against the real window size when
+    it can be determined.
     """
+    win_size = _window_size(window)
+    max_w = DEFAULT_MAX_WIDTH if win_size is None else max(
+        DEFAULT_MIN_WIDTH, min(DEFAULT_MAX_WIDTH, win_size[0] - 2))
+    max_h = DEFAULT_MAX_HEIGHT if win_size is None else max(
+        DEFAULT_MIN_HEIGHT, min(DEFAULT_MAX_HEIGHT, win_size[1] - 2))
+    width, height = compute_popup_size(title, summary, question, options, multi,
+                                        max_width=max_w, max_height=max_h)
+
     answer_file = f"/tmp/.orchard-question-answer-{os.getpid()}-{int(time.time() * 1000)}.json"
     inner = [
         sys.executable, os.path.abspath(__file__), "_popup-read",
         "--question", question, "--answer-file", answer_file,
     ]
+    if title:
+        inner += ["--title", title]
+    if summary:
+        inner += ["--summary", summary]
+    if multi:
+        inner += ["--multi"]
     for opt in options:
         inner += ["--option", opt]
-    cmd = ["tmux", "display-popup", "-E"]
+    cmd = ["tmux", "display-popup", "-E", "-w", str(width), "-h", str(height)]
     if window:
         cmd += ["-t", window]
     cmd += ["-T", " orchid question ", " ".join(_shell_quote(c) for c in inner)]
@@ -281,7 +577,9 @@ def _render_popup(window: str, question: str, options: list[str]) -> dict | None
 
 def _handle_question(q: dict) -> None:
     window = _operator_current_window()
-    answer = _render_popup(window, q["question"] or "", q["options"])
+    answer = _render_popup(window, q["question"] or "", q["options"],
+                            title=q.get("title"), summary=q.get("summary"),
+                            multi=bool(q.get("multi", False)))
     if answer is None:
         return  # tmux/popup failed — leave the ❓ signal standing, no crash
     body = json.dumps(answer)
@@ -322,12 +620,16 @@ def main() -> None:
     r.add_argument("--question", required=True)
     r.add_argument("--option", dest="option", action="append", required=True)
     r.add_argument("--answer-file", required=True)
+    r.add_argument("--title")
+    r.add_argument("--summary")
+    r.add_argument("--multi", action="store_true")
 
     args = p.parse_args()
     if args.cmd == "watch":
         watch(args.poll_interval, args.idle_seconds)
     elif args.cmd == "_popup-read":
-        _popup_read_main(args.question, args.option, args.answer_file)
+        _popup_read_main(args.question, args.option, args.answer_file,
+                          title=args.title, summary=args.summary, multi=args.multi)
 
 
 if __name__ == "__main__":

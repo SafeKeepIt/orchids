@@ -160,6 +160,236 @@ class PendingQuestionsTests(unittest.TestCase):
 
         self.assertTrue((Path(self.bus_root) / "peerA" / "m1.json").exists())
 
+    def test_title_summary_multi_surfaced_when_present(self):
+        env = envelope("m1", "askerX", body="orchid:activity:Proceed?", notify_user=True)
+        env["question_id"] = "q1"
+        env["question"] = "Proceed?"
+        env["options"] = ["Yes", "No"]
+        env["title"] = "Deploy gate"
+        env["summary"] = "Ship the release now or wait."
+        env["multi"] = True
+        write_message(self.bus_root, "peerA", env)
+
+        found = broker.pending_questions([self.bus_root], seen_ids=set())
+
+        self.assertEqual(found[0]["title"], "Deploy gate")
+        self.assertEqual(found[0]["summary"], "Ship the release now or wait.")
+        self.assertTrue(found[0]["multi"])
+
+    def test_title_summary_absent_and_multi_false_by_default(self):
+        self._put("peerA", "m1", "askerX", "q1", "Proceed?", ["Yes", "No"])
+
+        found = broker.pending_questions([self.bus_root], seen_ids=set())
+
+        self.assertIsNone(found[0]["title"])
+        self.assertIsNone(found[0]["summary"])
+        self.assertFalse(found[0]["multi"])
+
+
+class IsContinueKeyTests(unittest.TestCase):
+    """Item 12g point 3: Escape (and, by construction of the single-byte
+    read loop, any ESC-prefixed sequence) means "continue the conversation",
+    never a refusal."""
+
+    def test_bare_escape_is_continue(self):
+        self.assertTrue(broker.is_continue_key("\x1b"))
+
+    def test_ordinary_keys_are_not_continue(self):
+        for key in ("1", "a", "\r", "\n", " ", ""):
+            self.assertFalse(broker.is_continue_key(key), f"key={key!r}")
+
+
+class IsConfirmKeyTests(unittest.TestCase):
+    """Item 12g point 2: Enter (CR or LF) is the multi-select confirm key."""
+
+    def test_cr_and_lf_are_confirm(self):
+        self.assertTrue(broker.is_confirm_key("\r"))
+        self.assertTrue(broker.is_confirm_key("\n"))
+
+    def test_other_keys_are_not_confirm(self):
+        for key in ("1", "a", "\x1b", " "):
+            self.assertFalse(broker.is_confirm_key(key), f"key={key!r}")
+
+
+class ToggleSelectionTests(unittest.TestCase):
+    """Item 12g point 2: multi-select digits TOGGLE membership."""
+
+    def test_toggling_an_unselected_index_selects_it(self):
+        self.assertEqual(broker.toggle_selection(set(), 0), {0})
+
+    def test_toggling_a_selected_index_deselects_it(self):
+        self.assertEqual(broker.toggle_selection({0, 2}, 0), {2})
+
+    def test_toggling_leaves_other_selections_untouched(self):
+        self.assertEqual(broker.toggle_selection({1}, 2), {1, 2})
+
+    def test_does_not_mutate_the_input_set(self):
+        original = {0}
+        broker.toggle_selection(original, 0)
+        self.assertEqual(original, {0})
+
+
+class GatePhraseMatchTests(unittest.TestCase):
+    """Item 12g point 4: exact, case-insensitive match of a completed typed
+    buffer against the two always-available gate phrases."""
+
+    def test_exact_uppercase_matches(self):
+        self.assertEqual(broker.gate_phrase_match("MAKE IT SO"), "MAKE IT SO")
+        self.assertEqual(broker.gate_phrase_match("THAT IS ALL"), "THAT IS ALL")
+
+    def test_case_insensitive_matches(self):
+        self.assertEqual(broker.gate_phrase_match("make it so"), "MAKE IT SO")
+        self.assertEqual(broker.gate_phrase_match("ThAt Is AlL"), "THAT IS ALL")
+
+    def test_surrounding_whitespace_is_trimmed(self):
+        self.assertEqual(broker.gate_phrase_match("  make it so  "), "MAKE IT SO")
+
+    def test_non_matching_buffer_does_not_false_trigger(self):
+        for buf in ("MAKE IT", "MAKE IT SOMETHING", "THAT IS", "", "hello"):
+            self.assertIsNone(broker.gate_phrase_match(buf), f"buf={buf!r}")
+
+
+class GatePhraseCouldCompleteTests(unittest.TestCase):
+    """Item 12g point 4: the typed-buffer capture keeps growing only while
+    still a viable prefix of one of the two phrases."""
+
+    def test_valid_partial_prefixes_could_complete(self):
+        for buf in ("M", "MA", "MAKE", "MAKE IT", "T", "THAT", "THAT IS"):
+            self.assertTrue(broker.gate_phrase_could_complete(buf), f"buf={buf!r}")
+
+    def test_case_insensitive(self):
+        self.assertTrue(broker.gate_phrase_could_complete("make"))
+
+    def test_a_broken_prefix_cannot_complete(self):
+        for buf in ("X", "MAKE ITX", "MAQ", "THAZ"):
+            self.assertFalse(broker.gate_phrase_could_complete(buf), f"buf={buf!r}")
+
+    def test_empty_buffer_could_complete(self):
+        self.assertTrue(broker.gate_phrase_could_complete(""))
+
+
+class GateBufferStepTests(unittest.TestCase):
+    """Item 12g point 4: the full typed-buffer state machine, one keystroke
+    at a time — case-insensitivity, partial-input-then-complete, a
+    non-matching phrase not false-triggering, and a broken buffer resetting
+    without swallowing the breaking keystroke (the caller reprocesses it)."""
+
+    def _type(self, buffer, keys):
+        matched = None
+        for key in keys:
+            buffer, matched = broker.gate_buffer_step(buffer, key)
+            if matched:
+                break
+        return buffer, matched
+
+    def test_typing_make_it_so_then_enter_matches(self):
+        buffer, matched = self._type("M", list("AKE IT SO") + ["\r"])
+        self.assertEqual(matched, "MAKE IT SO")
+        self.assertEqual(buffer, "")
+
+    def test_typing_that_is_all_then_enter_matches(self):
+        buffer, matched = self._type("T", list("HAT IS ALL") + ["\r"])
+        self.assertEqual(matched, "THAT IS ALL")
+
+    def test_lowercase_typing_still_matches(self):
+        buffer, matched = self._type("m", list("ake it so") + ["\r"])
+        self.assertEqual(matched, "MAKE IT SO")
+
+    def test_incomplete_phrase_then_enter_does_not_match_and_resets(self):
+        new_buffer, matched = broker.gate_buffer_step("MAKE IT", "\r")
+        self.assertIsNone(matched)
+        self.assertEqual(new_buffer, "")
+
+    def test_unrelated_text_then_enter_does_not_false_trigger(self):
+        buffer, matched = self._type("M", list("ake believe") + ["\r"])
+        self.assertIsNone(matched)
+
+    def test_a_keystroke_that_breaks_the_prefix_resets_the_buffer(self):
+        # "MAKE " is a valid prefix of "MAKE IT SO"; 'X' next breaks it
+        new_buffer, matched = broker.gate_buffer_step("MAKE ", "X")
+        self.assertEqual(new_buffer, "")
+        self.assertIsNone(matched)
+
+
+class PopupContentLinesTests(unittest.TestCase):
+    """Item 12g point 7: the exact lines rendered — shared with the sizing
+    calculation so the two can never drift apart."""
+
+    def test_includes_title_and_summary_when_given(self):
+        lines = broker.popup_content_lines("Deploy gate", "Ship now or wait.",
+                                            "Proceed?", ["Yes", "No"])
+        self.assertIn("Deploy gate", lines)
+        self.assertIn("Ship now or wait.", lines)
+
+    def test_omits_title_and_summary_when_absent(self):
+        lines = broker.popup_content_lines(None, None, "Proceed?", ["Yes", "No"])
+        self.assertNotIn("Deploy gate", lines)
+        self.assertEqual(sum(1 for l in lines if l == "Proceed?"), 1)
+
+    def test_multi_select_options_carry_a_checkbox_prefix(self):
+        lines = broker.popup_content_lines(None, None, "Proceed?", ["Yes", "No"], multi=True)
+        self.assertIn("[ ] 1. Yes", lines)
+        self.assertIn("[ ] 2. No", lines)
+
+    def test_single_select_options_have_no_checkbox_prefix(self):
+        lines = broker.popup_content_lines(None, None, "Proceed?", ["Yes", "No"], multi=False)
+        self.assertIn("1. Yes", lines)
+
+    def test_single_and_multi_mode_lines_are_visibly_different(self):
+        single = broker.popup_content_lines(None, None, "Proceed?", ["Yes", "No"], multi=False)
+        multi = broker.popup_content_lines(None, None, "Proceed?", ["Yes", "No"], multi=True)
+        self.assertNotEqual(single, multi)
+
+
+class ComputePopupSizeTests(unittest.TestCase):
+    """Item 12g point 7: content-based sizing, clamped to [min, max]."""
+
+    def test_width_fits_the_longest_line_plus_padding(self):
+        width, _height = broker.compute_popup_size(
+            None, None, "Proceed?", ["Yes", "No"],
+        )
+        longest = max(len(l) for l in
+                      broker.popup_content_lines(None, None, "Proceed?", ["Yes", "No"]))
+        self.assertEqual(width, longest + broker._POPUP_PADDING_W)
+
+    def test_height_fits_the_line_count_plus_padding(self):
+        _width, height = broker.compute_popup_size(
+            None, None, "Proceed?", ["Yes", "No"],
+        )
+        line_count = len(broker.popup_content_lines(None, None, "Proceed?", ["Yes", "No"]))
+        self.assertEqual(height, line_count + broker._POPUP_PADDING_H)
+
+    def test_width_is_clamped_to_the_minimum_for_short_content(self):
+        natural_width, _height = broker.compute_popup_size(None, None, "Hi?", ["A", "B"])
+        floor = natural_width + 20  # well above what the content itself needs
+
+        width, _height = broker.compute_popup_size(
+            None, None, "Hi?", ["A", "B"], min_width=floor,
+        )
+
+        self.assertEqual(width, floor)
+
+    def test_width_is_clamped_to_the_maximum_for_long_content(self):
+        long_option = "x" * 500
+        width, _height = broker.compute_popup_size(
+            None, None, "Proceed?", [long_option, "No"], max_width=80,
+        )
+        self.assertEqual(width, 80)
+
+    def test_height_is_clamped_to_the_maximum_for_many_options(self):
+        many_options = [f"option {i}" for i in range(100)]
+        _width, height = broker.compute_popup_size(
+            None, None, "Proceed?", many_options, max_height=30,
+        )
+        self.assertEqual(height, 30)
+
+    def test_title_and_summary_grow_the_computed_height(self):
+        _width, without = broker.compute_popup_size(None, None, "Proceed?", ["Yes", "No"])
+        _width, with_both = broker.compute_popup_size(
+            "Deploy gate", "Ship now or wait.", "Proceed?", ["Yes", "No"],
+        )
+        self.assertGreater(with_both, without)
+
 
 if __name__ == "__main__":
     unittest.main()
