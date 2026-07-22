@@ -83,7 +83,30 @@ _base: `f65ad36`_
 
 ### 🐛 Bug fixes
 
+- 🐛 Six fleet-sidebar defects fixed — above all, the sidebar now actually appears:
+  its tools were never delivered into `.claude/tools/`, so every mount had been
+  failing silently since the first build.
+
 ---
+
+#### 🐛 `f/sidebar-fixes` → `archive/sidebar-fixes`
+
+- The fleet sidebar now actually appears: it was never delivered into `.claude/tools/`, so
+  every mount attempt failed silently and no sidebar showed. The four sidebar tools are now
+  delivered like every other tool.
+- Selecting a sidebar row no longer lands on a blank leftover window when two windows share
+  a name — navigation prefers the live one.
+- The "waiting on operator" flash no longer stops early when an unrelated message arrives,
+  and no longer keeps flashing after a job has finished.
+- A repo with no active orchestrator now shows a distinct idle marker instead of a green
+  "running" dot.
+- A feature row is labelled from the name the agent announced, not a second re-derivation
+  that could drift from it.
+- Re-mounting the sidebar no longer risks a second sidebar pane when the pane title has been
+  changed by a status-glyph setter.
+
+_Board: `docs/TODO.md.d/sidebar-fixes.md` · Decisions 048/052 · follow-up round:
+`docs/TODO.md.d/sidebar-polish.md`_
 
 #### 🧭 `worktree-fleet-sidebar` → `archive/fleet-sidebar`
 

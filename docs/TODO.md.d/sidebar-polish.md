@@ -11,15 +11,11 @@
 
 ## Questions
 
-- Per-agent colors: match Claude Code's subagent palette (red/blue/green/
-  yellow/purple/orange/pink/cyan) — confirm terminal rendering fidelity is
-  acceptable in the sidebar's tmux pane before committing to exact hues.
-  CANNOT be resolved by code reading — no rendering test harness exists in
-  the sidebar tooling (`tools/sidebar.py`, `tools/sidebar_model.py` on
-  `f/sidebar-fixes`) and 256-color vs truecolor tmux fidelity is a visual
-  call. Recommendation: implement against the 8 named ANSI colors first
-  (portable everywhere); operator eyeballs the live pane and calls out any
-  hue that reads wrong once the sidebar-fixes build is mounted.
+- ~~Per-agent colors: which palette?~~ RULED (operator, 2026-07-22): build
+  against the **8 most popular orchid colours** — an orchid-species
+  palette (e.g. the whites, pinks, purples, magentas, yellows, oranges,
+  greens and blues orchids actually come in), NOT the ANSI set. Operator
+  eyeballs the live pane and corrects any hue that reads wrong.
 - ~~Bus singleton: design question?~~ RULED (operator, 2026-07-22,
   Decision-051): the bus sidecar is a singleton PER AGENT — exactly one
   each, duplicates/orphans are the defect, correctived in
@@ -27,19 +23,11 @@
   agent: top of the list, italic, greyed, 📬.
 - Emoji set for the status vocabulary (operator invites proposals; current
   proposal in the item below).
-- /orchard `add <path>`: what counts as "an orchids installation in
-  progress" at a path. CANNOT be resolved by code reading — no `/orchard`
-  command exists yet anywhere in the tree (checked `f/sidebar-fixes` and
-  main; only the design sidecars [[orchard]]/[[orchard-launch]]/
-  [[orchard-view]]/[[orchard-summary]] exist, no implementation file).
-  Confirmed from `.ai.toml` (kauk-managed, present at repo root): its
-  presence is the only unambiguous "installed" signal today — there is no
-  existing notion of a "partial manifest laydown" state to detect against.
-  Recommendation: `add <path>` reports "present" iff `<path>/.ai.toml`
-  exists, "not an orchids install" otherwise; defer any partial/in-progress
-  state to a later round once `orchard` itself ships and a real partial-
-  install case is observed. Needs operator confirmation before `add` is
-  built.
+- ~~/orchard `add <path>`: what counts as "an orchids installation"?~~
+  RULED (operator, 2026-07-22): `.ai.toml` presence is SUFFICIENT for now —
+  other repos will exist in the future, and richer detection is deferred to
+  the low-priority follow-up [[install-detecting]], blocked on the real
+  kauk CLI shipping.
 
 ## Findings
 
