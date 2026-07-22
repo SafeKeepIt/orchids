@@ -107,3 +107,8 @@ Badge: `type · status · urgency · readiness · area · gh#`.
 - `feature · todo · idea · queued · sync · gh#18` [Dynamic skill delivery per role](TODO.md.d/dynamic-skill-delivery.md)
 - `feature · todo · idea · queued · sync · gh#19` [Multi-source namespacing](TODO.md.d/multi-source-namespacing.md)
 - `feature · todo · idea · blocked-on-answers · sync · gh#20` [Agents: external dependencies beyond in-package skills](TODO.md.d/agent-external-deps.md) ~agents-first-class ~multi-source-namespacing
+- `feature · todo · · queued · · gh#93` [Decision-005: Roles declare as slash-path placements; `general` is explicit](TODO.md.d/decision-005-roles-declare-as-slash-path-placeme.md)
+- `feature · todo · · queued · · gh#92` [Decision-004: Agent dependencies — agent→agent edges are declared, in a `requirements:` map](TODO.md.d/decision-004-agent-dependencies-agent-agent-edge.md)
+- `feature · todo · · queued · · gh#91` [Decision-003: The orchids role vocabulary](TODO.md.d/decision-003-the-orchids-role-vocabulary.md)
+- `feature · todo · · queued · · gh#90` [Decision-002: Delivery is driven by a task-oriented role DAG declared in the definitions](TODO.md.d/decision-002-delivery-is-driven-by-a-task-orient.md)
+- `feature · todo · · queued · · gh#89` [Decision-001: History migration is an orchestrator charter, gated by the AGENTS.md `repository:` field](TODO.md.d/decision-001-history-migration-is-an-orchestrato.md)
