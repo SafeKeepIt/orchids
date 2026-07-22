@@ -59,17 +59,52 @@ The operator's itemized list, verbatim in substance:
    agents; duplicates never render.
 6. **Auto-mount**: the orchestrator mounts the sidebar the moment it first
    launches work — no manual mount step.
-7. **Commands**: `/orchard show|hide|add <path>`, where `add` detects whether
-   an orchids installation is actually present/in progress at the path.
+7. **Commands** — REVISED (operator via orchestrator, 2026-07-22,
+   operator-origin relay, req 23f58ec9d9f2): `/orchard add <path>` is
+   REVERTED, must not be built. Replaced by:
+   (a) **Dynamic appearance** — installing orchids in a repo (`.ai.toml`
+       presence remains the install signal) makes it appear immediately in
+       every mounted sidebar, no add command, no hand-kept
+       `ORCHIDS_SIDEBAR_REPOS` list; installation IS registration. Whether
+       that env var retires or survives as an override is an architect HOW
+       decision; the registry write may shim the stopgap kauk.
+   (b) **Hiding is conversational** — operator asks the orchestrator or any
+       agent to hide a repo; the agent presents a NUMBERED LIST of names as
+       displayed in the sidebar and asks which to hide; the pick hides
+       persistently across remounts. `/orchard hide <displayed-name>` may
+       exist as a direct form; `show` re-lists hidden repos the same
+       numbered way.
 8. **Ellipsis before clipping**: truncated row text (e.g. "agent-closing
    Done, awaiting…") shows an ellipsis, never a hard cut.
-9. **Status vocabulary**, exactly three live states plus one parked state:
+9. **Status vocabulary** — REVISED (operator, 2026-07-22, direct): the
+   "exactly three live plus one parked" framing was wrong; done and failed
+   must never share a glyph ("can't put green for fail, same as you can't
+   have green and green at a traffic light"), and idle is not the same
+   thing as awaiting. Final six-state vocabulary, all static/fixed-width,
+   no animation (per item 1):
    - **working** 🚧 — the agent has active subagents or is working itself;
-   - **waiting** — an external component is taking time (threshold ~5s);
-     proposed glyph ⏱️ (static, fixed-width — no animation per item 1);
-   - **done** ✅;
-   - **awaiting another agent** — distinct glyph in very light gray to read
-     as "not started yet"; proposed 🪷 (a closed bloom, dim) or 💤.
+   - **waiting** ⌚ (a watch, operator-corrected from the earlier ⏱️
+     proposal) — an external component is taking time (threshold ~5s); ❓
+     variant specifically when the wait is on the operator (item 12a);
+   - **idle** ⚪ (existing glyph, reused) — the agent is present/connected
+     and doing nothing except not leaving;
+   - **awaiting another agent** 🪷 (a closed bloom, dim) — another agent's
+     work is needed before this one can move on;
+   - **done** ✅ — success;
+   - **failed** ❌ — distinct glyph, never reuses done's green.
+
+12. **Question notifications** (operator via orchestrator, 2026-07-22,
+    operator-origin relay, req c86f7f710fb8) — currently missing entirely:
+    (a) **Render** — a row whose agent is waiting on the operator shows ❓
+        as its notification marker; this is the visible form of the
+        **waiting** state specifically when the wait is on the operator (a
+        sub-case, not a 5th state) — composes with item 9's vocabulary and
+        item 1's no-layout-shift rule.
+    (b) **Source reliability** — today the flag only appears if the agent
+        remembers to broadcast `notify_user`; a question asked through the
+        harness's own dialog never reaches the bus. Make it mechanical: a
+        hook on the harness's notification/question event auto-broadcasts
+        the waiting-on-operator flag, independent of model diligence.
 10. **Project header rendering**: the project title centered over a
     background GRADIENT rendered with half-block cells (▀▄), in the
     traditional orchid colour (the classic orchid #DA70D6 family) — except
@@ -90,13 +125,15 @@ The operator's itemized list, verbatim in substance:
     SCOPE LIMIT (operator, 2026-07-22): the title scheme applies ONLY to
     orchid-managed tabs/windows — the operator keeps separate personal tabs
     that this change must never touch.
-    GRAMMAR (operator, 2026-07-22): deriving the human name from a task id
-    is a GRAMMATICAL conversion, not a mechanical dash-to-space — the
-    imperative-vs-declarative rule as ORIGINALLY specified in the naming
-    contract ([[session-naming]], gh#34): ids carry the imperative/verbal
-    form, displayed titles are DECLARATIVE noun phrases — e.g.
-    `field-projecting` renders as "field projection" — wherever titles are
-    displayed.
+    GRAMMAR — RESOLVED (operator, 2026-07-22, direct): NOT a runtime
+    conversion. The declarative form ("field projection" vs the id's
+    "field-projecting"/"projecting field") is authored AT THE MOMENT the
+    ledger entry is written — i.e. the board's `[Short title](...)` /
+    sidecar H1, per `AGENTS.files.md` §TODO ("the id is never shown as a
+    bare slug"). Fix: every title-setting call site must read that
+    authored short title as the canonical human name, falling back to the
+    mechanical hyphen-to-space derivation ONLY when no sidecar/short-title
+    exists yet (pre-intake stub) — no grammar-conversion code is built.
 
 ## Testing
 
