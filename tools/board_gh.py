@@ -90,6 +90,7 @@ class Task:
             idx, m["title"], m["path"], m["edges"]
         self.depth = len(m["indent"]) // 2
         self.blocked_by = re.findall(r"\u2298([a-z0-9-]+)", self.edges)
+        self.related = re.findall(r"~([a-z0-9-]+)", self.edges)
         self.tags = re.findall(r"#([a-z0-9-]+)", self.edges)
         self.children = []
         parts = [p.strip() for p in m["badge"].split("·")]
@@ -154,7 +155,7 @@ def sidecar_questions(root: Path, rel: str) -> str:
     return m.group(1).strip() if m else ""
 
 
-def issue_body(board: Board, t: Task) -> str:
+def issue_body(board: Board, t: Task, by_id: dict) -> str:
     lines = [
         f"`{t.type} · {t.status} · {t.urgency or '—'} · "
         f"{t.readiness} · {t.component or '—'}`",
@@ -168,6 +169,11 @@ def issue_body(board: Board, t: Task) -> str:
     if t.children:
         subs = [f"- {'#' + str(c.gh) if c.gh else c.title}" for c in t.children]
         lines += ["", "### Sub-tasks"] + subs
+    if t.related:
+        rel = [by_id[r] for r in t.related if r in by_id]
+        if rel:
+            links = [f"- {'#' + str(r.gh) if r.gh else r.title}" for r in rel]
+            lines += ["", "### Related"] + links
     return "\n".join(lines)
 
 
@@ -233,7 +239,7 @@ def push(board: Board, with_project: bool):
         if t.gh is None:
             continue
         if t.status in ACTIVE:
-            body = issue_body(board, t)
+            body = issue_body(board, t, by_id)
             issue = existing.get(t.gh)
             if issue is None or issue["body"] != body or issue["title"] != t.title:
                 sh("gh", "issue", "edit", "-R", board.repo, str(t.gh),
@@ -253,6 +259,7 @@ def push(board: Board, with_project: bool):
     board.save()
     sync_issue_types(board)
     sync_priority(board)
+    sync_relationships(board, by_id)
     print(f"push {board.repo}: {created} created, {updated} updated, "
           f"{closed} closed")
     if with_project:
@@ -340,6 +347,32 @@ def sync_priority(board: Board):
             continue
         node_id = issue_node_id(board.repo, t.gh)
         set_priority(node_id, field["id"], options[native])
+
+
+# ---------- Relationships (native blocked-by / blocking) ----------
+
+def blocked_by_ids(issue_node_id_: str) -> set:
+    data = gql("""query($id:ID!){node(id:$id){... on Issue{
+        blockedBy(first:50){nodes{number}}}}}""", id=issue_node_id_)
+    return {n["number"] for n in data["data"]["node"]["blockedBy"]["nodes"]}
+
+
+def sync_relationships(board: Board, by_id: dict):
+    for t in board.tasks():
+        if t.gh is None or t.status not in ACTIVE:
+            continue
+        desired = {by_id[b].gh for b in t.blocked_by
+                   if b in by_id and by_id[b].gh is not None}
+        node_id = issue_node_id(board.repo, t.gh)
+        current = blocked_by_ids(node_id)
+        for gh_num in desired - current:
+            gql("""mutation($i:ID!,$b:ID!){addBlockedBy(input:{
+                issueId:$i,blockingIssueId:$b}){clientMutationId}}""",
+                i=node_id, b=issue_node_id(board.repo, gh_num))
+        for gh_num in current - desired:
+            gql("""mutation($i:ID!,$b:ID!){removeBlockedBy(input:{
+                issueId:$i,blockingIssueId:$b}){clientMutationId}}""",
+                i=node_id, b=issue_node_id(board.repo, gh_num))
 
 
 FIELDS_QUERY = """query($id:ID!){node(id:$id){... on ProjectV2{
