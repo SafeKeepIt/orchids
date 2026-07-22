@@ -7,18 +7,12 @@
 
 ## Questions
 
-- **Labels overlap**: since this task was written, the tags-and-labels build
-  (Decision-035) already landed a full label vocabulary in `tools/board_gh.py`
-  (`labels_for`/`TYPE_LABELS`/`URGENCY_LABELS`/`AREA_LABELS`/`TAG_LABELS`) — type,
-  urgency, component, and tags all project as GitHub labels today. Does this
-  task's "labels" bullet drop as already-done, or does it mean something
-  additional (e.g. a *separate* project-field representation on top of the
-  labels)? Recommendation: drop the labels bullet — it duplicates shipped work —
-  and keep this task scoped to what's still missing: a native "Priority"
-  project field (today only "Urgency" exists, single-select, not obviously the
-  same scale), a native "Type" project field (none exists — `Status`, `Urgency`,
-  `Readiness`, `Component` are the only synced fields), and blocked-by/blocking
-  relationship sync (not implemented at all).
+- ~~**Labels overlap**: does the "labels" bullet drop as already-done (the
+  tags-and-labels build shipped the full label vocabulary, Decision-035), or
+  does it mean something additional?~~ RULED (operator, 2026-07-22): neither —
+  the scope is the **sidecar fields generally**: every field the sidecar/board
+  badge carries projects to GitHub. Where a GitHub field exists it MAPS; where
+  none exists it is CREATED. The shipped label projection stands untouched.
 
 ## Findings
 
@@ -35,27 +29,34 @@
 
 ## Proposal
 
-GitHub supports native fields the board already carries; the mirror leaves them
-empty today. Fill them at synchronization so the GitHub view shows exactly the
-board's values:
+The ruling (operator, 2026-07-22): **every field the sidecar/board badge
+carries projects to GitHub — map it to an existing GitHub field where one
+exists, create the field where none does.** The sync leaves no board field
+unmirrored. Applied to today's inventory:
 
 - **priority** — from the badge's urgency (critical / normal / nice-to-have /
-  idea);
+  idea): map to GitHub's native priority representation if the project schema
+  offers one, else create the field;
 - **type** — from the badge's type (bug / feature / refactor / housekeeping /
-  completion);
+  completion): map to GitHub's native issue type where available, else create;
 - **relationships** — blocked-by AND blocking, from the board's ⊘ edges
   (blocking is the reverse direction of a blocked-by edge);
-- **labels** — the additional labels of the tag/label vocabulary the board
-  already carries (Decision-035).
+- **any remaining badge/sidecar field without a GitHub counterpart** — the
+  field is created and synced (Status, Urgency, Readiness, Component already
+  exist as created project fields; the same mechanism extends to whatever the
+  badge carries next).
+
+Already shipped and untouched: the label vocabulary projection
+(tags-and-labels, Decision-035). Parent/child sub-issue nesting stays with
+[[nested-tasks-projecting]].
 
 Expectation set by the operator: on the next synchronization after this lands,
-every mirrored issue carries exactly the same values as the board. Parent/child
-sub-issue nesting stays with [[nested-tasks-projecting]]; the label vocabulary
-itself stays with [[tags-and-labels]] — this task only projects what exists.
+every mirrored issue carries exactly the same values as the board.
 
 ## Testing
 
 One live synchronization, then verify on a sample covering each case — an issue
 with urgency set, one with ⊘ edges in both directions, one with tags — that
 priority, type, both relationship directions, and labels equal the board's
-values exactly.
+values exactly; and that a badge field with no native GitHub counterpart shows
+up as a created project field carrying the board's value.
