@@ -87,9 +87,12 @@ The operator's itemized list, verbatim in substance:
     orchid-managed tabs/windows — the operator keeps separate personal tabs
     that this change must never touch.
     GRAMMAR (operator, 2026-07-22): deriving the human name from a task id
-    is a GRAMMATICAL conversion, not a mechanical dash-to-space: e.g.
-    `field-projecting` renders as "field projection" — gerund ids become
-    natural noun phrases wherever titles are displayed.
+    is a GRAMMATICAL conversion, not a mechanical dash-to-space — the
+    imperative-vs-declarative rule as ORIGINALLY specified in the naming
+    contract ([[session-naming]], gh#34): ids carry the imperative/verbal
+    form, displayed titles are DECLARATIVE noun phrases — e.g.
+    `field-projecting` renders as "field projection" — wherever titles are
+    displayed.
 
 ## Testing
 
