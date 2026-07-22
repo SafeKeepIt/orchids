@@ -15,9 +15,10 @@
   yellow/purple/orange/pink/cyan) — confirm terminal rendering fidelity is
   acceptable in the sidebar's tmux pane before committing to exact hues.
 - ~~Bus singleton: design question?~~ RULED (operator, 2026-07-22,
-  Decision-051): the bus IS a singleton per repository, by design — the
-  per-agent multiplicity is drift, correctived in [[bus-singleton]]. This
-  round renders exactly one bus row.
+  Decision-051): the bus sidecar is a singleton PER AGENT — exactly one
+  each, duplicates/orphans are the defect, correctived in
+  [[bus-singleton]]. This round renders exactly one bus row per live
+  agent: top of the list, italic, greyed, 📬.
 - Emoji set for the status vocabulary (operator invites proposals; current
   proposal in the item below).
 - /orchard `add <path>`: what counts as "an orchids installation in progress"
@@ -49,9 +50,9 @@ The operator's itemized list, verbatim in substance:
 4. **Per-agent color**, matching Claude Code's subagent color palette where
    the terminal allows (see Questions).
 5. **Buses**: shown at the TOP, italic, greyed, with a message icon (📬
-   proposed) — they are expected to always be there; collapse to one row
-   (they are one logical bus). Mechanism-singleton question parked in
-   Questions.
+   proposed) — they are expected to always be there; exactly ONE row per
+   live agent (the per-agent singleton, Decision-051), none for dead
+   agents; duplicates never render.
 6. **Auto-mount**: the orchestrator mounts the sidebar the moment it first
    launches work — no manual mount step.
 7. **Commands**: `/orchard show|hide|add <path>`, where `add` detects whether

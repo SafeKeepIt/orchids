@@ -1,4 +1,4 @@
-# Bus singleton: one message bus per repository, as designed
+# Bus singleton: exactly one bus sidecar per agent, as designed
 
 - created: 2026-07-22
 - created_by: Sebastien Lambla
@@ -9,37 +9,37 @@
 
 ## Questions
 
-- None on the WHAT — Decision-051 rules it: one bus per repository, agents
-  are clients of it. The HOW (how agents share the one bus: a single bus
-  process with per-agent subscriptions, or per-agent clients over shared
-  state) is the build's to design and present.
+- None on the WHAT — Decision-051 rules it: the bus sidecar is a singleton
+  PER AGENT. Every agent loads exactly one; duplicates and orphans are the
+  defect. The HOW of enforcement (spawn guard, liveness-keyed reaping) is
+  the build's to design and present.
 
 ## Findings
 
-- Current state (drift): every agent spawns its own `bus` subagent sidecar
-  at session start; the operator observed several "buses" in the sidebar
-  and ruled the multiplicity a defect (Decision-051). The 2026-07-22
-  orchestrator session even ran TWO bus sidecars at once by mistake —
-  the per-agent pattern invites exactly this.
-- Touches: `agents/bus.md`, `hooks/bus-init.sh`/`bus-end.sh`,
-  `tools/bus.py`, the bus-loading instruction every agent receives at
-  SessionStart, and the release choreography (Decision-041's wake-driven
-  release; Decision-048/049 relay rules) — the singleton must preserve the
-  gate-word relay and lifecycle signalling exactly.
+- The per-agent architecture (Decision-041) IS the design. The observed
+  defect is multiplicity beyond it: the 2026-07-22 orchestrator session
+  ran TWO bus sidecars at once (a second spawned by mistake for a
+  broadcast instead of messaging the existing one), and stale bus
+  entries survive their dead agents and keep rendering in the sidebar.
+- Touches: `agents/bus.md` (self-guard: refuse to load if the parent
+  already has a live bus), `hooks/bus-init.sh`/`bus-end.sh`, `tools/bus.py`
+  (announce/registry hygiene), and stray-reaping at orchestrator hygiene
+  passes. The gate-word relay and lifecycle choreography (Decisions
+  041/047/048/049) must be preserved exactly.
 
 ## Proposal
 
-Bring the implementation back to the designed architecture: ONE message bus
-per repository. Agents connect to (announce on, listen through, send via)
-the single bus; no agent spawns a peer bus. Lifecycle: the bus outlives any
-one agent's session; agent close releases its subscription, never the bus.
-The sidebar consequently shows exactly one bus row (rendering handled by
+Enforce the one-bus-per-agent invariant end to end: an agent asking to load
+a bus when it already has a live one gets its EXISTING bus (no second
+spawn); a bus whose parent session is gone is reaped promptly and its
+registry/state entries cleared; the sidebar consequently shows exactly one
+bus row per live agent, none for the dead (rendering handled by
 [[sidebar-polish]] item 5).
 
 ## Testing
 
-With several agents live in one repo (orchestrator + an architect + a
-bloomer), exactly one bus exists on the box; messages, gate-word relays,
-and lifecycle signals all still deliver end-to-end; closing one agent
-leaves the bus serving the others; the last agent's close leaves no
-orphaned bus process.
+Provoke the two failure modes and observe them handled: (1) a parent
+requests a second bus — the request lands on the existing sidecar, no new
+instance appears; (2) kill an agent — its bus and registry entries are
+gone after the reap, and the sidebar shows exactly one bus row per live
+agent throughout.

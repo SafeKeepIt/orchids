@@ -953,14 +953,18 @@ A `plan-ready` badge does not skip the round — it confirms the WHAT is
 current at launch, not merely present. Launches themselves stay
 operator-gated; Decision-027's autonomous kick-off remains gated off.
 
-## [2026-07-22 13:19 CEST] Decision-051: The message bus is a singleton — per repository, by design
+## [2026-07-22 13:19 CEST] Decision-051: The bus sidecar is a singleton — per AGENT, by design
 #bus #singleton #message-bus #architecture #ruling
 
-Ruling (operator, 2026-07-22, verbatim in substance: "singleton message bus
-is how I designed it, it's not up for conversation"): there is ONE message
-bus per repository. The observed multiplicity — a bus sidecar instance per
-agent, presenting as several buses — is DRIFT from the designed
-architecture, not a display quirk and not an open design question. Agents
-communicate THROUGH the one bus; whatever per-agent helper exists is a
-client of it, never a peer bus. Corrective boarded as bus-singleton; the
-sidebar renders exactly one bus row (sidebar-polish item 5).
+Ruling (operator, 2026-07-22): the message-bus sidecar is a singleton PER
+AGENT — every agent loads EXACTLY ONE bus, never more, and it is not up for
+conversation. The per-agent architecture (Decision-041's one-sidecar-per-
+agent) IS the design; the defect the operator observed is multiplicity
+BEYOND one-per-agent: duplicate bus spawns within a session (one occurred
+in the 2026-07-22 orchestrator session) and stale bus rows surviving their
+agent. Corrective boarded as bus-singleton (enforce the one-per-agent
+invariant, reap strays); the sidebar renders exactly one bus row per live
+agent (sidebar-polish item 5).
+[Corrected 13:2x CEST same day: the initial recording misstated the ruling
+as one-bus-per-REPOSITORY — a transcription error by the orchestrator,
+fixed on the operator's immediate clarification.]
