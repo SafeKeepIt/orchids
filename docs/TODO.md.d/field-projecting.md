@@ -29,29 +29,49 @@
 
 ## Proposal
 
-The ruling (operator, 2026-07-22): **every field the sidecar/board badge
-carries projects to GitHub — map it to an existing GitHub field where one
-exists, create the field where none does.** The sync leaves no board field
-unmirrored. Applied to today's inventory:
+Frozen plan, agreed with the operator 2026-07-22 (recorded as Decision-051 —
+see there for the full rationale and the live-schema evidence gathered
+during discovery):
 
-- **priority** — from the badge's urgency (critical / normal / nice-to-have /
-  idea): map to GitHub's native priority representation if the project schema
-  offers one, else create the field;
-- **type** — from the badge's type (bug / feature / refactor / housekeeping /
-  completion): map to GitHub's native issue type where available, else create;
-- **relationships** — blocked-by AND blocking, from the board's ⊘ edges
-  (blocking is the reverse direction of a blocked-by edge);
-- **any remaining badge/sidecar field without a GitHub counterpart** — the
-  field is created and synced (Status, Urgency, Readiness, Component already
-  exist as created project fields; the same mechanism extends to whatever the
-  badge carries next).
+- **type** — set GitHub's **native Issue Type** (`updateIssueIssueType`) for
+  all five board types (bug/feature/refactor/housekeeping/completion). The
+  org (`kaukea`) already has native types Bug and Feature; the missing three
+  (Refactor, Housekeeping, Completion) are created org-wide via
+  `createIssueType`, idempotent ensure-if-missing. The existing emoji label
+  projection for type (Decision-035) is untouched and stays live alongside.
+- **priority** — set GitHub's **native org Issue Field "Priority"**
+  (`setIssueFieldValue`), sourced from board `urgency`. Mapping: `critical`→
+  Urgent, empty/normal→Medium, `nice-to-have`→Low, `idea`→Low (`High` unused).
+  The existing Projects-v2 "Urgency" custom field is KEPT and still written
+  by `project_sync` — both stay live (operator ruling: Urgency stays
+  "absolutely needed" alongside the new Priority field).
+- **relationships** — board `⊘` (blocked_by) syncs to GitHub's **native Issue
+  Dependencies** (`addBlockedBy`/`removeBlockedBy`), full reconciliation each
+  push (add missing, remove stale), same "board is canonical" principle as
+  the label sync. `blocking` needs no separate write — GitHub derives it as
+  blocked_by's inverse view. `~<id>` (`related`) has **no native GitHub
+  equivalent** (confirmed via GraphQL schema introspection — no
+  `relatedIssues` field/mutation, and org Issue Fields don't support an
+  issue-reference data type); it projects as a `### Related` body-text link
+  list, the same mechanism already used for the parent/child sub-tasks list.
+- Parent/child sub-issue nesting stays out of scope, already shipped via
+  [[nested-tasks-projecting]] (body-text list, not GitHub's native sub-issue
+  API). Label vocabulary (Decision-035) stays untouched.
 
-Already shipped and untouched: the label vocabulary projection
-(tags-and-labels, Decision-035). Parent/child sub-issue nesting stays with
-[[nested-tasks-projecting]].
+**Filed as follow-up TODOs, not fixed here** (pre-existing, orthogonal bugs
+found during discovery): `pull()` calls `ensure_label` (singular) but the
+function is `ensure_labels` (plural) — latent `NameError`; `Component` is
+written by `project_sync` without being declared in
+`SELECT_FIELDS`/`TEXT_FIELDS` — works today only because it was created
+out-of-band on the live GitHub Project.
 
-Expectation set by the operator: on the next synchronization after this lands,
-every mirrored issue carries exactly the same values as the board.
+**Build shape**: 3 steps inside `tools/board_gh.py`'s `project_sync` (Type,
+Priority, Relationships), all via the existing `gql()` helper, no new
+dependencies. Independent in logic but share one file — builders dispatch
+sequentially rather than in parallel to avoid conflicting edits.
+
+Expectation set by the operator: on the next synchronization after this
+lands, every mirrored issue carries exactly the same values as the board.
 
 ## Testing
 

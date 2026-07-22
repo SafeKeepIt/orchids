@@ -952,3 +952,50 @@ architect is spawned until the round returns and its Questions are answered.
 A `plan-ready` badge does not skip the round — it confirms the WHAT is
 current at launch, not merely present. Launches themselves stay
 operator-gated; Decision-027's autonomous kick-off remains gated off.
+
+## [2026-07-22 15:20 CEST] Decision-051: Field-projecting targets GitHub's native issue fields, not just Projects v2 columns
+#github #board-sync #priority #issue-type #relationships #urgency #board-gh
+
+Ruling (operator, 2026-07-22), settling [[field-projecting]]. The `kaukea`
+GitHub org already carries native constructs for several board fields
+(confirmed live via GraphQL introspection: org Issue Types Task/Bug/Feature,
+org Issue Field "Priority" with Urgent/High/Medium/Low, and the
+`addBlockedBy`/`removeBlockedBy` Issue Dependencies mutations) — the sync
+targets these NATIVE surfaces, not only Projects v2 custom fields:
+
+- **Type** — `board_gh.py` sets GitHub's native Issue Type
+  (`updateIssueIssueType`) for all five board types. The three missing org
+  types (Refactor, Housekeeping, Completion) are created org-wide via
+  `createIssueType` (idempotent, ensure-if-missing — same shape as the
+  existing `ensure_fields`/`ensure_labels`). The existing emoji label
+  projection for `type` (Decision-035) is untouched and stays live alongside
+  the native type.
+- **Priority** — sourced from board `urgency`, set on GitHub's native org
+  Issue Field "Priority" via `setIssueFieldValue`. Mapping: `critical` →
+  Urgent, empty/normal → Medium, `nice-to-have` → Low, `idea` → Low (`High`
+  is unused by this mapping). The existing Projects-v2 "Urgency" custom field
+  (Status/Urgency/Readiness/Component, shipped pre-existing) is KEPT and
+  still written by `project_sync` — both Urgency and Priority stay live,
+  same source data, two representations (operator ruling: Urgency is
+  "absolutely needed" alongside the new Priority field).
+- **Relationships** — board `⊘` (`blocked_by`) syncs to GitHub's native Issue
+  Dependencies (`addBlockedBy`/`removeBlockedBy`), full reconciliation each
+  push (add missing, remove stale) — same "board is canonical, projection
+  overwrites" principle as the label sync (Decision-035). `blocking` needs no
+  separate write; GitHub derives it as the inverse view of `blocked_by`.
+  `~<id>` (`related`) has **no native GitHub equivalent** — confirmed via
+  schema introspection: no `relatedIssues` field, no `addRelated` mutation,
+  and org Issue Fields only support TEXT/SINGLE_SELECT/DATE/NUMBER/
+  MULTI_SELECT (no issue-reference type). `related` projects as a
+  `### Related` body-text link list, the same mechanism already used for the
+  parent/child sub-tasks list.
+- Parent/child sub-issue nesting stays out of scope — already shipped via
+  [[nested-tasks-projecting]] (body-text sub-tasks list, not GitHub's native
+  sub-issue API).
+
+Two pre-existing bugs noticed during discovery are explicitly OUT of this
+scope, filed as follow-up TODOs instead of fixed inline: `pull()` calls
+`ensure_label` (singular) but the function is `ensure_labels` (plural) — a
+latent `NameError`; and `Component` is written by `project_sync` without
+being declared in `SELECT_FIELDS`/`TEXT_FIELDS` — works today only because
+the field was created out-of-band on the live GitHub Project.
