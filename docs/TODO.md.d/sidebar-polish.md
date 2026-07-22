@@ -14,6 +14,12 @@
 - Per-agent colors: match Claude Code's subagent palette (red/blue/green/
   yellow/purple/orange/pink/cyan) — confirm terminal rendering fidelity is
   acceptable in the sidebar's tmux pane before committing to exact hues.
+  CANNOT be resolved by code reading — no rendering test harness exists in
+  the sidebar tooling (`tools/sidebar.py`, `tools/sidebar_model.py` on
+  `f/sidebar-fixes`) and 256-color vs truecolor tmux fidelity is a visual
+  call. Recommendation: implement against the 8 named ANSI colors first
+  (portable everywhere); operator eyeballs the live pane and calls out any
+  hue that reads wrong once the sidebar-fixes build is mounted.
 - ~~Bus singleton: design question?~~ RULED (operator, 2026-07-22,
   Decision-051): the bus sidecar is a singleton PER AGENT — exactly one
   each, duplicates/orphans are the defect, correctived in
@@ -21,9 +27,19 @@
   agent: top of the list, italic, greyed, 📬.
 - Emoji set for the status vocabulary (operator invites proposals; current
   proposal in the item below).
-- /orchard `add <path>`: what counts as "an orchids installation in progress"
-  at a path — .ai.toml present? manifest laydowns partial? Define the
-  detection precisely at bloom time.
+- /orchard `add <path>`: what counts as "an orchids installation in
+  progress" at a path. CANNOT be resolved by code reading — no `/orchard`
+  command exists yet anywhere in the tree (checked `f/sidebar-fixes` and
+  main; only the design sidecars [[orchard]]/[[orchard-launch]]/
+  [[orchard-view]]/[[orchard-summary]] exist, no implementation file).
+  Confirmed from `.ai.toml` (kauk-managed, present at repo root): its
+  presence is the only unambiguous "installed" signal today — there is no
+  existing notion of a "partial manifest laydown" state to detect against.
+  Recommendation: `add <path>` reports "present" iff `<path>/.ai.toml`
+  exists, "not an orchids install" otherwise; defer any partial/in-progress
+  state to a later round once `orchard` itself ships and a real partial-
+  install case is observed. Needs operator confirmation before `add` is
+  built.
 
 ## Findings
 
