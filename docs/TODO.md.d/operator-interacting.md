@@ -24,7 +24,17 @@
   other keypress — no default pick, no dismiss-on-any-key — so a question
   arriving while the operator is typing can never consume in-flight
   keystrokes as an answer. This kills the operator's biggest frustration
-  with the harness dialogs (choices demanded mid-typing). Subagents have no harness-UI
+  with the harness dialogs (choices demanded mid-typing).
+  TIMING RULE (operator, 2026-07-22): while the operator has input in
+  flight, the question does NOT pop — only a passive notice shows ("I have
+  a question", plus the sidebar ❓); the popup renders when the in-flight
+  message is SENT (or the operator goes idle). Deferral first,
+  option-keys-only as the remaining guard.
+  ENFORCEMENT PRINCIPLE (operator, 2026-07-22): the deferral and input
+  rules live in the SCRIPT, so no agent can override them — behaviour is
+  enforced by the architecture, never by instructions an agent might
+  ignore. This is the template for the whole envelope: presentation
+  discipline is the broker's, not the model's. Subagents have no harness-UI
   surface, so an agent broker would render via tmux anyway while paying
   tokens for zero judgment. First live trial ships with [[sidebar-polish]]
   item 12; this task generalises the envelope to gates and summaries once
