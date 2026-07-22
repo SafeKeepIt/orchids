@@ -71,13 +71,13 @@ lives in the **sidecar metadata header** (§Sidecar), not on the board.
   section in the sidecar, set `completed`/`completed_during`; the entry stays as history.
 
 `doing` / `blocked` / `paused` are **retired**: "being worked" and "blocked on answers" are
-now **stages** (readiness), and a deliberately deferred task is just an unripened `queued`.
+now **stages** (readiness), and a deliberately deferred task is just an unbloomed `queued`.
 
 ### `readiness = stage × origin`
 
 Two orthogonal attributes, rendered `<stage>` or `<stage>/<origin>`:
 
-- **stage** (ripening pipeline position): `queued` · `working` · `blocked-on-answers` ·
+- **stage** (blooming pipeline position): `queued` · `working` · `blocked-on-answers` ·
   `plan-ready` · `complete`. `blocked-on-answers` is **derived** from the sidecar
   `## Questions` having open items — the single writer projects it onto the badge at park
   time, so render and the walk never open a sidecar (projection rule).
@@ -123,7 +123,7 @@ our `bug` to fix, even when the symptom surfaces outside our code.
 ## §Sidecar — per-feature design-spec contract
 
 A **sidecar** is the durable contract and working record for ONE task, at
-`docs/TODO.md.d/<task-id>.md` (one file per ripened/active task; `<task-id>` matches the
+`docs/TODO.md.d/<task-id>.md` (one file per bloomed/active task; `<task-id>` matches the
 TODO `{#id}`). It is the single hand-off medium between roles (orchestrator → architect →
 builder → housekeeper); transient chatter travels separately via the uncommittable
 `.git/` handover (`handover` skill), never here. The TODO
@@ -180,7 +180,7 @@ In particular `blocked-on-answers` is projected from this sidecar's `## Question
 open items. The sidecar is the single writer of its own stage.
 
 **Single writer** — exactly one role holds and writes a sidecar at a time (the
-orchestrator/ripening role while parked, the architect while active). A hand-off is a
+orchestrator/blooming role while parked, the architect while active). A hand-off is a
 stage transition, not a copy.
 
 ---

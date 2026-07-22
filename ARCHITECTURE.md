@@ -7,7 +7,7 @@ package-resident summary.
 ## The operating model — one pipeline, walked by real agents
 
 ```
-ripen → [Questions] → select → [pick-HOW] → build·test loop
+bloom → [Questions] → select → [pick-HOW] → build·test loop
       → [sudo/on-box] [manual-test] → [MAKE IT SO] → close
 ```
 
@@ -23,7 +23,7 @@ build approval are human-only, always.
 | Role | Model | Dispatch | Scope & boundary |
 |---|---|---|---|
 | orchestrator | opus | top-level session (`claude --agent orchestrator`) | Knows the board, prioritises, holds MOOD, hands ONE feature to an architect on explicit operator go. Never codes; never opens a sidecar in steady state. Authors only the workflow component, directly on `main`. |
-| ripener | sonnet | dispatched per parked task | Prep only: advances one task's readiness, fleshes its sidecar, commits. Never builds, branches, or opens PRs; build-ready parks at `plan-ready`. |
+| bloomer | sonnet | dispatched per parked task | Prep only: advances one task's readiness, fleshes its sidecar, commits. Never builds, branches, or opens PRs; build-ready parks at `plan-ready`. |
 | architect | opus | worktree session (`.claude/worktrees/<id>`, branch `f/<id>`) | One feature; its sidecar is the whole scope. Read-only discovery (parallel explorers) → plan agreed with the operator → **no file edit before MAKE IT SO** → builds/tests → on the operator's `THAT IS ALL`, countersigns and signals `finished` on the bus. Never reads the board or prior conversation. |
 | builder | sonnet | headless subagent from the architect | Exactly one step-spec; returns typed diff + self-test. |
 | housekeeper | sonnet | headless, in the MAIN repo, dispatched on the architect's `finished` signal | The deterministic close: verify docs, tag, squash-merge, push, remove worktree + branch. Verifies documentation, never authors it. |
@@ -58,8 +58,8 @@ GitHub action (comment, commit, PR, push, merge) is signed by **`callabloom[bot]
 a kaukea GitHub App token minted per hop from org secrets (`CALLABLOOM_APP_ID` /
 `CALLABLOOM_PRIVATE_KEY`), falling back to the built-in `github.token` when absent.
 `issue_comment` fires only from the default branch — pre-merge, hops are
-exercised via `workflow_dispatch` (inputs: hop, issue). Intake and ripening run
-as manual issue comments until the ripener charter lands; operator-less
+exercised via `workflow_dispatch` (inputs: hop, issue). Intake and blooming run
+as manual issue comments until the bloomer charter lands; operator-less
 statistical kick-off is deferred with it.
 
 ## The message bus

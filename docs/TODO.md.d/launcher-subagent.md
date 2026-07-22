@@ -30,6 +30,6 @@ handoff step is mode-agnostic.
 
 ## Testing
 
-To agree when ripened — expected: a local handoff through the launcher yields
+To agree when bloomed — expected: a local handoff through the launcher yields
 the same worktree/pane topology as today; the orchestrator no longer runs
 git worktree/tmux commands itself.

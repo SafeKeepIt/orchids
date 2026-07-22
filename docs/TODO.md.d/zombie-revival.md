@@ -65,7 +65,7 @@ bypass the gate and burn tokens):
 
 ## Testing
 
-To agree when ripened — expected shape: kill a session, send it a message → the script
+To agree when bloomed — expected shape: kill a session, send it a message → the script
 revives it (correct worktree, correct role, via resume) and the message arrives; N
 concurrent sends to the same zombie produce exactly ONE respawn and N delivered
 messages.

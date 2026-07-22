@@ -28,7 +28,7 @@
   instrument beats free-form questioning — the same problem psychometrics solves for
   latent constructs (the intended feature is the latent variable; scope questions are
   the items).
-- PROMOTED to the ripener's standard charter (Decision-027): the ripener closes the
+- PROMOTED to the bloomer's standard charter (Decision-027): the bloomer closes the
   functionality scope with targeted questions on functional completeness, leaves loose
   ends as explicit voluntary deferrals, and decides by a statistical-probability
   criterion that the scope is well enough defined — then kicks the architect off

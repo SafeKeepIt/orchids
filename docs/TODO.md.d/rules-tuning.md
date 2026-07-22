@@ -77,6 +77,6 @@ Findings. Cloud emit wiring travels with the unlanded cloud-architect branch.
 
 ## Testing
 
-To agree when ripened — expected shape: a rule deliberately made slightly wrong
+To agree when bloomed — expected shape: a rule deliberately made slightly wrong
 produces deviation reports whose optimization measurably reduces the deviation
 rate without regressing task outcomes.

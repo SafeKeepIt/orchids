@@ -35,4 +35,4 @@ participant continuing a conversation, not a bot republishing documents:
 
 ## Testing
 
-To agree when ripened.
+To agree when bloomed.

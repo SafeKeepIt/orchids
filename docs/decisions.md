@@ -931,3 +931,24 @@ cryptography: on a cooperative single-operator fleet where NO bus message is
 authenticated, the spoofable-bypass finding raised by the security scan is an
 ACCEPTED, operator-sanctioned trade-off. Peer prose without the flag still
 never closes a gate.
+
+## [2026-07-22 12:15 CEST] Decision-050: The bloom vocabulary, and a mandatory bloom round at every handoff
+#bloom #bloomer #vocabulary #rename #handoff #what-bar #scope #bloom-tasks
+
+Ruling (operator, 2026-07-22): the ripen word family is retired and replaced
+by **bloom/bloomer** — tasks bloom until pickable; the prep agent is the
+bloomer; the skill is `bloom-tasks` (verb-object convention). Supersedes the
+word choice of Decision-026 (groom→ripen); executes the retirement task
+(gh#27). Renames ship with migration `2026-07-22-bloom-tasks-rename.md`; the
+bloom commit template becomes `🌸 bloom: <id> → <stage>`; the swept-SHA state
+file becomes `.claude/state/last-bloom.sha`.
+
+Second ruling in the same order: the bloomer runs **at EVERY handoff** as a
+mandatory pre-launch bloom round — part of the WHAT definition, before the
+architect gets involved. On an operator go, the orchestrator dispatches the
+bloomer on the picked task FIRST (step 0 of the handoff); it closes the WHAT
+with the targeted functional-completeness questions of Decision-027, and no
+architect is spawned until the round returns and its Questions are answered.
+A `plan-ready` badge does not skip the round — it confirms the WHAT is
+current at launch, not merely present. Launches themselves stay
+operator-gated; Decision-027's autonomous kick-off remains gated off.

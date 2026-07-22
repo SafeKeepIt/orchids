@@ -19,8 +19,8 @@
 
 ## Proposal
 
-To ripen last.
+To bloom last.
 
 ## Testing
 
-To agree when ripened.
+To agree when bloomed.

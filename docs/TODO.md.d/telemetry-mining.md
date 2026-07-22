@@ -19,8 +19,8 @@
 
 ## Proposal
 
-To ripen from evidence once notes accumulate.
+To bloom from evidence once notes accumulate.
 
 ## Testing
 
-To agree when ripened.
+To agree when bloomed.

@@ -27,5 +27,5 @@ interactive close alike.
 
 ## Testing
 
-To agree when ripened — expected: an unapproved PR to main cannot merge; a
+To agree when bloomed — expected: an unapproved PR to main cannot merge; a
 callabloom merge after operator approval passes.

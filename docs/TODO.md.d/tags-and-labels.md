@@ -36,7 +36,7 @@ stays canonical; projection direction per the round-trip answer.
 
 ## Testing
 
-To agree when ripened — expected shape: a board line carrying a tag and an
+To agree when bloomed — expected shape: a board line carrying a tag and an
 urgency projects to an issue wearing the matching emoji labels; the label set on
 GitHub equals what the board line says, for every projected issue.
 

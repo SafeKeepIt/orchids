@@ -9,7 +9,7 @@
 ## Questions
 
 - Gating for agent-written rule changes: structural provenance, not prose (the
-  madmax pattern, Decision-031) — exact mechanism to rule at ripening.
+  madmax pattern, Decision-031) — exact mechanism to rule at blooming.
 
 ## Findings
 
@@ -18,8 +18,8 @@
 
 ## Proposal
 
-To ripen from mining evidence.
+To bloom from mining evidence.
 
 ## Testing
 
-To agree when ripened.
+To agree when bloomed.

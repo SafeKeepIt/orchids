@@ -59,6 +59,6 @@ local and cloud; only the may-it-ask seam differs.
 
 ## Testing
 
-To agree when ripened — expected: two concurrent feature closes land in a
+To agree when bloomed — expected: two concurrent feature closes land in a
 deterministic order with changelog entries in merge order and notes on the
 squash commits.

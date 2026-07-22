@@ -18,11 +18,11 @@
 
 ## Proposal
 
-A Routine as an NL-trigger/ripener layer: on natural-language policy ("a
-feature with a spec appeared — ripen it; if uncontroversial, open the flow"),
+A Routine as an NL-trigger/bloomer layer: on natural-language policy ("a
+feature with a spec appeared — bloom it; if uncontroversial, open the flow"),
 it dispatches the GitHub Actions cloud-path workflow, which then runs as
 callabloom[bot].
 
 ## Testing
 
-To agree when ripened.
+To agree when bloomed.

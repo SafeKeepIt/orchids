@@ -33,6 +33,6 @@ decisions.md, sidecars, and the board_gh projection bodies.
 
 ## Testing
 
-To agree when ripened — expected shape: clicking any reference in a GitHub-rendered
+To agree when bloomed — expected shape: clicking any reference in a GitHub-rendered
 doc lands on the target document at the referenced entry/line; a sweep-checker greps
 zero bare `Decision-NNN` / `[[id]]` mentions without link syntax.
