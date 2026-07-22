@@ -35,11 +35,16 @@
    in `bus.py` with a JSON Schema alongside `message.schema.json` (the
    fleet-documenting family). Every bug/item/request an agent holds for the
    orchestrator travels this way — no other channel.
-2. **The sidecar guard hook**: a PreToolUse hook (shipped settings) denying
-   Edit/Write under `docs/TODO.md.d/` unless the target is the session's
-   OWN feature sidecar (resolved from the worktree id) — the carve-out a
-   glob deny cannot express. The board index deny at spawn stays as
-   chartered.
+2. **The agent-scoped guard hook** (verified 2026-07-22 against current
+   docs: PreToolUse hook input carries `agent_type` and `agent_id`): ONE
+   shipped-settings PreToolUse hook on Edit|Write denies board-index
+   writes AND foreign-sidecar writes for every agent_type except
+   orchestrator/housekeeper/bloomer, allowing an architect only its own
+   feature's sidecar (resolved from the worktree id). This IS the
+   agent-restricted deny the native permission syntax cannot express
+   (frontmatter has only whole-tool removal; settings denies are
+   session-wide). The spawn-time worktree settings.local deny stays as the
+   second wall.
 3. Agent defs reference the message type as the ONLY intake path (the
    ledger rule of 2026-07-22 feeds it at close).
 
