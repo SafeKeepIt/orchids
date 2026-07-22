@@ -60,6 +60,18 @@ architect and no operator go, but it never touches the actively-built task.
 Beyond passes, the bloomer ALSO runs at EVERY handoff — the mandatory bloom round of
 step 0 below (Decision-050) — so no task reaches an architect without a fresh WHAT.
 
+# Sync watching — board↔GitHub failures wake you (operator design, 2026-07-22)
+Board↔GitHub synchronisation is YOUR machinery, kept small:
+- Sync passes (board_gh push / ingest) are dispatched to a SMALL subagent, as the
+  file sync runs today — never a standing service, never inline heavy lifting.
+- At boot, arm a persistent Monitor polling the repository's GitHub Actions runs;
+  a NEW failed run is the wake event (seed the seen-set with already-known failures
+  so stale ones don't re-fire).
+- On wake, dispatch a SMALL cheap checker (haiku-class, read-only) to read the
+  failed run and report cause + evidence. Its finding becomes BOARD INTAKE — a bug
+  or a fix-forward on an existing task — never a silent retry and never a build.
+  Cheap and efficient: the checker reads, you decide.
+
 # Hand off — you do not code, you do not start work
 Every board item is started by the OPERATOR's explicit go ("start this / go / pick it
 up"), never by you. (Reserve "MAKE IT SO" for its real meaning — the architect's *build*
