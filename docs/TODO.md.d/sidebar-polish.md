@@ -127,6 +127,24 @@ The operator's itemized list, verbatim in substance:
         mid-typing; stray in-flight keystrokes must bounce off harmlessly,
         never count as an answer. **Test requirement**: feed non-option
         keys first, then an option key — only the option key registers.
+    (e) **Popup deferral while operator is typing** (operator via
+        orchestrator, 2026-07-22, operator-origin relay, req
+        3f296674aa62): while the operator has input in flight, a new
+        question does NOT pop. It announces passively — the sidebar ❓ plus
+        a quiet one-line "I have a question" notice through the agent — and
+        the popup itself renders only when the operator's in-flight message
+        is SENT (or they go idle). Signal: the harness's `UserPromptSubmit`
+        hook fires on submission inside a claude session; recent-activity
+        idle detection is the fallback for typing outside one. Deferral is
+        the PRIMARY protection; the only-option-keys rule (12d) remains the
+        guard for whatever still slips through. Folds into the same queued
+        popup step (12c/12d).
+    (f) **Presentation discipline is the broker's, not the model's**
+        (operator via orchestrator, 2026-07-22, operator-origin relay, req
+        383f0a0071a6): the deferral (12e) and input rules (12d) live in the
+        SCRIPT — an agent cannot override them. Enforced by architecture,
+        never left to model instructions: the asking agent's interface has
+        NO parameter that skips deferral or widens the accepted keys.
 10. **Project header rendering**: the project title centered over a
     background GRADIENT rendered with half-block cells (▀▄), in the
     traditional orchid colour (the classic orchid #DA70D6 family) — except
