@@ -203,6 +203,13 @@ The operator's itemized list, verbatim in substance:
         the PRIMARY protection; the only-option-keys rule (12d) remains the
         guard for whatever still slips through. Folds into the same queued
         popup step (12c/12d).
+
+        EXACT WORDING (operator, 2026-07-22, direct): the passive notice
+        text is `"I have a question: <title>…"` — using the (g)-added
+        `--title` field as `<subject>`, ellipsis, nothing more. Confirm
+        this exact format is what's rendered, and that the popup itself
+        stays suppressed until the operator's in-flight message is sent
+        (or they go idle) — not just that SOME passive signal exists.
     (f) **Presentation discipline is the broker's, not the model's**
         (operator via orchestrator, 2026-07-22, operator-origin relay, req
         383f0a0071a6): the deferral (12e) and input rules (12d) live in the
