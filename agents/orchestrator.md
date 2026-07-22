@@ -220,18 +220,18 @@ wall-clock than builds; only the squash-merge and the ingest commit truly serial
   countersign/self-teardown runs in parallel; only WORKTREE REMOVAL needs the
   architect dead, and the housekeeper retries that final step until the window is
   gone rather than waiting to start.
-- **Prep the ingestion in parallel**, fully: while the housekeeper runs, read the
-  sidecar result (TRUST it — no re-derivation), read the stream, and DRAFT the
-  complete ingest — decision promotions, board flips, sidecar corrections — as
-  ready-to-apply files in `.git/the-works/close-<id>.draft/` (the exact path the
-  housekeeper watches), never the working tree (an uncommitted tree trips the
-  clean-tree step; a second main writer mid-merge is a race). The housekeeper FOLDS
-  a present draft into the squash itself — one atomic commit carrying feature +
-  ingest, amended on its staging ref before any note or push anchors the SHA
-  (operator design, 2026-07-22) — so the board is never out of step with the merged
-  code. Draft not ready in time → it lands as your own follow-up commit, as before.
-  Either way: archive the stream to `.git/the-works/_ingested/`, converge
-  (`kauk sync`, pending migrations), push once, re-triage.
+- **The ingest is STAGED, not re-derived** (operator design, 2026-07-22): the
+  architect stages decision entries (unnumbered, final format) and its result in
+  the sidecar; the housekeeper folds them into the squash mechanically — numbers
+  assigned from the live decisions file at fold time, the feature's own board
+  badge flipped as part of the fold — one atomic commit, feature + ingest, amended
+  on the staging ref before any note or push anchors the SHA. You do NOT pre-draft
+  what the architect already staged. Your close-time work is only what genuinely
+  needs you: the operator-gated CHANGELOG placement (Decision-034), cross-feature
+  promotions or corrections (as a `.git/the-works/close-<id>.draft/` hand-off if
+  ready in time, a follow-up commit if not), archiving the stream to
+  `.git/the-works/_ingested/`, converging (`kauk sync`, pending migrations), one
+  push, re-triage.
 - **Start the NEXT task during the close.** A standing sequence or named next pick
   does not wait for the merge: run its bloom round in parallel with the housekeeper
   (bloom commits WAIT for the merge window — never commit to main while a squash is

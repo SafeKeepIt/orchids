@@ -56,14 +56,23 @@ the former `workflow-complete` procedure.
    squash is the integration gate (the branch's base is not forced, Decision-076) —
    if it conflicts, surface the hunks and resolve with the operator; never
    auto-resolve.
-4. **Fold the orchestrator's ingest into the SAME commit.** The orchestrator drafts
-   its ingest (board flip, decision promotions, sidecar corrections) in
-   `.git/the-works/close-<id>.draft/` while you work; if the draft is present,
-   apply it and `git commit --amend` the squash so feature + ingest land as ONE
-   atomic commit (a staging-branch amend before any push or note is invisible and
-   safe; the board is never out of step with the merged code). Draft absent after a
-   short wait → proceed without it (the orchestrator commits ingest separately, as
-   before). NEVER amend after a note or push has anchored the SHA.
+4. **Fold the ingest into the SAME commit — from the sidecar's staged blocks, not a
+   re-read.** The architect staged everything with hot context; you apply it
+   mechanically (operator design, 2026-07-22): append the sidecar's
+   `## Decision entries` to `docs/decisions.md`, assigning each the next free
+   number read from the live file at fold time (never a branch-assigned number);
+   flip the feature's `docs/TODO.md` badge to its close state (`done`/
+   `functional`/`cancelled` per the result — the ONE board edit that is yours, as
+   part of the fold); then `git commit --amend` the squash so feature + ingest land
+   as ONE atomic commit (a staging-branch amend before any push or note is
+   invisible and safe; the board is never out of step with the merged code). If the
+   orchestrator additionally left a draft in `.git/the-works/close-<id>.draft/`
+   (cross-feature promotions, corrections), fold that too; its absence delays
+   nothing. NEVER amend after a note or push has anchored the SHA — and if a SHA
+   change is ever forced on you late (a cherry-pick landing after notes attached, a
+   late amend), REAPPLY rather than roll back: `git notes --ref=<ref> copy <old>
+   <new>` per notes ref, `git tag -f` for any UNPUSHED tag (a pushed tag is never
+   force-moved). One command each; report the reapply in your result.
 5. **Land main**: fast-forward main to the staging ref (`git merge --ff-only`);
    if main moved meanwhile, cherry-pick the composed commit onto main instead
    (same content, new SHA — equally clean). Delete the staging ref.

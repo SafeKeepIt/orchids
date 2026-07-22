@@ -1020,3 +1020,22 @@ exists. The housekeeper also dispatches AT the gate word, in parallel with
 the architect's self-teardown, retrying only the worktree removal until
 the architect's session dies. The genuinely serialized core of a close is
 now a single ref update.
+
+## [2026-07-22 16:18 CEST] Decision-055: The ingest is staged rolling by the builder side and folded mechanically
+#close #ingest #staging #architect #housekeeper #decisions #numbering #scribe
+
+Operator design (2026-07-22), refining Decision-054's atomic close — nobody
+re-reads with cold context what was known hot, and nothing waits for the end:
+- The ARCHITECT stages the ingest AS THE BUILD PROGRESSES — decision entries
+  (in final format, UNNUMBERED: `Decision-NNN`), the changelog block, the
+  result — updated at every landed step, inline or via a small scribe
+  subagent aggregating one commit at a time. A close-time catch-up is the
+  named anti-pattern.
+- The HOUSEKEEPER folds the staged blocks into the squash mechanically:
+  decision numbers assigned from the live file's tail at fold time (branch-
+  assigned numbers collide, live-fired twice on 2026-07-22), and the
+  feature's own board badge flipped as part of the fold — the one board edit
+  a child may make, as close execution.
+- The ORCHESTRATOR no longer pre-drafts what was staged; its close work is
+  the operator-gated CHANGELOG placement, cross-feature promotions and
+  corrections, stream archiving, convergence, one push.

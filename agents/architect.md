@@ -153,7 +153,21 @@ conversation context, personal information — go ONLY into your rolling session
 `$(git rev-parse --git-common-dir)/the-works/<feature-id>/` (uncommittable; the
 orchestrator promotes then archives the stream after reading), NEVER into the committed
 sidecar. Rulings agreed mid-feature go to the log's `## Decisions (pending promotion)`
-— the board and `docs/decisions.md` are the orchestrator's to write, not yours.
+AND, sanitized and in the decisions file's final format, into a sidecar
+`## Decision entries` block — UNNUMBERED (write `Decision-NNN`): the housekeeper
+folds them into `docs/decisions.md` at the close, assigning the next free number
+mechanically at fold time (operator design, 2026-07-22 — a branch-assigned number
+collides with main's, as live-fired twice). The board and `docs/decisions.md` are
+never yours to edit directly; staging final text for the mechanical fold is.
+
+**Staging is ROLLING, never a close-time catch-up** (operator design, 2026-07-22 —
+the same rule the workstream log lives by): update the staged blocks below at EVERY
+landed step/commit — the decision entry when the ruling happens, the changelog line
+when the behaviour lands, the result skeleton as tests pass — inline at the step
+boundary (default: your context is hottest there, and it costs nothing extra), or
+via a small cheap scribe subagent aggregating one commit at a time when your own
+thread is mid-flight. By the gate word, the staged ingest already EXISTS; the close
+gate is a read-through, not authoring.
 
 **You STAGE the repo-level docs — the orchestrator files them (Decision-034).** While the
 feature context is hot, write into your sidecar result, VERBATIM and sanitized: a
