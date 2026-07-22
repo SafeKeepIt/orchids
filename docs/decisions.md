@@ -1196,3 +1196,14 @@ doing, never about tmux state. That inversion is what makes supervision
 possible at all: ONE agent listens to on-closing/on-closed and kills any
 agent that exceeds its allocated time — signals are the truth, the window
 is an implementation detail.
+
+## [2026-07-22, second addendum to Decision-068] The lifecycle supervisor is the orchestrator's own subagent
+#lifecycle #supervision #orchestrator #ownership
+
+Operator ruling, same day: the ONE designated bus-listening killer is a
+subagent OWNED BY THE ORCHESTRATOR, living in its session — the
+orchestrator already holds all the information about every agent
+(announces, allocated-time requests, the dispatch ledger), so supervision
+belongs where the knowledge is. Sibling of the bus-sidecar ownership
+pattern: one supervisor per orchestrator session, not a free-floating
+service.

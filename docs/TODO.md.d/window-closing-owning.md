@@ -9,10 +9,11 @@
 
 ## Questions
 
-- None on the WHAT — Decision-068 rules it fully. HOW (which agent is the
-  designated bus-listening killer — the orchestrator's own supervision or a
-  dedicated listener — and how the sidebar-polish build's shipped-but-
-  untested exit-grace code is reused) is the build's to present.
+- ~~Which agent is the designated killer?~~ RULED (operator, 2026-07-22,
+  second 068 addendum): a subagent OWNED BY THE ORCHESTRATOR, in its
+  session — supervision lives where the fleet knowledge already is
+  (announces, grace requests, dispatch ledger). Remaining HOW (reuse of the
+  polish build's untested exit-grace code) is the build's to present.
 
 ## Findings
 
