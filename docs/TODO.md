@@ -97,7 +97,7 @@ Badge: `type · status · urgency · readiness · area · gh#`.
 - `feature · todo · · blocked-on-answers · process ·` [Operator interacting: questions, gates and summaries as one typed exchange](TODO.md.d/operator-interacting.md) ~message-bus ~sidebar-polish ~hook-choreography
 - `feature · todo · critical · working · process ·` [Capture now: transcripts and logs preserved before the ledger exists](TODO.md.d/capture-now.md)
 - `feature · todo · · working · process ·` [Corpus indexing: inventory-first index of all fleet history](TODO.md.d/corpus-indexing.md) ~capture-now
-- `bug · todo · · working · process ·` [Bloomer forensics: why the built shape diverged from its charter](TODO.md.d/bloomer-forensics.md) ~injection-integrity ~psychometric-discovery
+- `bug · done · · complete · process ·` [Bloomer forensics: why the built shape diverged from its charter](TODO.md.d/bloomer-forensics.md) ~injection-integrity ~psychometric-discovery
 - `feature · todo · · blocked-on-answers · process ·` [Step recording: one authored record, scripted projections](TODO.md.d/step-recording.md) ~handover-contract
 - `feature · todo · nice-to-have · queued · process ·` [Keyword configuring: the gate-phrase table becomes configuration](TODO.md.d/keyword-configuring.md) ~operator-interacting
 - `feature · todo · idea · queued · process · gh#15` [Writing emails — scope to be defined by the operator](TODO.md.d/writing-emails.md)
