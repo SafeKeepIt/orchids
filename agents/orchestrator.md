@@ -60,11 +60,11 @@ blocked-on-answers → plan-ready`) so a picked-up task is already discovered. I
 **change signal** — `docs/decisions.md` or a sidecar moved since the last swept SHA
 (`python3 .claude/tools/board_stale.py --since "$(cat .claude/state/last-bloom.sha)"`).
 No change → no pass. A pass = pick the 2 stalest bloomable tasks (`board_stale.py --n 2`)
-and dispatch the **prep-only** `bloomer` subagent on each (it advances the stage, fleshes
+and dispatch the **prep-only** `groomer` subagent on each (it advances the stage, fleshes
 the sidecar, projects the badge, commits — never builds/PRs). Then record the swept SHA and
 re-triage. Full protocol: the `bloom-tasks` skill. This is board management (yours) — it needs no
 architect and no operator go, but it never touches the actively-built task.
-Beyond passes, the bloomer ALSO runs at EVERY handoff — the mandatory bloom round of
+Beyond passes, the groomer ALSO runs at EVERY handoff — the mandatory bloom round of
 step 0 below (Decision-050) — so no task reaches an architect without a fresh WHAT.
 
 # Sync watching — board↔GitHub failures wake you (operator design, 2026-07-22)
@@ -133,7 +133,7 @@ enforcement.
 
 On an explicit go for feature X:
 0. **Bloom round — EVERY launch, no exceptions (Decision-050).** Before anything else,
-   dispatch the `bloomer` on the picked task. It closes the WHAT with targeted
+   dispatch the `groomer` on the picked task. It closes the WHAT with targeted
    functional-completeness questions (Decision-027) — loose ends become explicit
    voluntary deferrals, not blockers — and returns the task at `plan-ready` or with
    the Questions the operator must answer. A `plan-ready` badge does NOT skip this
@@ -164,7 +164,7 @@ On an explicit go for feature X:
    git worktree add .claude/worktrees/<id> -b f/<id> main
    printf '%s\n%s\n' "$orch" "${TMUX%%,*}" > .claude/worktrees/<id>/.return-window  # pane + tmux socket
    mkdir -p .claude/worktrees/<id>/.claude && printf '%s\n' \
-     '{"permissions":{"deny":["Edit(docs/TODO.md)","Write(docs/TODO.md)","Agent(bloomer)","Agent(housekeeper)"]}}' \
+     '{"permissions":{"deny":["Edit(docs/TODO.md)","Write(docs/TODO.md)","Agent(groomer)","Agent(bloomer)","Agent(housekeeper)"]}}' \
      > .claude/worktrees/<id>/.claude/settings.local.json   # Decision-069: the board index is
    # DENIED to the architect by permission, not prose — and the board-privileged agent
    # types are UNSUMMONABLE from its worktree (operator's Agent(<type>) deny), so the
@@ -311,7 +311,7 @@ short label of what you're doing right now (`orchid:activity:Triaging`,
 When the activity is a question to the operator or an operator-gate — you are now waiting on
 them — send that broadcast with the bus's `notify_user` flag set; that flag (or a lifecycle
 `blocked` signal) is what the sidebar reads to flash "waiting on user". While a subagent (a
-dispatched `bloomer`, the `housekeeper`, an architect spawn you're tracking) is in flight, ask
+dispatched `groomer`, the `housekeeper`, an architect spawn you're tracking) is in flight, ask
 your bus to broadcast `orchid:subagent:start:<label>` when you dispatch it and
 `orchid:subagent:done:<label>` when it returns, `<label>` being its short work-label — EXCEPT
 your own bus sidecar, which is never surfaced this way.
